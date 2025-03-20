@@ -1,0 +1,84 @@
+//Ficheiro com todas as funções relativas a menus
+
+#include "menus.h"
+#include "uteis.h"
+
+/* Mostra menu e processa entrada do utilizador
+ *
+ * @param escrever_menu   Ponteiro para função que mostra um menu específico
+ * @param min_opcao       Valor mínimo aceite do menu
+ * @param max_opcao       Valor máximo aceite do menu
+ *
+ * @return Opção escolhida ou '0' se erro
+ *         
+ * @note Limpa terminal antes de mostrar menu com limpar_terminal()
+ * @note Valida entrada via validacao_menus()
+ * @note Só sai quando adquire uma entrada válida
+ */
+char mostrar_menu(void (*escrever_menu)(), char min_opcao, char max_opcao) { 
+    short valido = 0;
+    char opcao = '0';
+    do {
+        limpar_terminal();
+        escrever_menu();
+        printf("=>Escolha uma opção: ");
+
+        valido = scanf(" %c", &opcao);
+        validacao_menus(&valido, opcao, min_opcao, max_opcao);
+
+        if (valido == 1) {
+            return opcao;
+        }
+    } while (valido == 0);
+
+    return '0';
+}
+
+/*
+As seguintes funções que começam por "menu" servem apenas para printar o menu
+Nas notas das funções estão os limites de cada menu
+*/
+
+/* Menu principal da aplicação
+ *
+ * @return void
+ *         
+ * @note Opções: 0-6
+ */
+void menu_principal() {
+    //https://desenvolvedorinteroperavel.wordpress.com/2011/09/11/tabela-ascii-completa/
+    //Link da tabela ASCII completa de onde foram retirados as duplas barras do menu (a partir do 185 decimal)
+    printf("╔══════════════════════════════════╗\n");
+    printf("║          MENU PRINCIPAL          ║\n");
+    printf("╠══════════════════════════════════╣\n");
+    printf("║  1.              ║\n");
+    printf("║  2.               ║\n");
+    printf("║  3.                  ║\n");
+    printf("║  4.                    ║\n");
+    printf("║  5.                  ║\n");
+    printf("║  6. Opções                       ║\n");
+    printf("║  0. Sair do programa             ║\n");
+    printf("╚══════════════════════════════════╝\n\n");
+}
+
+//Validações
+
+void validacao_menus(short * valido, const char opcao, const char limInf, const char limSup) { 
+    if (*valido != 1) {
+        printf("Entrada inválida! Introduza um número do menu (%c a %c)\n", limInf, limSup); 
+        pressione_enter();
+    }
+    else if (opcao < limInf || opcao > limSup) { 
+        *valido = 0; 
+        printf("Por favor, escolha um número do menu (%c a %c).\n", limInf, limSup);
+        pressione_enter();
+    }
+    //Verificar entradas com mais de um char
+    char lixo = getchar();
+    if (lixo != '\n') {
+        *valido = 0;
+        limpar_buffer(); //\n
+        printf("Por favor, escolha um número do menu (%c a %c).\n", limInf, limSup);
+        pressione_enter();
+    }
+}
