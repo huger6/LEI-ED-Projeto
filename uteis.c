@@ -1,5 +1,7 @@
 #include "uteis.h"
 
+Data DATA_ATUAL = {0,0,0,0,0,0.0f}; //var global para guardar a data atual
+
 /* Limpa buffer do teclado
  *
  * @return void
@@ -79,6 +81,242 @@ void colocar_terminal_utf8() {
     #endif
 }
 
+/* Gera um int aleatório entre min e max
+ *
+ * @param min   Número mínimo a ser gerado
+ * @param max   Número máximo a ser gerado
+ * 
+ * @return int    
+ *         
+ * @note Necessário fazer srand(time(NULL)) antes de usar (apenas uma vez)
+ */
 int randomInt(int min, int max) {
     return min + rand() % (max - min + 1);
+}
+
+/* Atualiza a data atual global
+ *
+ * @return void
+ *         
+ * @note Usa time.h para data do sistema
+ * @note Ajusta mês de 0-11 para 1-12
+ * @note Ajusta ano desde 1900
+ */
+void data_atual() {
+    time_t t = time(NULL);
+    struct tm * tm_atual = localtime(&t);
+    
+    //Passar para a variável global
+    DATA_ATUAL.dia = tm_atual->tm_mday;
+    DATA_ATUAL.mes = tm_atual->tm_mon + 1; //tm_mon vai de 0-11
+    DATA_ATUAL.ano = tm_atual->tm_year + 1900;
+    DATA_ATUAL.hora = 0;
+    DATA_ATUAL.minuto = 0;
+    DATA_ATUAL.segundos = 0.0f;
+}
+
+void medirTempo(void (*funcao())) {
+    return;
+}
+
+/* Pede confirmação S/N ao utilizador
+ *
+ * @param mensagem   Mensagem/pergunta seguida de uma resposta do tipo sim/não
+ * 
+ * @return int    1 se S/s, 0 se N/n
+ *         
+ * @note Case insensitive
+ * @note Limpa buffer
+ * @note Só retorna se obter resposta
+ */
+int sim_nao(char * mensagem) {
+    char opcao;
+    do {
+        printf("%s (S/N): ", mensagem);
+        scanf(" %c", &opcao);
+        //Verificar entradas inválidas
+        if (!verificar_e_limpar_buffer()) {
+            printf("Entrada inválida! Por favor tente novamente. Utilize 'S' ou 'N': ");
+            continue;
+        }
+        if (opcao == 's' || opcao == 'S') {
+            return 1;
+        }
+        else if (opcao == 'n' || opcao == 'N') {
+            return 0;
+        }
+        printf("\nOpção inválida. Use 'S' ou 'N': ");
+    } while (1);
+}
+
+/* Normaliza uma string removendo acentos e convertendo para minúsculas
+ *
+ * @param str    String a normalizar. Deve estar codificada em UTF-8.
+ *               Não é modificada pela função.
+ *
+ * @return char* Nova string alocada dinamicamente contendo:
+ *         - String normalizada sem acentos e em minúsculas
+ *         - NULL se str for NULL ou ocorrer erro de memória
+ *         
+ * @note Arrays estáticos usados para mapear caracteres acentuados para não acentuados
+ * @note A string retornada deve ser libertada com free()
+ * @note Suporta caracteres UTF-8 multi-byte através de strstr()
+ */
+char * normalizar_string(char * str) {
+    if (!str) return NULL;
+    
+    const char * acentos[] = {"á","à","ã","â","ä","é","è","ê","ë","í","ì","î","ï",
+                            "ó","ò","õ","ô","ö","ú","ù","û","ü","ý","ÿ","ñ","ç",
+                            "Á","À","Ã","Â","Ä","É","È","Ê","Ë","Í","Ì","Î","Ï",
+                            "Ó","Ò","Õ","Ô","Ö","Ú","Ù","Û","Ü","Ý","Ÿ","Ñ","Ç"};
+    const char * sem_acentos[] = {"a","a","a","a","a","e","e","e","e","i","i","i","i",
+                                "o","o","o","o","o","u","u","u","u","y","y","n","c",
+                                "A","A","A","A","A","E","E","E","E","I","I","I","I",
+                                "O","O","O","O","O","U","U","U","U","Y","Y","N","C"};
+    const int n_chars = sizeof(acentos)/sizeof(acentos[0]);
+
+    //Duplicar string original
+    char * resultado = strdup(str);
+    if (!resultado) return NULL;
+
+    //Para cada caracter acentuado possível
+    for (int i = 0; i < n_chars; i++) {
+        //Alocar string temporária
+        char * temp = NULL;
+        //Enquanto encontrar ocorrências do acento atual
+        const char * pos = strstr(resultado, acentos[i]);
+        while (pos != NULL) {
+            int indice = pos - resultado;
+            //Realocar string com espaço para substituição
+            temp = malloc(strlen(resultado) + 1);
+            if (!temp) {
+                free(resultado);
+                return NULL;
+            }
+            //Copiar parte antes do acento
+            strncpy(temp, resultado, indice);
+            temp[indice] = '\0';
+            //Adicionar char sem acento
+            strcat(temp, sem_acentos[i]);
+            //Adicionar resto da string
+            strcat(temp, pos + strlen(acentos[i]));
+            //Atualizar resultado
+            free(resultado);
+            resultado = temp;
+            pos = strstr(resultado, acentos[i]);
+        }
+    }
+
+    //Converter para minúsculas
+    strlwrSafe(resultado);
+    return resultado;
+}
+ 
+/* Converte string para minúsculas
+ *
+ * @param str   String a converter
+ * 
+ * @return Ponteiro para a string convertida ou NULL se:
+ *         - str for NULL
+ *         
+ * @note Modifica a string original
+ * @note Usa unsigned char para suportar caracteres estendidos ASCII
+ * @note Versão segura do strlwr() da string.h (para linux)
+ */
+char * strlwrSafe(char * str) {
+    if (!str) return NULL;
+    
+    unsigned char * p = (unsigned char *)str;
+
+    while (*p) {
+        *p = tolower((unsigned char)*p);
+        p++;
+    }
+
+    return str;
+}   
+
+/* Converte string para inteiro
+ *
+ * @param str         String a converter
+ * @param resultado   Ponteiro para guardar resultado
+ *
+ * @return int      1 se sucesso, 0 se erro
+ *         
+ * @note Usa strtol() para conversão
+ * @note Valida limites MIN_INT/MAX_INT
+ * @note Valida conteúdo externo ao short
+ * @note Requer string terminada em \0
+ */
+int stringToInt(const char * str, int * resultado) {
+    char * ptr_fim;
+    long valor = strtol(str, &ptr_fim, 10);
+    //strtol trunca em caso de overflow, daí o <= abaixo
+
+    //Verificar erros de conversão
+    if (ptr_fim == str || *ptr_fim != '\0') {
+        return 0;  //Se o ponteiro de fim da str for igual ao ptr do inicio, não há um int; Se for diferente de nul char então também houve erro porque há caracteres indesejados
+    }
+    
+    //Como strtol converte para longs e nós só queremos ints, pode ler números mais altos que o int conseguiria guardar
+    if (valor >= INT_MAX || valor <= INT_MIN) {
+        return 0; 
+    }
+    
+    *resultado = (int) valor;
+    return 1;
+}
+
+/* Converte string para short
+ *
+ * @param str         String a converter
+ * @param resultado   Ponteiro para guardar resultado
+ *
+ * @return int      1 se sucesso, 0 se erro
+ *         
+ * @note Usa strtol() para conversão 
+ * @note Valida limites MIN_SHORT/MAX_SHORT
+ * @note Valida conteúdo externo ao int
+ * @note Requer string terminada em \0
+ */
+int stringToShort(const char * str, short * resultado) {
+    char * ptr_fim;
+    long valor = strtol(str, &ptr_fim, 10);
+    
+    //Verificar erros de conversão
+    if (ptr_fim == str || *ptr_fim != '\0') {
+        return 0; 
+    }
+    //Verificar limites
+    if (valor >= SHRT_MAX || valor <= SHRT_MIN) {
+        return 0; 
+    }
+    
+    *resultado = (short) valor;
+    return 1;
+}
+
+/* Converte string para float
+ *
+ * @param str         String a converter
+ * @param resultado   Ponteiro para guardar resultado
+ *
+ * @return int      1 se sucesso, 0 se erro
+ *         
+ * @note Usa strtof() para conversão
+ * @note Não precisa validar limites (strtof já o faz)
+ * @note Valida conteúdo externo ao float
+ * @note Requer string terminada em \0
+ */
+int stringToFloat(const char * str, float * resultado) {
+    char * ptr_fim;
+    float valor = strtof(str, &ptr_fim);
+    
+    //Verificar erros de conversão
+    if (ptr_fim == str || *ptr_fim != '\0') {
+        return 0; 
+    }
+    //Já não há necessidade de verificar limites pois converte diretamente para float
+    *resultado = (float) valor;
+    return 1;
 }
