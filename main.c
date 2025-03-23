@@ -1,5 +1,13 @@
 #include "uteis.h"
 #include "menus.h"
+#include "bd.h"
+#include "listaGenerica.h"
+#include "carro.h"
+#include "dono.h"
+#include "distancias.h"
+#include "passagens.h"
+#include "sensores.h"
+
 
 /*
 Aplicação desenvolvida no âmbito da cadeira "Estruturas de Dados" da ESTGV, em 2024-2025.
@@ -29,6 +37,15 @@ int main(void) {
     colocar_terminal_utf8();
     data_atual();
     srand(time(NULL));
+
+    BaseDados * bd = (BaseDados *)malloc(sizeof(BaseDados));
+
+    bd->carros = criarLista();
+    bd->distancias = criarLista();
+    bd.donos = criarLista();
+    bd->passagens = criarLista();
+    bd->sensores = criarLista();
+    
 
     printf("Olá!");
     return 0;

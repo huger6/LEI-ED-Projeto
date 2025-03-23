@@ -1,10 +1,15 @@
+#ifndef DONO_HEADERS
+#define DONO_HEADERS
+
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Dono
-{
-    int numContribuinte;
-    char *nome;
-    short codPostal;
+#include "uteis.h"
 
+typedef struct {
+    int nif; //PRIMARY KEY
+    char *nome;
+    CodPostal codigoPostal;
 } Dono, Pessoa, *ptDono, *ptPessoa;
+
+#endif

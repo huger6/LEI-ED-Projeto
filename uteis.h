@@ -11,9 +11,30 @@
 #include <limits.h>
 
 typedef struct {
-    short ano, mes, dia, hora, minuto;
-    float segundos;
+    short ano, mes, dia, hora, min;
+    float seg;
 } Data;
+
+typedef struct {
+    short zona; //Primeiros 4 dígitos
+    short local; //Últimos 3 dígitos
+} CodPostal;
+
+/*
+
+typedef struct {
+    short graus;
+    short min;
+    short seg;
+    char direcao; //N-S-O-E
+} CoordenadasGMS;
+
+typedef struct {
+    char latitude[20]; //char * latitude;
+    char longitude[20];
+} Coord;
+
+*/
 
 extern Data DATA_ATUAL;
 
