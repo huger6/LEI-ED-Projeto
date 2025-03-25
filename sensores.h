@@ -7,7 +7,7 @@
 typedef struct {
     int codSensor; //PRIMARY KEY
     char *designacao;
-    char *latitude; //Pode ser necessário criar uma struct apenas para as coordenadas
+    char *latitude;
     char *longitude;
 } Sensor, *ptSensor;
 

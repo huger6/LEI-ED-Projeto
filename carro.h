@@ -13,8 +13,8 @@ typedef struct {
     char *marca;
     char *modelo;
     short ano;
-    int nifDono; //FOREIGN KEY - REFERENCES Dono(nif)
     int codVeiculo; //PRIMARY KEY
+    Dono *ptrPessoa;
 } Carro, Car, *ptCar, *ptCarro;
 
 

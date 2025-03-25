@@ -320,3 +320,80 @@ int stringToFloat(const char * str, float * resultado) {
     *resultado = (float) valor;
     return 1;
 }
+
+/* Lê uma linha completa de um ficheiro, qualquer que seja o tamanho
+ *
+ * @param ficheiro    Ponteiro para o ficheiro a ler (pode ser stdin)
+ * @param n_linhas    Ponteiro para contador de linhas (pode ser NULL); 
+ *                    incrementado para cada linha lida
+ *
+ * @return Uma string alocada dinamicamente ou NULL se:
+ *         - O ponteiro do ficheiro é NULL
+ *         - A alocação de memória falhar
+ *         - O ficheiro estiver vazio
+ *         
+ * @note A string retornada tem de ser libertada 
+ * @note O caractere de nova linha é removido da string retornada
+ * @note Se a alocação de memória falhar mas alguns dados foram lidos, retorna a linha parcial
+ * @note n_linhas não é inicializado
+ * @note ficheiro deve estar aberto; não é fechado
+ */
+char * lerLinhaTxt(FILE * ficheiro, int * n_linhas) {
+    if(!ficheiro) return NULL;
+    char buffer[TAMANHO_INICIAL_BUFFER]; //Buffer para armazenar parte da linha
+    size_t tamanho_total = 0; //Comprimento da linha; size_t pois é sempre >0 e evita conversões que podem levar a erros com outras funções
+    char * linha = NULL;
+
+    while (fgets(buffer, sizeof(buffer), ficheiro)) { //fgets le ate buffer -1 caracteres ou '\n' ou EOF
+        size_t tamanho = strlen(buffer); //Calcula o tamanho do texto lido
+        char * temp = realloc(linha, tamanho_total + tamanho + 1); //+1 para o nul char
+
+        //Verificar erros na realocação/alocação
+        if (!temp) {
+            //Evitar ao máximo retornar NULL, pois isso terminaria o loop em carregar_dados (ou a ler qualquer ficheiro)
+            if (linha) {
+                linha[tamanho_total] = '\0'; //Linha incompleta mas pelo menos retorna
+                if (n_linhas != NULL) (*n_linhas)++;
+                return linha;
+            }
+            return NULL; //Caso haja um erro fatal, temos que interromper
+        }
+        linha = temp; //atualizar o ponteiro linha para apontar para a nova memória
+
+        //Copiar o conteúdo lido para a linha total
+        //linha + tamanho_total é um ponteiro para a posição da memória seguinte para onde a próxima parte de buffer será copiada
+        memmove(linha + tamanho_total, buffer, tamanho); 
+        tamanho_total += tamanho;
+        //Se houver mais que uma leitura, o primeiro char da segunda leitura de fgets irá substituir o nul char, pelo que fica sempre no fim
+        linha[tamanho_total] = '\0'; 
+
+        //Verificamos se a linha está completa
+        if (tamanho_total > 0 && linha[tamanho_total - 1] == '\n') { //se tudo tiver sido copiado, o ultimo caracter do buffer(e da linha também) será o '\n'
+            tamanho_total--;
+            linha[tamanho_total] = '\0';
+            //Remover \r caso exista 
+            if (tamanho_total > 0 && linha[tamanho_total - 1] == '\r') {
+                tamanho_total--;
+                linha[tamanho_total] = '\0';
+            }
+            if (n_linhas != NULL) (*n_linhas)++;
+            return linha;
+        }
+    }
+
+    //Linha sem '\n' mas tem conteúdo (por ex: última linha)
+    if (linha && tamanho_total > 0) {
+        // Remove \r final se presente
+        if (linha[tamanho_total - 1] == '\r') {
+            linha[tamanho_total - 1] = '\0';
+        }
+        if (n_linhas != NULL) (*n_linhas)++;
+        return linha;
+    }
+
+    //Se chegarmos aqui é porque aconteceu algum erro ou o ficheiro está vazio
+    free(linha);
+    return NULL;
+}
+
+

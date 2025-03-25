@@ -20,22 +20,6 @@ typedef struct {
     short local; //Últimos 3 dígitos
 } CodPostal;
 
-/*
-
-typedef struct {
-    short graus;
-    short min;
-    short seg;
-    char direcao; //N-S-O-E
-} CoordenadasGMS;
-
-typedef struct {
-    char latitude[20]; //char * latitude;
-    char longitude[20];
-} Coord;
-
-*/
-
 extern Data DATA_ATUAL;
 
 void limpar_buffer();
@@ -51,6 +35,7 @@ char * strlwrSafe(char * str);
 int stringToInt(const char * str, int * resultado);
 int stringToShort(const char * str, short * resultado);
 int stringToFloat(const char * str, float * resultado);
+char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
 
 
 void medirTempo(void (*funcao()));
