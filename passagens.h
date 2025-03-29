@@ -10,9 +10,14 @@
 
 typedef struct {
     int idSensor; //PRIMARY KEY / FOREIGN KEY(idSensor) - REFERENCES Sensor(codSensor)
-    int codVeiculo; //FOREIGN KEY - REFERENCES Carro(codVeiculo)
+    Carro * veiculo;
     Data data;
     char tipoRegisto;
 } Passagem, Pass, *ptPassagem, *ptPass;
+
+
+int inserirPassagemLido(BaseDados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
+int compararPassagens(void *passagem1, void *passagem2);
+Carro * obterCarroPorId(BaseDados *bd, int codigo);
 
 #endif

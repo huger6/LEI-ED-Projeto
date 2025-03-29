@@ -1,1 +1,47 @@
 #include "dono.h"
+#include "bd.h"
+#include "listaGenerica.h"
+
+int inserirDonoLido(BaseDados *bd, char *nome, int nif, CodPostal codigoPostal) {
+    if (!bd) return 0;
+
+    Dono *dono = (Dono *)malloc(sizeof(Dono));
+    if (!dono) return 0;
+    //nif
+    dono->nif = nif;
+    //Nome
+    dono->nome = (char *)malloc(strlen(nome) * sizeof(char) + 1);
+    if (!dono->nome) {
+        free(dono);
+        return 0;
+    }
+    strcpy(dono->nome, nome);
+    //Codigo Postal
+    dono->codigoPostal.local = codigoPostal.local;
+    dono->codigoPostal.zona = codigoPostal.zona;
+    
+    if (!addInicioLista(bd->donos, (void *)dono)) return 0;
+
+    return 1;
+}
+
+/**
+ * @brief Comparara donos pelo NIF
+ * 
+ * @param dono1 
+ * @param dono2 
+ * @return int 1 caso dono1 > dono2, 0 caso contrário   
+ */
+int compararDonos(void *dono1, void *dono2) {
+    if (dono1 == NULL && dono2 == NULL) return 0;
+    if (dono1 == NULL) return -1; //NULL < qualquer coisa
+    if (dono2 == NULL) return 1;
+
+    Dono *x = (Dono *)dono1;
+    Dono *y = (Dono *)dono2;
+
+    if (x->nif > y->nif) return 1;
+    if (y->nif < x->nif) return -1;
+    return 0;
+}
+

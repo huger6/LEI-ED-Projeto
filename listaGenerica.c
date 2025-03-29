@@ -120,7 +120,7 @@ int pesquisarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2), void *
 
     No * p = li->inicio;
     while(p) {
-        if ((*compObjs)(p->info, obj)  == 1) 
+        if ((*compObjs)(p->info, obj) == 0) 
             return 1;
         p = p->prox;
     }
@@ -167,7 +167,7 @@ void ordenarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2)) {
         trocou = '0';
         
         while (p) {
-            if ((*compObjs)(a->info, p->info)) {
+            if ((*compObjs)(a->info, p->info) > 0) {
                 trocou = '1'; //trocar p para a posicao de atual
                 a->prox = p->prox;
                 p->prox = a;

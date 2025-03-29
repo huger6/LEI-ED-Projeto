@@ -396,4 +396,46 @@ char * lerLinhaTxt(FILE * ficheiro, int * n_linhas) {
     return NULL;
 }
 
+int converterCodPostal(char * codPostal, short *zona, short *local) {
+    if (!codPostal || !zona || !local) {
+        return 0;
+    }
+    char extra; //guardar /n ou outros caracteres
+
+    if (sscanf(codPostal, "%hd-%hd%c", zona, local, &extra) != 3) {
+        return 0;
+    }
+    return 1;
+}
+
+/**
+ * @brief Compara duas datas
+ * 
+ * @param data1 Data a comparar
+ * @param data2 Data a comparar
+ * @return int -1 se data1 < data2, 0 se iguais, 1 se data1 > data2
+ */
+int compararDatas(Data data1, Data data2) {
+    //Ano
+    if (data1.ano < data2.ano) return -1;
+    if (data1.ano > data2.ano) return 1;
+    //Mês
+    if (data1.mes < data2.mes) return -1;
+    if (data1.mes > data2.mes) return 1;
+    //Dia
+    if (data1.dia < data2.dia) return -1;
+    if (data1.dia > data2.dia) return 1;
+    //Hora
+    if (data1.hora < data2.hora) return -1;
+    if (data1.hora > data2.hora) return 1;
+    //Minuto
+    if (data1.minuto < data2.minuto) return -1;
+    if (data1.minuto > data2.minuto) return 1;
+    //Segundos
+    if (data1.segundos < data2.segundos) return -1;
+    if (data1.segundos > data2.segundos) return 1;
+    
+    //São iguais
+    return 0;
+}
 

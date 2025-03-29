@@ -15,11 +15,6 @@ typedef struct {
     float seg;
 } Data;
 
-typedef struct {
-    short zona; //Primeiros 4 dígitos
-    short local; //Últimos 3 dígitos
-} CodPostal;
-
 extern Data DATA_ATUAL;
 
 void limpar_buffer();
@@ -36,6 +31,8 @@ int stringToInt(const char * str, int * resultado);
 int stringToShort(const char * str, short * resultado);
 int stringToFloat(const char * str, float * resultado);
 char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
+int converterCodPostal(char * codPostal, short *zona, short *local);
+int compararDatas(Data data1, Data data2);
 
 
 void medirTempo(void (*funcao()));
