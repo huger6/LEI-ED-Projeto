@@ -20,7 +20,7 @@ typedef struct {
 
 
 int compararCarros(void *carro1, void *carro2);
-int inserirCarroLido(BaseDados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
-Dono * obterDonoCarro(BaseDados *bd, int nif);
+int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
+Dono * obterDonoCarro(Bdados *bd, int nif);
 
 #endif

@@ -12,7 +12,7 @@ typedef struct {
     Lista * sensores;
     Lista * distancias;
     Lista * passagens;
-} BaseDados;
+} Bdados;
 
 
 

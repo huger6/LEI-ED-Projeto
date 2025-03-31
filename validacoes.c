@@ -1,18 +1,13 @@
-#include <stdio.h>
-#include <string.h>
-#include <wctype.h>
-
 #include "validacoes.h"
 #include "dados.h"
 
 
-int validarNif(int nif) 
+int validarNif(const int nif) 
 {
-    if (!(nif >= 100000000 && nif <= 999999999)) return 1;
     return 1;
 }
 
-char *validarNome(char * nome)
+char * validarNome(const char *nome)
 {
     int comprimento = strlen(nome);
     
@@ -43,20 +38,21 @@ char *validarNome(char * nome)
     return NULL;
 }
 
-int validarCodPostal(short zona, short local)
+int validarCodPostal(const short zona, const short local)
 {
     return 1;
 }
 
-int validarAnoCarro(short ano)
+int validarAnoCarro(const short ano)
 {
-    if ( 1885 > ano > 2025) return 0;
+    if (ano < 1885 || ano > DATA_ATUAL.ano) return 0;
     
     return 1;
 }
 
-int validarMatricula(char *matricula)
+int validarMatricula(const char *matricula)
 {
+    //Ver regex
     if ((isalpha(matricula[0]) && isalpha(matricula[1])) || (isdigit(matricula[0]) && isdigit(matricula[1])))
     {
         if (matricula[2] == '-' && matricula[5] == '-')
@@ -71,4 +67,38 @@ int validarMatricula(char *matricula)
         }
     }
     return 0;
+}
+
+char * validarMarca(const char *marca) {
+    return NULL;
+}
+
+/**
+ * @brief Valida o modelo do veículo
+ * 
+ * @param modelo Modelo
+ * @return char* NULL caso válido, mensagem de erro caso contrário
+ */
+char * validarModelo(const char *modelo) {
+    return NULL;
+}
+
+int validarCodVeiculo(const int codigo) {
+    return 1;
+}
+
+int validarCodSensor(const int codSensor) {
+    return 1;
+}
+
+int validarDistancia(const float distancia) {
+    return 1;
+}
+
+int validarData(const Data date) {
+    return 1;
+}
+
+int validarTipoRegisto(const char tipoRegisto) {
+    return 1;
 }

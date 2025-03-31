@@ -1,7 +1,7 @@
 #include "distancias.h"
-#include "bd.h"
+#include "bdados.h"
 
-int inserirDistanciaLido(BaseDados *bd, int codSensor1, int codSensor2, float distancia) {
+int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float distancia) {
     if (!bd || !bd->distancias) return 0;
 
     Distancias * km = (Distancias *)malloc(sizeof(Distancias));
@@ -33,7 +33,7 @@ int compararDistancias(void *dist1, void *dist2) {
     return 0;
 }
 
-Sensor * obterSensorPorId(BaseDados *bd, int codigo) {
+Sensor * obterSensorPorId(Bdados *bd, int codigo) {
     if (!bd || !bd->sensores || !bd->sensores->inicio) return NULL;
 
     No *p = bd->sensores->inicio;

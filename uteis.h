@@ -16,6 +16,15 @@ typedef struct {
 } Data;
 
 extern Data DATA_ATUAL;
+extern char autosaveON;
+extern char *fLogs;
+extern char *fDonos;
+extern char *fCarros;
+extern char *fSensores;
+extern char *fDistancias;
+extern char *fPassagens;
+
+
 
 void limpar_buffer();
 int verificar_e_limpar_buffer();
@@ -33,6 +42,7 @@ int stringToFloat(const char * str, float * resultado);
 char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
 int converterCodPostal(char * codPostal, short *zona, short *local);
 int compararDatas(Data data1, Data data2);
+char * converterParaData(const char *strData, Data * data);
 
 
 void medirTempo(void (*funcao()));

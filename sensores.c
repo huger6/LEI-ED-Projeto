@@ -1,8 +1,8 @@
 #include "sensores.h"
-#include "bd.h"
+#include "bdados.h"
 #include 
 
-int inserirSensorLido(BaseDados *bd, int codSensor, char *designacao, char *latitude, char *longitude) {
+int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude) {
     if (!bd || !designacao || !latitude || !longitude) return 0;
 
     Sensor * sen = (Sensor *)malloc(sizeof(sen));

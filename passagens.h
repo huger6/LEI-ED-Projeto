@@ -16,8 +16,9 @@ typedef struct {
 } Passagem, Pass, *ptPassagem, *ptPass;
 
 
-int inserirPassagemLido(BaseDados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
+int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
 int compararPassagens(void *passagem1, void *passagem2);
-Carro * obterCarroPorId(BaseDados *bd, int codigo);
+Carro * obterCarroPorId(Bdados *bd, int codigo);
+
 
 #endif

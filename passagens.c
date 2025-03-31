@@ -1,7 +1,7 @@
 #include "passagens.h"
-#include "bd.h"	
+#include "bdados.h"	
 
-int inserirPassagemLido(BaseDados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto) {
+int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto) {
     if (!bd || !bd->passagens) return 0;
 
     Passagem * pas = (Passagem *)malloc(Passagem);
@@ -33,7 +33,7 @@ int compararPassagens(void *passagem1, void *passagem2) {
     return (compararDatas(x->data, y->data));
 }
 
-Carro * obterCarroPorId(BaseDados *bd, int codigo) {
+Carro * obterCarroPorId(Bdados *bd, int codigo) {
     if (!bd || !bd->carros || !bd->carros->inicio) return 0;
 
     No *p = bd->carros->inicio;
