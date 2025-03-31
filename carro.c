@@ -1,8 +1,8 @@
 #include "carro.h"
-#include "bd.h"
+#include "bdados.h"
 
 
-int inserirCarroLido(BaseDados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo) {
+int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo) {
     if (!bd) return 0;
     
     Carro *aut = (Carro *)malloc(sizeof(Carro));
@@ -57,7 +57,7 @@ int compararCarros(void *carro1, void *carro2) {
     return 0;
 }
 
-Dono * obterDonoCarro(BaseDados *bd, int nif) {
+Dono * obterDonoCarro(Bdados *bd, int nif) {
     if (!bd || !bd->donos || !bd->donos->inicio) return NULL;
 
     No *p = bd->donos->inicio;

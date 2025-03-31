@@ -1,8 +1,17 @@
 #include "dono.h"
-#include "bd.h"
+#include "bdados.h"
 #include "listaGenerica.h"
 
-int inserirDonoLido(BaseDados *bd, char *nome, int nif, CodPostal codigoPostal) {
+/**
+ * @brief Introduz o dono na base de dados
+ * 
+ * @param bd Base de Dados
+ * @param nome Nome do dono
+ * @param nif NIF do dono
+ * @param codigoPostal Cópigo postal do dono
+ * @return int 1 se sucesso, 0 se erro
+ */
+int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal) {
     if (!bd) return 0;
 
     Dono *dono = (Dono *)malloc(sizeof(Dono));
@@ -30,7 +39,7 @@ int inserirDonoLido(BaseDados *bd, char *nome, int nif, CodPostal codigoPostal) 
  * 
  * @param dono1 
  * @param dono2 
- * @return int 1 caso dono1 > dono2, 0 caso contrário   
+ * @return int -1 se dono1 < dono2, 0 se iguais, 1 se dono1 > dono2
  */
 int compararDonos(void *dono1, void *dono2) {
     if (dono1 == NULL && dono2 == NULL) return 0;

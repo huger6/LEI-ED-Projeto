@@ -3,7 +3,7 @@
 #include "dados.h"
 #include "uteis.h"
 #include "validacoes.h"
-#include "bd.h"
+#include "bdados.h"
 #include "dono.h"
 #include "carro.h"
 #include "sensores.h"
@@ -23,7 +23,7 @@
  * @param fLogs Ficheiro de logs
  * @return int 1 se sucesso, 0 se erro
  */
-int carregarDadosTxt(BaseDados *bd, char *fDonos, char *fCarros, char *fSensores, char *fDistancias, char *fPassagem, char *fLogs) {
+int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, char *fDistancias, char *fPassagem, char *fLogs) {
     const char * logFile = (fLogs) ? fLogs : LOGS_TXT; //Usar default em caso de não ser especificado
 
     //pode se criar um ficheiro html com o logs
@@ -58,7 +58,7 @@ int carregarDadosTxt(BaseDados *bd, char *fDonos, char *fCarros, char *fSensores
  * @param logs Ficheiro de logs
  * @return int 1 se sucesso, 0 se erro
  */
-int carregarDonosTxt(BaseDados *bd, char *donosFilename, FILE *logs) {
+int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
     const char *donosFile = (donosFilename) ? donosFilename : DONOS_TXT;
     fprintf(logs, "#FICHEIRO DONOS#\n\n");
 
@@ -135,7 +135,7 @@ int carregarDonosTxt(BaseDados *bd, char *donosFilename, FILE *logs) {
  * @param logs Ficheiro de logs
  * @return int 1 se sucesso, 0 se erro
  */
-int carregarCarrosTxt(BaseDados *bd, char *carrosFilename, FILE *logs) {
+int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
     const char *carrosFile = (carrosFilename) ? carrosFilename : CARROS_TXT;
     fprintf(logs, "#FICHEIRO CARROS#\n\n");
 
@@ -174,7 +174,7 @@ int carregarCarrosTxt(BaseDados *bd, char *carrosFilename, FILE *logs) {
                 }
                 //Ano
                 short ano;
-                if (!stringToShort(parametros[3], &ano) || !validarAno(ano)) {
+                if (!stringToShort(parametros[3], &ano) || !validarAnoCarro(ano)) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Ano inválido\n\n");
                     erro = '1';
@@ -188,7 +188,7 @@ int carregarCarrosTxt(BaseDados *bd, char *carrosFilename, FILE *logs) {
                 }
                 //CodVeiculo
                 int codVeiculo;
-                if (!stringToInt(parametros[5], &codVeiculo) || !validarCodigoVeiculo(codVeiculo)) {
+                if (!stringToInt(parametros[5], &codVeiculo) || !validarCodVeiculo(codVeiculo)) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Código do veículo errado\n\n");
                     erro = '1';
@@ -228,7 +228,7 @@ int carregarCarrosTxt(BaseDados *bd, char *carrosFilename, FILE *logs) {
  * @param logs Ficheiro de logs
  * @return int 1 se sucesso, 0 se erro
  */
-int carregarSensoresTxt(BaseDados *bd, char *sensoresFilename, FILE *logs) {
+int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
     const char *sensoresFile = (sensoresFilename) ? sensoresFilename : SENSORES_TXT;
     fprintf(logs, "#FICHEIRO SENSORES#\n\n");
 
@@ -286,7 +286,7 @@ int carregarSensoresTxt(BaseDados *bd, char *sensoresFilename, FILE *logs) {
  * @param logs Ficheiro de logs
  * @return int 1 se sucesso, 0 se erro
  */
-int carregarDistanciasTxt(BaseDados *bd, char *distanciasFilename, FILE *logs) {
+int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
     const char *distanciasFile = (distanciasFilename) ? distanciasFilename : DISTANCIAS_TXT;
     fprintf(logs, "#FICHEIRO DISTANCIAS#\n\n");
 
@@ -357,7 +357,7 @@ int carregarDistanciasTxt(BaseDados *bd, char *distanciasFilename, FILE *logs) {
  * @param logs Ficheiro de logs
  * @return int 1 se sucesso, 0 se erro
  */
-int carregarPassagensTxt(BaseDados *bd, char *passagensFilename, FILE *logs) {
+int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
     const char *passagensFile = (passagensFilename) ? passagensFilename : PASSAGEM_TXT;
     fprintf(logs, "#FICHEIRO DISTANCIAS#\n\n");
 
@@ -381,7 +381,7 @@ int carregarPassagensTxt(BaseDados *bd, char *passagensFilename, FILE *logs) {
                 }
                 //Código do veículo
                 int codVeiculo;
-                if (!stringToInt(parametros[1], &codVeiculo) || !validarCodigoVeiculo(codVeiculo)) {
+                if (!stringToInt(parametros[1], &codVeiculo) || !validarCodVeiculo(codVeiculo)) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Código do veículo inválido\n\n");
                     erro = '1';
@@ -525,6 +525,13 @@ void separarParametros(const char *linha, char **parametros, int *num_parametros
     }
 }
 
+/**
+ * @brief Escreve a linha inválida no ficheiro de logs
+ * 
+ * @param linha Linha inválida
+ * @param nLinha Número da linha
+ * @param logs Ficheiro de logs
+ */
 void linhaInvalida(const char *linha, int nLinha, FILE *logs) {
     fprintf(logs, "Linha %d inválida: %s\n", nLinha, linha);
 }

@@ -16,7 +16,7 @@ typedef struct {
     CodPostal codigoPostal;
 } Dono, Pessoa, *ptDono, *ptPessoa;
 
-int inserirDonoLido(BaseDados *bd, char *nome, int nif, CodPostal codigoPostal);
+int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal);
 int compararDonos(void *dono1, void *dono2);
 
 #endif

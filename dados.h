@@ -23,9 +23,9 @@
 #define PARAM_PASSAGEM 4
 
 int carregarDadosTxt(char * fDonos, char * fCarros, char * fSensores, char * fDistancias, char * fPassagem, const char * fLogs);
-int carregarDonosTxt(BaseDados *bd, char *donosFilename, FILE *logs);
-int carregarCarrosTxt(BaseDados *bd, char *carrosFilename, FILE *logs);
-int carregarSensoresTxt(BaseDados *bd, char *sensoresFilename, FILE *logs);
+int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs);
+int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs);
+int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs);
 
 
 void removerEspacos(char * str);

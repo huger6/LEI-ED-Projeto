@@ -1,6 +1,6 @@
 #include "uteis.h"
 #include "menus.h"
-#include "bd.h"
+#include "bdados.h"
 #include "listaGenerica.h"
 #include "carro.h"
 #include "dono.h"
@@ -38,11 +38,11 @@ int main(void) {
     data_atual();
     srand(time(NULL));
 
-    BaseDados * bd = (BaseDados *)malloc(sizeof(BaseDados));
+    Bdados * bd = (Bdados *)malloc(sizeof(Bdados));
 
     bd->carros = criarLista();
     bd->distancias = criarLista();
-    bd.donos = criarLista();
+    bd->donos = criarLista();
     bd->passagens = criarLista();
     bd->sensores = criarLista();
     

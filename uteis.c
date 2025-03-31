@@ -115,6 +115,7 @@ void data_atual() {
     DATA_ATUAL.segundos = 0.0f;
 }
 
+//TODO
 void medirTempo(void (*funcao())) {
     return;
 }
@@ -396,7 +397,15 @@ char * lerLinhaTxt(FILE * ficheiro, int * n_linhas) {
     return NULL;
 }
 
-int converterCodPostal(char * codPostal, short *zona, short *local) {
+/**
+ * @brief Converte os dados de codPostal para os parâmetros do Código Postal
+ * 
+ * @param codPostal Source (String)
+ * @param zona Parametro 1 do Código Postal
+ * @param local Parametro 2 do Código Postal
+ * @return int 1 se sucesso, 0 se erro
+ */
+int converterCodPostal(const char * codPostal, short *zona, short *local) {
     if (!codPostal || !zona || !local) {
         return 0;
     }
@@ -437,5 +446,22 @@ int compararDatas(Data data1, Data data2) {
     
     //São iguais
     return 0;
+}
+
+/**
+ * @brief Converte os dados de strData para data
+ * 
+ * @param strData Source (String)
+ * @param data Destino (Data)
+ * @return char* NULL se sucesso, mensagem de erro caso contrário
+ */
+char * converterParaData(const char *strData, Data * data) {
+    if (!strData) return "\nA data fornecida é inválida('')\n";
+    if (!data) return "\nO ponteiro para a data é NULL\n";
+
+    if (sscanf(strData, "%hd-%hd-%hd %hd:%hd:%f", data->dia, data->mes, data->ano, data->hora, data->min, data->seg) != 6) {
+        return "\nA data não contém todos os parâmetros necessários\n";
+    }
+    return NULL;
 }
 

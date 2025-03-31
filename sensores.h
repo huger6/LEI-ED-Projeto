@@ -12,7 +12,7 @@ typedef struct {
     char *longitude;
 } Sensor, *ptSensor;
 
-int inserirSensorLido(BaseDados *bd, int codSensor, char *designacao, char *latitude, char *longitude);
+int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude);
 int compararSensores(void *sensor1, void *sensor2);
 
 #endif
