@@ -7,10 +7,10 @@ int validarNif(const int nif)
     return 1;
 }
 
-char * validarNome(const char *nome)
+char * validarNome(char *nome)
 {
     int comprimento = strlen(nome);
-    
+
     //Verificar nome vazio
     if (!nome) return "\nO nome nao existe!\n"; //NULL != '\0'
 
