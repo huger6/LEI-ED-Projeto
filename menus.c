@@ -51,15 +51,88 @@ void menu_principal() {
     printf("╔══════════════════════════════════╗\n");
     printf("║          MENU PRINCIPAL          ║\n");
     printf("╠══════════════════════════════════╣\n");
-    printf("║  1.              ║\n");
-    printf("║  2.               ║\n");
-    printf("║  3.                  ║\n");
-    printf("║  4.                    ║\n");
-    printf("║  5.                  ║\n");
+    printf("║  1. Registos                     ║\n");
+    printf("║  2. Listagens                    ║\n");
+    printf("║  3. Análises de Tráfego          ║\n");
+    printf("║  4. Infrações de Trânsito        ║\n");
+    printf("║  5. Velocidades e Estatísticas   ║\n");
     printf("║  6. Opções                       ║\n");
     printf("║  0. Sair do programa             ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
+/*
+*@note Opções:0-4
+*/
+void menu_Registos(){
+    printf("╔══════════════════════════════════╗\n");
+    printf("║         MENU DE REGISTOS         ║\n");
+    printf("╠══════════════════════════════════╣\n");
+    printf("║  1. Registar dono                ║\n");
+    printf("║  2. Registar veículo             ║\n");
+    printf("║  3. Registar Passagem            ║\n");
+    printf("║  4. Retornar                     ║\n");
+    printf("║  0. Sair do programa             ║\n");
+    printf("╚══════════════════════════════════╝\n\n");
+}
+/*
+*@note Opções:0-5
+*/
+void menu_Listagens(){
+    printf("╔══════════════════════════════════╗\n");
+    printf("║         MENU DE LISTAGENS        ║\n");
+    printf("╠══════════════════════════════════╣\n");
+    printf("║  1. Listar donos                 ║\n");
+    printf("║  2. Listar veículos              ║\n");
+    printf("║  3. Listar o Nº e nome           ║\n");
+    printf("║  4. Listar matrícula             ║\n");
+    printf("║  5. Retornar                     ║\n");
+    printf("║  0. Sair do programa             ║\n");
+    printf("╚══════════════════════════════════╝\n\n");
+}
+/*
+*@note Opções:0-3
+*/
+void menu_Trafego(){
+    printf("╔══════════════════════════════════╗\n");
+    printf("║        ANÁLISE DE TRAFEGO        ║\n");
+    printf("╠══════════════════════════════════╣\n");
+    printf("║  1. Ranking de circulação        ║\n");
+    printf("║  2. Ranking por marca            ║\n");
+    printf("║  3. Retornar                     ║\n");
+    printf("║  0. Sair do programa             ║\n");
+    printf("╚══════════════════════════════════╝\n\n");
+}
+/*
+*@note Opções:0-3
+*/
+void menu_infracoes(){
+    printf("╔══════════════════════════════════╗\n");
+    printf("║        MENU DE INFRAÇÕES         ║\n");
+    printf("╠══════════════════════════════════╣\n");
+    printf("║  1. Listagem de Infrações        ║\n");
+    printf("║  2. Ranking de Infrações         ║\n");
+    printf("║  3. Retornar                     ║\n");
+    printf("║  0. Sair do programa             ║\n");
+    printf("╚══════════════════════════════════╝\n\n");
+}
+/*
+*@note Opções:0-6
+*/
+void menu_velocidades(){
+    printf("╔══════════════════════════════════╗\n");
+    printf("║    VELOCIDADES E ESTATÍSTICAS    ║\n");
+    printf("╠══════════════════════════════════╣\n");
+    printf("║  1. Velocidades médias           ║\n");
+    printf("║  2. Carro com maior velocidade   ║\n");
+    printf("║  3. Dono com maior velocidade    ║\n");
+    printf("║  4. Vel. média por Cod. Post.    ║\n");
+    printf("║  5. Marca mais comum             ║\n");
+    printf("║  6. Retornar                     ║\n");
+    printf("║  0. Sair do programa             ║\n");
+    printf("╚══════════════════════════════════╝\n\n");
+}
+
+//
 
 //Validações
 
