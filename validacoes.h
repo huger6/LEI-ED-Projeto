@@ -10,7 +10,7 @@
 #include "uteis.h"
 
 int validarNif(const int nif);
-char * validarNome(const char * nome);
+char * validarNome(char * nome);
 int validarCodPostal(const short zona, const short local);
 int validarAnoCarro(const short ano);
 int validarMatricula(const char *matricula);
