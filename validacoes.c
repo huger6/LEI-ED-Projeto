@@ -70,6 +70,7 @@ int validarMatricula(const char *matricula)
 }
 
 char * validarMarca(const char *marca) {
+    validarNome (marca);
     return NULL;
 }
 
@@ -80,25 +81,68 @@ char * validarMarca(const char *marca) {
  * @return char* NULL caso válido, mensagem de erro caso contrário
  */
 char * validarModelo(const char *modelo) {
+    validarNome (modelo);
     return NULL;
 }
 
 int validarCodVeiculo(const int codigo) {
+    if (codigo < 1) return 0;
     return 1;
 }
 
 int validarCodSensor(const int codSensor) {
+    if (codSensor < 1) return 0;
     return 1;
 }
 
 int validarDistancia(const float distancia) {
+    if (distancia < 0) return 0;
     return 1;
 }
 
-int validarData(const Data date) {
+int validarData(const Data date, const char modo) {
+    short dia = date.dia;
+    short mes = date.mes;
+    short ano = date.ano;
+    short hora = date.hora;
+    short min = date.min;
+    float seg = date.seg;
+    short dia_atual = DATA_ATUAL.dia;
+    short mes_atual = DATA_ATUAL.mes;
+    short ano_atual = DATA_ATUAL.ano;
+    short hora_atual = DATA_ATUAL.hora;
+    short min_atual = DATA_ATUAL.min;
+    float seg_atual = DATA_ATUAL.seg;
+
+    if ((ano < 1) || (dia < 1) || (mes < 1) || (mes > 12) || (hora < 0) || (hora > 24) || (min < 0) || (min > 60) || (seg < 0) || (seg > 60)){
+        if (modo == '1') printf("\nERROR: Por favor, insira uma data válida!");
+        return 0;
+    }
+    
+    if (((seg > seg_atual) && (min > min_atual) && (hora > hora_atual) && (dia > dia_atual) && (mes >= mes_atual) && (ano >= ano_atual)) || (ano > ano_atual) ) {
+        if (modo == '1') printf("\nERROR: Por favor, insira uma data válida!");
+        return 0;
+    }
+    // validar o mes; validar a hora; validar os minutos; validar os segundos
+
+    //Criamos um vetor com os dias de cada mes, fevereiro com 28 pois é o mais comum
+    short dias_por_mes[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    //Apenas criado para propóstios de informação ao user
+    const char * nome_do_mes[] = {"janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"};
+
+    //Verificar anos bissextos
+    if (mes == 2 && ((ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0))) {
+        dias_por_mes[1] = 29;
+    }
+
+    if (dia > dias_por_mes[mes - 1]) {
+        if (modo == '1') printf("O dia é inválido! O mês de %s tem apenas %hd dias.\n", nome_do_mes[mes - 1], dias_por_mes[mes -1]);
+        return 0; 
+    }
     return 1;
 }
 
 int validarTipoRegisto(const char tipoRegisto) {
-    return 1;
+    if (tipoRegisto == '0' || tipoRegisto == '1') return 1;
+    return 0;
 }
