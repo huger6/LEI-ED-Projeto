@@ -54,3 +54,8 @@ int compararDonos(void *dono1, void *dono2) {
     return 0;
 }
 
+void freeDono(void *dono) {
+    Dono *obj = (Dono *)dono;
+    if (obj->nome) free(obj->nome);
+    free(dono);
+}

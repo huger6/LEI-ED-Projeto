@@ -2,6 +2,7 @@
 
 #include "menus.h"
 #include "uteis.h"
+#include "bdados.h"
 
 /* Mostra menu e processa entrada do utilizador
  *
@@ -60,10 +61,11 @@ void menu_principal() {
     printf("║  0. Sair do programa             ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
+
 /*
 *@note Opções:0-4
 */
-void menu_Registos(){
+void menu_registos() {
     printf("╔══════════════════════════════════╗\n");
     printf("║         MENU DE REGISTOS         ║\n");
     printf("╠══════════════════════════════════╣\n");
@@ -74,10 +76,11 @@ void menu_Registos(){
     printf("║  0. Sair do programa             ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
+
 /*
 *@note Opções:0-5
 */
-void menu_Listagens(){
+void menu_listagens() {
     printf("╔══════════════════════════════════╗\n");
     printf("║         MENU DE LISTAGENS        ║\n");
     printf("╠══════════════════════════════════╣\n");
@@ -89,10 +92,11 @@ void menu_Listagens(){
     printf("║  0. Sair do programa             ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
+
 /*
 *@note Opções:0-3
 */
-void menu_Trafego(){
+void menu_trafego() {
     printf("╔══════════════════════════════════╗\n");
     printf("║        ANÁLISE DE TRAFEGO        ║\n");
     printf("╠══════════════════════════════════╣\n");
@@ -102,10 +106,11 @@ void menu_Trafego(){
     printf("║  0. Sair do programa             ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
+
 /*
 *@note Opções:0-3
 */
-void menu_infracoes(){
+void menu_infracoes() {
     printf("╔══════════════════════════════════╗\n");
     printf("║        MENU DE INFRAÇÕES         ║\n");
     printf("╠══════════════════════════════════╣\n");
@@ -115,10 +120,11 @@ void menu_infracoes(){
     printf("║  0. Sair do programa             ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
+
 /*
 *@note Opções:0-6
 */
-void menu_velocidades(){
+void menu_velocidades() {
     printf("╔══════════════════════════════════╗\n");
     printf("║    VELOCIDADES E ESTATÍSTICAS    ║\n");
     printf("╠══════════════════════════════════╣\n");
@@ -132,11 +138,54 @@ void menu_velocidades(){
     printf("╚══════════════════════════════════╝\n\n");
 }
 
+//Processar os menus
+
+void the_architect(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrar_menu(menu_principal, '0', '6');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                printf("Tem a certeza que quer sair do programa? (S/N) ");
+                if (!sim_nao()) {
+                    opcao = '1'; //Forçar o loop a continuar
+                    //Não há problemas porque no ínicio do loop pedimos sempre o menu
+                    continue;
+                }
+                break;
+            case '1':
+                //Registos
+                break;
+            case '2':
+                //Listagens
+                break;
+            case '3':
+                //Análises de Tráfego
+                break;
+            case '4':
+                //Infrações de trânsito
+                break;
+            case '5': 
+                //Velocidades e estatísticas
+                break;
+            case '6': 
+                processar_opcoes(bd);
+                break;
+            default:
+                opcao = '0'; //Sair caso haja erro
+                break;
+        }
+    } while(opcao != '0');
+}
+
+
 //
 
 //Validações
 
-void validacao_menus(short * valido, const char opcao, const char limInf, const char limSup) { 
+void validacao_menus(short *valido, const char opcao, const char limInf, const char limSup) { 
     if (*valido != 1) {
         printf("Entrada inválida! Introduza um número do menu (%c a %c)\n", limInf, limSup); 
         pressione_enter();

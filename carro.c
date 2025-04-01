@@ -69,3 +69,10 @@ Dono * obterDonoCarro(Bdados *bd, int nif) {
     return NULL;
 }
 
+//Não se liberta o ponteiro para Dono certo?
+void freeCarro(void *carro) {
+    Carro *obj = (Carro *)carro;
+    if (obj->marca) free(obj->marca);
+    if (obj->modelo) free(obj->modelo);
+    free(obj);
+}

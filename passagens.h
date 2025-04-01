@@ -19,6 +19,7 @@ typedef struct {
 int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
 int compararPassagens(void *passagem1, void *passagem2);
 Carro * obterCarroPorId(Bdados *bd, int codigo);
+void freePassagem(void *passagem);
 
 
 #endif

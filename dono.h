@@ -18,5 +18,6 @@ typedef struct {
 
 int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal);
 int compararDonos(void *dono1, void *dono2);
+void freeDono(void *dono);
 
 #endif

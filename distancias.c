@@ -44,3 +44,8 @@ Sensor * obterSensorPorId(Bdados *bd, int codigo) {
     }
     return NULL;
 }
+
+void freeDistancia(void *distancia) {
+    Distancias *obj = (Distancias *)distancia;
+    free(obj);
+}

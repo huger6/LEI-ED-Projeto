@@ -21,7 +21,10 @@
  * @param fDistancias Ficheiro das Distâncias
  * @param fPassagem Ficheiro das Passagens
  * @param fLogs Ficheiro de logs
+ * 
  * @return int 1 se sucesso, 0 se erro
+ * 
+ * @note Os ficheiros podem ser passados como NULL para usar o valor default
  */
 int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, char *fDistancias, char *fPassagem, char *fLogs) {
     const char * logFile = (fLogs) ? fLogs : LOGS_TXT; //Usar default em caso de não ser especificado

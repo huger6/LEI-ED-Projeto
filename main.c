@@ -7,6 +7,7 @@
 #include "distancias.h"
 #include "passagens.h"
 #include "sensores.h"
+#include "dados.h"
 
 
 /*
@@ -39,14 +40,15 @@ int main(void) {
     srand(time(NULL));
 
     Bdados * bd = (Bdados *)malloc(sizeof(Bdados));
-
-    bd->carros = criarLista();
-    bd->distancias = criarLista();
-    bd->donos = criarLista();
-    bd->passagens = criarLista();
-    bd->sensores = criarLista();
     
+    if (!carregarDadosTxt(NULL, NULL, NULL, NULL, NULL, NULL)) {
+        printf("Ocorreu um erro a carregar os dados para memória!\n")
+        return EXIT_FAILURE;
+    }
 
-    printf("Olá!");
-    return 0;
+    the_architect();
+
+    
+    freeTudo(bd);
+    return EXIT_SUCCESS;
 }

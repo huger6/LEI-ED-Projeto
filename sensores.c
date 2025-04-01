@@ -51,3 +51,11 @@ int compararSensores(void *sensor1, void *sensor2) {
     if (y->codSensor < x->codSensor) return -1;
     return 0;
 }
+
+void freeSensor(void *sensor) {
+    Sensor *obj = (Sensor *)sensor;
+    if (obj->designacao) free(obj->designacao);
+    if (obj->latitude) free(obj->latitude);
+    if (obj->longitude) free(obj->longitude);
+    free(obj);
+}

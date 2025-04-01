@@ -14,5 +14,6 @@ typedef struct {
 
 int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude);
 int compararSensores(void *sensor1, void *sensor2);
+void freeSensor(void *sensor);
 
 #endif

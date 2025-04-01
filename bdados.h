@@ -15,5 +15,8 @@ typedef struct {
 } Bdados;
 
 
+int inicializarListasBD(Bdados *bd);
+void freeTudo(Bdados *bd);
+
 
 #endif

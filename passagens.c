@@ -44,3 +44,8 @@ Carro * obterCarroPorId(Bdados *bd, int codigo) {
     }
     return NULL;
 }
+
+void freePassagem(void *passagem) {
+    Passagem *obj = (Passagem *)passagem;
+    free(obj);
+}
