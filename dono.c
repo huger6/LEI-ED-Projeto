@@ -66,3 +66,11 @@ void freeDono(void *dono) {
     if (obj->nome) free(obj->nome);
     free(dono);
 }
+
+void msotrarDono(void *dono){
+    if (!dono) return;
+    Dono  *x = (Dono*) dono;
+    printf ("\nNome: %s", x->nome);
+    printf ("\nNIF: %d", x->nif);
+    printf ("Código Posta: %d-%d", x->codigoPostal.local, x->codigoPostal.zona);
+}

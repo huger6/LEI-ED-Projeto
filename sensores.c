@@ -65,3 +65,11 @@ void freeSensor(void *sensor) {
     if (obj->longitude) free(obj->longitude);
     free(obj);
 }
+
+void mostrarSensor(void *sensor){
+    if (!sensor) return;
+    Sensor *x = (Sensor *) sensor;
+    printf ("\nCódigo do Sensor: %d", x->codSensor);
+    printf ("\nDesignação do Sensor: %s", x->designacao);
+    printf ("\nLocalização do Sensor: %s\t%s", x->latitude, x->longitude);
+}

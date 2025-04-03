@@ -22,5 +22,6 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal);
 int compararDonos(void *dono1, void *dono2);
 int compCodDono(void *dono, int codigo);
 void freeDono(void *dono);
+void msotrarDono(void *dono);
 
 #endif

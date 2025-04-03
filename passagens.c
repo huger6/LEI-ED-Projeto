@@ -44,3 +44,19 @@ void freePassagem(void *passagem) {
     Passagem *obj = (Passagem *)passagem;
     free(obj);
 }
+
+void mostrarPassagem(void *passagem){
+    if (!passagem) return;
+
+    Passagem *x = (Passagem*) passagem;
+    printf ("\nID de Passagem: %d", x->idSensor);
+    printf ("\nMatricula do veículo registado pelo sensor: %s", x->veiculo->matricula);
+    printf ("\nData: %d/%d/%d", x->data.dia, x->data.mes, x->data.ano);
+    printf ("\nHora: %d:%d e %d seg", x->data.hora, x->data.min, x->data.seg);
+    if (strcmp(x->tipoRegisto, '1') == 0){
+        printf("\nTipo de Registo: Saída");
+    }
+    if (strcmp(x->tipoRegisto, '0') == 0){
+        printf("\nTipo de Registo: Entrada");
+    }
+}
