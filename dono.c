@@ -53,11 +53,12 @@ int compararDonos(void *dono1, void *dono2) {
     return 0;
 }
 
-int compCodDono(void *dono, int codigo) {
-    if (!dono || codigo < 0) return 0;
+int compCodDono(void *dono, void *codigo) {
+    if (!dono || !codigo) return 0;
 
     Dono *x = (Dono *)dono;
-    if (x->nif == codigo) return 1;
+    int *cod = (int *)codigo;
+    if (x->nif == *cod) return 1;
     return 0;
 }
 

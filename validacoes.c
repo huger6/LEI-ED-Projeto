@@ -1,17 +1,18 @@
 #include "validacoes.h"
 
 
-int validarNif(const int nif) 
-{
+int validarNif(const int nif) {
     return 1;
 }
 
-char * validarNome(char *nome)
-{
+char * validarNome(char *nome) {
+    //Alterar caso haja tempo (a forma como se retorna a mensagem de erro)
+
+
     int comprimento = strlen(nome);
 
     //Verificar nome vazio
-    if (!nome) return "\nO nome nao existe!\n"; //NULL != '\0'
+    if (!nome) return "O nome nao existe!"; //NULL != '\0'
 
     //Retirar o \n no final, se tiver, mas apenas se a string for apenas \n não contamos como válido
     if (nome[comprimento - 1] == '\n' && comprimento != 1)
@@ -20,41 +21,36 @@ char * validarNome(char *nome)
         comprimento--;
     }
     // Verificar o primeiro e o último caractere
-    if (nome[0] == ' ' || nome[comprimento - 1] == ' ') return "\nO nome tem espaços indevidos!\n";
+    if (nome[0] == ' ' || nome[comprimento - 1] == ' ') return "\nO nome tem espaços indevidos!";
 
     for (int i = 0; i < comprimento; i++) 
     {
         //Verificar se tem separador
         if (nome[i] == SEPARADOR) {
-            char mensagemErro[60];
-            sprintf(mensagemErro, "\nO nome contém um caracter separador inválido (%c).\n", SEPARADOR);
-            return mensagemErro;
+            return "O nome contém um caracter separador inválido.";
         }
         
         // Verificar se há dois espaços seguidos
-        if (i < comprimento -1 && nome[i] == ' ' && nome[i+1] == ' ') return "\nO nome não pode conter espaços consecutivos!\n";
+        if (i < comprimento -1 && nome[i] == ' ' && nome[i+1] == ' ') return "O nome não pode conter espaços consecutivos!";
 
         //Verificar caracteres inválidos
-        if (!iswalpha(nome[i]) && nome[i] != ' ' && nome[i] != '-') return "\nO Nome contém caracteres inválidos!\n";
+        if (!iswalpha(nome[i]) && nome[i] != ' ' && nome[i] != '-') return "O Nome contém caracteres inválidos!";
         //iswalpha apenas retorna válido a-z e A-Z, logo as outras condições validam espaços e hifens
     }
     return NULL;
 }
 
-int validarCodPostal(const short zona, const short local)
-{
+int validarCodPostal(const short zona, const short local) {
     return 1;
 }
 
-int validarAnoCarro(const short ano)
-{
+int validarAnoCarro(const short ano) {
     if (ano < 1885 || ano > DATA_ATUAL.ano) return 0;
     
     return 1;
 }
 
-int validarMatricula(const char *matricula)
-{
+int validarMatricula(const char *matricula) {
     //Ver regex
     if ((isalpha(matricula[0]) && isalpha(matricula[1])) || (isdigit(matricula[0]) && isdigit(matricula[1])))
     {

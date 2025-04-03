@@ -310,9 +310,9 @@ int stringToShort(const char * str, short * resultado) {
  * @note Requer string terminada em \0
  */
 int stringToFloat(const char * str, float * resultado) {
+    printf("String original: [%s]\n\n", str);
     char * ptr_fim;
     float valor = strtof(str, &ptr_fim);
-    
     //Verificar erros de conversão
     if (ptr_fim == str || *ptr_fim != '\0') {
         return 0; 
@@ -405,13 +405,12 @@ char * lerLinhaTxt(FILE * ficheiro, int * n_linhas) {
  * @param local Parametro 2 do Código Postal
  * @return int 1 se sucesso, 0 se erro
  */
-int converterCodPostal(const char * codPostal, short *zona, short *local) {
+int converterCodPostal(const char *codPostal, short *zona, short *local) {
     if (!codPostal || !zona || !local) {
         return 0;
     }
     char extra; //guardar /n ou outros caracteres
-
-    if (sscanf(codPostal, "%hd-%hd%c", zona, local, &extra) != 3) {
+    if (sscanf(codPostal, "%hd-%hd%c", zona, local, &extra) != 4 && extra !='\0') {
         return 0;
     }
     return 1;
@@ -455,11 +454,11 @@ int compararDatas(Data data1, Data data2) {
  * @param data Destino (Data)
  * @return char* NULL se sucesso, mensagem de erro caso contrário
  */
-char * converterParaData(const char *strData, Data * data) {
+char * converterParaData(const char *strData, Data *data) {
     if (!strData) return "\nA data fornecida é inválida('')\n";
     if (!data) return "\nO ponteiro para a data é NULL\n";
 
-    if (sscanf(strData, "%hd-%hd-%hd %hd:%hd:%f", data->dia, data->mes, data->ano, data->hora, data->min, data->seg) != 6) {
+    if (sscanf(strData, "%hd-%hd-%hd %hd:%hd:%f", &data->dia, &data->mes, &data->ano, &data->hora, &data->min, &data->seg) != 6) {
         return "\nA data não contém todos os parâmetros necessários\n";
     }
     return NULL;

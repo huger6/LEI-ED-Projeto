@@ -30,6 +30,12 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
     const char *logFile = (fLogs) ? fLogs : LOGS_TXT; //Usar default em caso de não ser especificado
 
     //pode se criar um ficheiro html com o logs
+    FILE *logsCheck = fopen(logFile, "r");
+    char logsExiste = '0';
+    if (logsCheck) { //Ficheiro já existe
+        logsExiste = '1';
+        fclose(logsCheck);
+    }
     FILE *logs = fopen(logFile, "a");
     if (!logs) {
         printf("Ocorreu um erro grave ao abrir o ficheiro de logs '%s'.\n", logFile);
@@ -37,12 +43,16 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
     }
 
     char erro = '0';
-    fprintf(logs, "#ÍNICIO DA LEITURA DOS DADOS#\n\n\n");
+    if (logsExiste == '1') {
+        fprintf(logs, "\n\n\n#ÍNICIO DA LEITURA DOS DADOS#\n\n\n");
+    }
+    else fprintf(logs, "#ÍNICIO DA LEITURA DOS DADOS#\n\n\n");
+
     if (!carregarDonosTxt(bd, fDonos, logs) || !carregarCarrosTxt(bd, fCarros, logs) || !carregarSensoresTxt(bd, fSensores, logs) || 
         !carregarDistanciasTxt(bd, fDistancias, logs) || !carregarPassagensTxt(bd, fPassagem, logs)) {
             erro = '1';
         }
-
+    printf("fim de leitura");
     fprintf(logs, "\n#FIM DA LEITURA DOS DADOS#");
     fclose(logs);
 
@@ -88,14 +98,14 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
                 nomeInvalido = validarNome(parametros[1]);
                 if (nomeInvalido) {
                     linhaInvalida(linha, nLinhas, logs);
-                    fprintf(logs, "Razão: %s", nomeInvalido);
+                    fprintf(logs, "Razão: %s\n\n", nomeInvalido);
                     erro = '1';
                 }
                 //codPostal
                 short zona, local;
                 if (!converterCodPostal(parametros[2], &zona, &local) || !validarCodPostal(zona, local)) {
                     linhaInvalida(linha, nLinhas, logs);
-                    fprintf(logs, "Razão: O código postal é inválido");
+                    fprintf(logs, "Razão: O código postal é inválido\n\n");
                     erro = '1';
                 }
                 //Converter codigo Postal
@@ -106,7 +116,7 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
                 if (erro == '0') {
                     if(!inserirDonoLido(bd, parametros[1], nif, postal)) {
                         linhaInvalida(linha, nLinhas, logs);
-                        fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória");
+                        fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória\n\n");
                     }
                 }
             }
@@ -118,10 +128,16 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_DONOS, numParam);
             }
+            //Libertamos a memória alocada para os parametros
+            for(int i = 0; i < numParam; i++) 
+                free(parametros[i]);
+
+            free(linha); 
         }
+        fclose(donos);
     }
     else {
-        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Donos: '%s'.", donosFile);
+        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Donos: '%s'\n\n", donosFile);
         return 0;
     }
     //Ordenar a lista
@@ -212,7 +228,13 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_CARROS, numParam);
             }
+            //Libertamos a memória alocada para os parametros
+            for(int i = 0; i < numParam; i++) 
+                free(parametros[i]);
+
+            free(linha); 
         }
+        fclose(carros);
     }
     else {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Carros: '%s'.", carrosFile);
@@ -269,7 +291,13 @@ int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_SENSORES, numParam);
             }
+            //Libertamos a memória alocada para os parametros
+            for(int i = 0; i < numParam; i++) 
+                free(parametros[i]);
+
+            free(linha); 
         }
+        fclose(sens);
     }
     else {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Sensores: '%s'.", sensoresFile);
@@ -323,6 +351,7 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Distância inválida\n\n");
                     erro = '1';
+                    printf("Distancia: %.2f\n", distancia);
                 }
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
@@ -340,7 +369,13 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_DISTANCIAS, numParam);
             }
+            //Libertamos a memória alocada para os parametros
+            for(int i = 0; i < numParam; i++) 
+                free(parametros[i]);
+
+            free(linha); 
         }
+        fclose(dists);
     }
     else {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Distancias: '%s'.", distanciasFile);
@@ -362,8 +397,8 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
  */
 int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
     const char *passagensFile = (passagensFilename) ? passagensFilename : PASSAGEM_TXT;
-    fprintf(logs, "#FICHEIRO DISTANCIAS#\n\n");
-
+    fprintf(logs, "#FICHEIRO PASSAGENS#\n\n");
+    printf("Começo leitura passagens");
     FILE *passagem = fopen(passagensFile, "r");
     if (passagem) {
         int nLinhas = 0;
@@ -390,9 +425,9 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     erro = '1';
                 }
                 //Data
-                //TODO
                 Data date;
-                char * mensagemData = converterParaData(parametros[2], &date);
+                char *mensagemData = NULL;
+                mensagemData = converterParaData(parametros[2], &date);
                 if (mensagemData) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: %s\n\n", mensagemData);
@@ -403,15 +438,16 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     fprintf(logs, "Razão: Data inválida\n\n");
                     erro = '1';
                 }
+
                 //Tipo de registo
-                if (!validarTipoRegisto((char)parametros[3])) {
+                if (!validarTipoRegisto(parametros[3][0])) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Tipo de registo inválido\n\n");
                     erro = '1';
                 }
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
-                    if(!inserirPassagemLido(bd, idSensor, codVeiculo, date, (char)parametros[3])) {
+                    if(!inserirPassagemLido(bd, idSensor, codVeiculo, date, parametros[3][0])) {
                         linhaInvalida(linha, nLinhas, logs);
                         fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória");
                     }
@@ -425,14 +461,21 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_PASSAGEM, numParam);
             }
+            //Libertamos a memória alocada para os parametros
+            for(int i = 0; i < numParam; i++) 
+                free(parametros[i]);
+
+            free(linha); 
         }
+        fclose(passagem);
     }
     else {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Passagens: '%s'.", passagensFile);
         return 0;
     }
+    printf("Fim leitura de passagens\n");
     //Ordenar a lista
-    ordenarLista(bd->passagens, compararPassagens);
+    //ordenarLista(bd->passagens, compararPassagens); Demoraria 5dias!
     fprintf(logs, "\n#FIM FICHEIRO PASSAGENS#\n\n");
     return 1;
 }

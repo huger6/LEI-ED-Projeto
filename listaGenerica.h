@@ -21,7 +21,7 @@ void printLista(Lista * li, void (*printObj)(void * obj));
 void freeLista(Lista * li, void (*freeObj)(void * obj));
 int pesquisarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2), void * obj);
 void ordenarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2));
-void * pesquisarPorCodigo(Lista *li, int (*compCod)(void *codObj, int codigo), int codigo);
+void * pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave);
 
 
 #endif

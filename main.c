@@ -19,7 +19,8 @@ Todas as versões do programa estão disponíveis no seguinte repositório do gi
 https://github.com/huger6/ProjetoED
 
 Para compilar em Windows, usar:
-	gcc -Wall -Wextra -g -O0 -std=c23 -o (**FILENAME**) main.c funcoes.c
+	gcc -Wall -Wextra -g -O0 -std=c23 -o (**FILENAME**) main.c uteis.c validacoes.c sensores.c passagens.c menus.c listaGenerica.c dono.c distancias.c dados.c carro.c bdados.c
+
 
 	Testado com o compilador GGC em C23, no Windows 11 Home 23H2 (64bits)
 
@@ -38,8 +39,10 @@ int main(void) {
     data_atual();
     srand(time(NULL));
 
-    Bdados * bd = (Bdados *)malloc(sizeof(Bdados));
+    Bdados *bd = (Bdados *)malloc(sizeof(Bdados));
+    inicializarListasBD(bd);
     
+    printf("Ínicio carregamento dos dados\n");
     if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
         printf("Ocorreu um erro a carregar os dados para memória!\n");
         return EXIT_FAILURE;
@@ -47,7 +50,6 @@ int main(void) {
 
     the_architect(bd);
 
-    
     freeTudo(bd);
     return EXIT_SUCCESS;
 }

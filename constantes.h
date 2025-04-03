@@ -7,11 +7,11 @@
 
 //Nomes default para os ficheiros
 #define LOGS_TXT "logs.txt"
-#define DONOS_TXT "donos.txt"
-#define CARROS_TXT "carros.txt"
-#define SENSORES_TXT "sensores.txt"
-#define DISTANCIAS_TXT "distancias.txt"
-#define PASSAGEM_TXT "passagem.txt"
+#define DONOS_TXT "Dados/donos.txt"
+#define CARROS_TXT "Dados/carros.txt"
+#define SENSORES_TXT "Dados/sensores.txt"
+#define DISTANCIAS_TXT "Dados/distancias.txt"
+#define PASSAGEM_TXT "Dados/passagem.txt"
 
 //Número de paraâmetros por cada ficheiro
 #define PARAM_DONOS 3

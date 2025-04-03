@@ -20,7 +20,7 @@ typedef struct {
 
 int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal);
 int compararDonos(void *dono1, void *dono2);
-int compCodDono(void *dono, int codigo);
+int compCodDono(void *dono, void *codigo);
 void freeDono(void *dono);
 
 #endif

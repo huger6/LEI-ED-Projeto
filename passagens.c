@@ -9,7 +9,7 @@ int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, cha
     //Id Sensor
     pas->idSensor = idSensor;
     //Ptr Carro (código veículo)
-    Carro *ptrCarro = (Carro *)pesquisarPorCodigo(bd->carros, compCodPassagem, codVeiculo);
+    Carro *ptrCarro = (Carro *)pesquisarPorChave(bd->carros, compCodPassagem, &codVeiculo);
     if (ptrCarro) {
         pas->veiculo = ptrCarro;
     }
@@ -32,11 +32,13 @@ int compararPassagens(void *passagem1, void *passagem2) {
     return (compararDatas(x->data, y->data));
 }
 
-int compCodPassagem(void *passagem, int codigo) {
-    if (!passagem || codigo < 0) return 0;
+int compCodPassagem(void *passagem, void *codigo) {
+    if (!passagem || !codigo) return 0;
 
     Passagem *x = (Passagem *)passagem;
-    if (x->idSensor == codigo) return 1;
+    int *cod = (int *)codigo;
+
+    if (x->idSensor == *cod) return 1;
     return 0;
 }
 

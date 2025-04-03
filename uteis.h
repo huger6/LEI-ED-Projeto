@@ -42,7 +42,7 @@ int stringToInt(const char * str, int * resultado);
 int stringToShort(const char * str, short * resultado);
 int stringToFloat(const char * str, float * resultado);
 char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
-int converterCodPostal(const char * codPostal, short *zona, short *local);
+int converterCodPostal(const char *codPostal, short *zona, short *local);
 int compararDatas(Data data1, Data data2);
 char * converterParaData(const char *strData, Data * data);
 

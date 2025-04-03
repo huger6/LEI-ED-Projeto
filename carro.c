@@ -27,7 +27,7 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Ano
     aut->ano = ano;
     //NIF (ptrPessoa)
-    aut->ptrPessoa = (Dono *)pesquisarPorCodigo(bd->donos, compCodDono, nif);
+    aut->ptrPessoa = (Dono *)pesquisarPorChave(bd->donos, compCodDono, &nif);
     //Código Veículo
     aut->codVeiculo = codVeiculo;
     
@@ -46,6 +46,15 @@ int compararCarros(void *carro1, void *carro2) {
 
     if (x->codVeiculo > y->codVeiculo) return 1;
     if (x->codVeiculo < y->codVeiculo) return -1;
+    return 0;
+}
+
+int compCodVeiculo(void *carro, void *codigo) {
+    if (!carro || !codigo) return 0;
+
+    Carro *x = (Carro *)carro;
+    int *cod = (int *)codigo;
+    if (x->codVeiculo == *cod) return 1;
     return 0;
 }
 

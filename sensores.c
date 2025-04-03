@@ -3,7 +3,7 @@
 int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude) {
     if (!bd || !designacao || !latitude || !longitude) return 0;
 
-    Sensor * sen = (Sensor *)malloc(sizeof(sen));
+    Sensor * sen = (Sensor *)malloc(sizeof(Sensor));
     if (!sen) return 0;
     //Codigo Sensor
     sen->codSensor = codSensor;
@@ -50,11 +50,12 @@ int compararSensores(void *sensor1, void *sensor2) {
     return 0;
 }
 
-int compCodSensor(void *sensor, int codigo) {
-    if (!sensor || codigo < 0) return 0;
+int compIdSensor(void *sensor, void *idSensor) {
+    if (!sensor || !idSensor) return 0;
 
     Sensor *x = (Sensor *)sensor;
-    if (x->codSensor == codigo) return 1;
+    int *id = (int *)idSensor;
+    if (x->codSensor == *id) return 1;
     return 0;
 }
 

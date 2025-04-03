@@ -190,16 +190,16 @@ void ordenarLista(Lista * li, int (*compObjs)(void *obj1, void *obj2)) {
  * @brief Pesquisa um código do tipo int na lista dada
  * 
  * @param li Lista onde procurar
- * @param compObjs Função para verificar se é o código pretendido (deve retornar 1 caso seja)
- * @param codigo Código a procurar
+ * @param compObjs Função para verificar se é a chave pretendida (deve retornar 1 caso seja)
+ * @param chave Ponteiro para o dado a procurar
  * @return void* Fazer cast consoante o tipo de dados
  */
-void * pesquisarPorCodigo(Lista *li, int (*compCod)(void *codObj, int codigo), int codigo) {
+void * pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave) {
     if (!li || !li->inicio) return NULL;
 
     No *p = li->inicio;
     while(p) {
-        if ((*compCod)(p->info, codigo) == 1) {
+        if ((*compCod)(p->info, chave) == 1) {
             return p->info;
         }
         p = p->prox;
