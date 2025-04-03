@@ -1,16 +1,22 @@
 #include "validacoes.h"
-#include "dados.h"
 
 
+/*
 int validarNif(const int nif) 
 {
     return 1;
 }
-
-char * validarNome(const char *nome)
+*/
+/**
+ * @brief Validar nome
+ * 
+ * @param nome Nome
+ * @return NULL se válido; retorna uma mensagem de erro se for inválido;
+ */
+char * validarNome(char *nome)
 {
     int comprimento = strlen(nome);
-    
+
     //Verificar nome vazio
     if (!nome) return "\nO nome nao existe!\n"; //NULL != '\0'
 
@@ -26,8 +32,12 @@ char * validarNome(const char *nome)
     for (int i = 0; i < comprimento; i++) 
     {
         //Verificar se tem separador
-        if (nome[i] == SEPARADOR) return ("\nO nome contém um caracter separador inválido (%c).\n", SEPARADOR);
-
+        if (nome[i] == SEPARADOR) {
+            char mensagemErro[60];
+            sprintf(mensagemErro, "\nO nome contém um caracter separador inválido (%c).\n", SEPARADOR);
+            return mensagemErro;
+        }
+        
         // Verificar se há dois espaços seguidos
         if (i < comprimento -1 && nome[i] == ' ' && nome[i+1] == ' ') return "\nO nome não pode conter espaços consecutivos!\n";
 
@@ -37,19 +47,30 @@ char * validarNome(const char *nome)
     }
     return NULL;
 }
-
+/*
 int validarCodPostal(const short zona, const short local)
 {
     return 1;
 }
-
+*/
+/**
+ * @brief Validar ano do carro
+ * 
+ * @param ano Ano do carro
+ * @return int 1,se válido; int 0, se inválido;
+ */
 int validarAnoCarro(const short ano)
 {
     if (ano < 1885 || ano > DATA_ATUAL.ano) return 0;
     
     return 1;
 }
-
+/**
+ * @brief Validar matricula de veículo
+ * 
+ * @param matricula Matricula de um veículo
+ * @return int 1,se válido; int 0, se inválido; 
+ */
 int validarMatricula(const char *matricula)
 {
     //Ver regex
@@ -68,8 +89,14 @@ int validarMatricula(const char *matricula)
     }
     return 0;
 }
-
-char * validarMarca(const char *marca) {
+/**
+ * @brief Valida a marca do veículo
+ * 
+ * @param marca Marca
+ * @return char* NULL caso válido, mensagem de erro caso contrário
+ */
+char * validarMarca(char *marca) {
+    validarNome(marca);
     return NULL;
 }
 
@@ -79,26 +106,95 @@ char * validarMarca(const char *marca) {
  * @param modelo Modelo
  * @return char* NULL caso válido, mensagem de erro caso contrário
  */
-char * validarModelo(const char *modelo) {
+char * validarModelo(char *modelo) {
+    validarNome(modelo);
     return NULL;
 }
-
+/**
+ * @brief Validar código de veículo
+ * 
+ * @param codigo Código do veículo
+ * @return int 0, se o Código do veículo for zero ou negativo, logo é inválido; int 1, se o código do veículo maior ou igual que 1, logo válido;
+ */
 int validarCodVeiculo(const int codigo) {
+    if (codigo < 1) return 0;
     return 1;
 }
-
+/**
+ * @brief Validar código de sensor
+ * 
+ * @param codSensor Código do Sensor
+ * @return int 0, se o Código do sensor for zero ou negativo, logo é inválido; int 1, se o código do sensor maior ou igual que 1, logo válido;
+ */
 int validarCodSensor(const int codSensor) {
+    if (codSensor < 1) return 0;
     return 1;
 }
-
+/**
+ * @brief Validar distâncias
+ * 
+ * @param distancia Distância
+ * @return int 0 se for negativa, logo é inválida; int 1 se for positiva, logo é válida;
+ */
 int validarDistancia(const float distancia) {
+    if (distancia < 0) return 0;
     return 1;
 }
+/**
+ * @brief validar data
+ * 
+ * @param date Data
+ * @param modo escrever mensagem de erro se 1;
+ * @return int 0 se for inválida; int 1 se válida;
+ */
+int validarData(const Data date, const char modo) {
+    short dia = date.dia;
+    short mes = date.mes;
+    short ano = date.ano;
+    short hora = date.hora;
+    short min = date.min;
+    float seg = date.seg;
+    short dia_atual = DATA_ATUAL.dia;
+    short mes_atual = DATA_ATUAL.mes;
+    short ano_atual = DATA_ATUAL.ano;
+    short hora_atual = DATA_ATUAL.hora;
+    short min_atual = DATA_ATUAL.min;
+    float seg_atual = DATA_ATUAL.seg;
 
-int validarData(const Data date) {
+    if ((ano < 1) || (dia < 1) || (mes < 1) || (mes > 12) || (hora < 0) || (hora > 24) || (min < 0) || (min > 60) || (seg < 0) || (seg > 60)){
+        if (modo == '1') printf("\nERROR: Por favor, insira uma data válida!");
+        return 0;
+    }
+    
+    if (((seg > seg_atual) && (min > min_atual) && (hora > hora_atual) && (dia > dia_atual) && (mes >= mes_atual) && (ano >= ano_atual)) || (ano > ano_atual) ) {
+        if (modo == '1') printf("\nERROR: Por favor, insira uma data válida!");
+        return 0;
+    }
+    // validar o mes; validar a hora; validar os minutos; validar os segundos
+
+    //Criamos um vetor com os dias de cada mes, fevereiro com 28 pois é o mais comum
+    short dias_por_mes[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    //Apenas criado para propóstios de informação ao user
+    const char * nome_do_mes[] = {"janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"};
+
+    //Verificar anos bissextos
+    if (mes == 2 && ((ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0))) {
+        dias_por_mes[1] = 29;
+    }
+
+    if (dia > dias_por_mes[mes - 1]) {
+        if (modo == '1') printf("O dia é inválido! O mês de %s tem apenas %hd dias.\n", nome_do_mes[mes - 1], dias_por_mes[mes -1]);
+        return 0; 
+    }
     return 1;
 }
-
+/**
+ * @brief Validar registo
+ * 
+ * @param tipoRegisto Registo
+ * @return int 1,se válido; int 0, se inválido;
+ */
 int validarTipoRegisto(const char tipoRegisto) {
-    return 1;
+    if (tipoRegisto == '0' || tipoRegisto == '1') return 1;
+    return 0;
 }

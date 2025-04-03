@@ -1,6 +1,4 @@
 #include "sensores.h"
-#include "bdados.h"
-#include 
 
 int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude) {
     if (!bd || !designacao || !latitude || !longitude) return 0;
@@ -50,4 +48,28 @@ int compararSensores(void *sensor1, void *sensor2) {
     if (x->codSensor > y->codSensor) return 1;
     if (y->codSensor < x->codSensor) return -1;
     return 0;
+}
+
+int compCodSensor(void *sensor, int codigo) {
+    if (!sensor || codigo < 0) return 0;
+
+    Sensor *x = (Sensor *)sensor;
+    if (x->codSensor == codigo) return 1;
+    return 0;
+}
+
+void freeSensor(void *sensor) {
+    Sensor *obj = (Sensor *)sensor;
+    if (obj->designacao) free(obj->designacao);
+    if (obj->latitude) free(obj->latitude);
+    if (obj->longitude) free(obj->longitude);
+    free(obj);
+}
+
+void mostrarSensor(void *sensor){
+    if (!sensor) return;
+    Sensor *x = (Sensor *) sensor;
+    printf ("\nCódigo do Sensor: %d", x->codSensor);
+    printf ("\nDesignação do Sensor: %s", x->designacao);
+    printf ("\nLocalização do Sensor: %s\t%s", x->latitude, x->longitude);
 }

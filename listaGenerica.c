@@ -6,7 +6,7 @@
  * @return Lista* ou NULL em caso de erro
  */
 Lista * criarLista() {
-    Lista * li = (Lista *)malloc(sizeof(Lista));
+    Lista *li = (Lista *)malloc(sizeof(Lista));
     if (!li) return NULL;
     
     li->inicio = NULL;
@@ -21,12 +21,12 @@ Lista * criarLista() {
  * @param elemento  Elemento a adicionar
  * @return int 1 em caso de sucesso e 0 em caso de erro
  */
-int addInicioLista(Lista * li, void * elemento) {
+int addInicioLista(Lista *li, void *elemento) {
     if (!li || !elemento) {
         return 0;
     }
 
-    No * aux = (No *)malloc(sizeof(No));
+    No *aux = (No *)malloc(sizeof(No));
     if (!aux) return 0;
 
     aux->info = elemento;
@@ -45,12 +45,12 @@ int addInicioLista(Lista * li, void * elemento) {
  * 
  * @return int  0 em caso de erro e 1 em caso de sucesso
  */
-int addFimLista(Lista * li, void * elemento) {
+int addFimLista(Lista *li, void *elemento) {
     if (!li || !elemento) {
         return 0;
     }
 
-    No * aux = (No *)malloc(sizeof(No));
+    No *aux = (No *)malloc(sizeof(No));
     if (!aux) return 0;
 
     aux->info = elemento;
@@ -60,7 +60,7 @@ int addFimLista(Lista * li, void * elemento) {
         li->inicio = aux;
     }
     else {
-        No * p = li->inicio;
+        No *p = li->inicio;
         while(p->prox) {
             p = p->prox;
         }
@@ -76,10 +76,10 @@ int addFimLista(Lista * li, void * elemento) {
  * @param li    Lista
  * @param printObj  Função para mostrar o elemento
  */
-void printLista(Lista * li, void (*printObj)(void * obj)) {
+void printLista(Lista *li, void (*printObj)(void *obj)) {
     if (!li) return;
 
-    No * p = li->inicio;
+    No *p = li->inicio;
     while(p) {
         (*printObj)(p->info);
         p = p->prox;
@@ -92,11 +92,11 @@ void printLista(Lista * li, void (*printObj)(void * obj)) {
  * @param li    Lista
  * @param freeObj   Função para libertar a memória de cada x elemento
  */
-void freeLista(Lista * li, void (*freeObj)(void * obj)) {
+void freeLista(Lista *li, void (*freeObj)(void *obj)) {
     if (!li) return;
 
-    No * p = li->inicio;
-    No * seg;
+    No *p = li->inicio;
+    No *seg;
 
     while(p) {
         seg = p->prox;
@@ -115,10 +115,10 @@ void freeLista(Lista * li, void (*freeObj)(void * obj)) {
  * @param obj   Elemento a procurar
  * @return int 
  */
-int pesquisarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2), void * obj) {
+int pesquisarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2), void *obj) {
     if (!li || !li->inicio) return 0;
 
-    No * p = li->inicio;
+    No *p = li->inicio;
     while(p) {
         if ((*compObjs)(p->info, obj) == 0) 
             return 1;
@@ -134,10 +134,10 @@ int pesquisarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2), void *
  * @param li    Lista
  * @return void 
  */
-void inverterLista(Lista * li) {
-    No * p = li->inicio;
-    No * ant = NULL;
-    No * seg = NULL;
+void inverterLista(Lista *li) {
+    No *p = li->inicio;
+    No *ant = NULL;
+    No *seg = NULL;
     
     while(p) {
         seg = p->prox;
@@ -156,14 +156,14 @@ void inverterLista(Lista * li) {
  * 
  * @note Troca os elementos obj1 com obj2 quando a função compObjs retorna 1
  */
-void ordenarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2)) {
-    if (!li || li->n_elementos < 2) return;
+void ordenarLista(Lista * li, int (*compObjs)(void *obj1, void *obj2)) {
+    if (!li || li->nel < 2) return;
 
     char trocou;
     do {
         No * ant = NULL;
         No * a = li->inicio; //atual
-        No * p = atual->prox; //proximo
+        No * p = a->prox; //proximo
         trocou = '0';
         
         while (p) {
@@ -180,9 +180,29 @@ void ordenarLista(Lista * li, int (*compObjs)(void * obj1, void * obj2)) {
             } else {
                 ant = a;
                 a = p;
-                p = prox->prox;
+                p = p->prox;
             }
         }
     } while (trocou == '1');
 }
 
+/**
+ * @brief Pesquisa um código do tipo int na lista dada
+ * 
+ * @param li Lista onde procurar
+ * @param compObjs Função para verificar se é o código pretendido (deve retornar 1 caso seja)
+ * @param codigo Código a procurar
+ * @return void* Fazer cast consoante o tipo de dados
+ */
+void * pesquisarPorCodigo(Lista *li, int (*compCod)(void *codObj, int codigo), int codigo) {
+    if (!li || !li->inicio) return NULL;
+
+    No *p = li->inicio;
+    while(p) {
+        if ((*compCod)(p->info, codigo) == 1) {
+            return p->info;
+        }
+        p = p->prox;
+    }
+    return NULL;
+}

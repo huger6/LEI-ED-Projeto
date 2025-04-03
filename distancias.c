@@ -7,8 +7,8 @@ int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float dista
     Distancias * km = (Distancias *)malloc(sizeof(Distancias));
     if (!km) return 0;
 
-    Sensor *sen1 = obterSensorPorId(bd, codSensor1);
-    Sensor *sen2 = obterSensorPorId(bd, codSensor2);
+    Sensor *sen1 = (Sensor *)pesquisarPorCodigo(bd->sensores, compCodSensor, codSensor1);
+    Sensor *sen2 = (Sensor *)pesquisarPorCodigo(bd->sensores, compCodSensor, codSensor2);
     if (!sen1 || sen2) return 0; //Se os sensores não existem não pode haver distancias entre eles
 
     km->sensor1 = sen1;
@@ -33,14 +33,7 @@ int compararDistancias(void *dist1, void *dist2) {
     return 0;
 }
 
-Sensor * obterSensorPorId(Bdados *bd, int codigo) {
-    if (!bd || !bd->sensores || !bd->sensores->inicio) return NULL;
-
-    No *p = bd->sensores->inicio;
-    while(p) {
-        if (p->info->codSensor == codigo) {
-            return (Sensor *)p->info;
-        }
-    }
-    return NULL;
+void freeDistancia(void *distancia) {
+    Distancias *obj = (Distancias *)distancia;
+    free(obj);
 }

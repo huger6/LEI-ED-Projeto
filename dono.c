@@ -1,5 +1,4 @@
 #include "dono.h"
-#include "bdados.h"
 #include "listaGenerica.h"
 
 /**
@@ -54,3 +53,24 @@ int compararDonos(void *dono1, void *dono2) {
     return 0;
 }
 
+int compCodDono(void *dono, int codigo) {
+    if (!dono || codigo < 0) return 0;
+
+    Dono *x = (Dono *)dono;
+    if (x->nif == codigo) return 1;
+    return 0;
+}
+
+void freeDono(void *dono) {
+    Dono *obj = (Dono *)dono;
+    if (obj->nome) free(obj->nome);
+    free(dono);
+}
+
+void msotrarDono(void *dono){
+    if (!dono) return;
+    Dono  *x = (Dono*) dono;
+    printf ("\nNome: %s", x->nome);
+    printf ("\nNIF: %d", x->nif);
+    printf ("Código Posta: %d-%d", x->codigoPostal.local, x->codigoPostal.zona);
+}

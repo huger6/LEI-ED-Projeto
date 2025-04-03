@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bdados.h"
+
 typedef struct {
     short zona; //Primeiros 4 dígitos
     short local; //Últimos 3 dígitos
@@ -18,5 +20,8 @@ typedef struct {
 
 int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal);
 int compararDonos(void *dono1, void *dono2);
+int compCodDono(void *dono, int codigo);
+void freeDono(void *dono);
+void msotrarDono(void *dono);
 
 #endif
