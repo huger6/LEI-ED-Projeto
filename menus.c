@@ -33,6 +33,215 @@ char mostrar_menu(void (*escrever_menu)(), char min_opcao, char max_opcao) {
 
     return '0';
 }
+//arranjar nomes mais distinguiveis
+//colocar as funçoes em falta
+void menu_Principal(bdad *bd) {
+    char opcao;
+    do {
+        autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrar_menu(menu_principal, '0', '6');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                printf("Tem a certeza que quer sair do programa? (S/N) ");
+                if (!sim_nao()) {
+                    opcao = '1'; //Forçar o loop a continuar
+                    //Não há problemas porque no ínicio do loop pedimos sempre o menu
+                    continue;
+                }
+                break;
+            case '1':
+                menu_Registos();
+                break;
+            case '2':
+                menu_Listagens();
+                break;
+            case '3':
+                menu_Trafego();
+                break;
+            case '4':
+                menu_Infracoes();
+                break;
+            case '5': 
+                menu_Velocidades();
+                break;
+            case '6': 
+                Opções;//fazer menu para opções 
+                break;
+            default:
+                opcao = '0'; //Sair caso haja erro
+                break;
+        }
+    } while(opcao != '0');
+}
+void menu_Registos(bdad *bd) {
+    char opcao;
+    do {
+        autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrar_menu(menu_registos, '0', '4');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                printf("Tem a certeza que quer sair do programa? (S/N) ");
+                if (!sim_nao()) {
+                    opcao = '1'; //Forçar o loop a continuar
+                    //Não há problemas porque no ínicio do loop pedimos sempre o menu
+                    continue;
+                }
+                break;
+            case '1':
+                //registar_dono;
+                break;
+            case '2':
+                //registar_veiculo;
+                break;
+            case '3':
+                //registar_passagem;
+                break;
+            case '4':
+                //retornar;
+                break;
+            default:
+                opcao = '0'; //Sair caso haja erro
+                break;
+        }
+    } while(opcao != '0');
+}
+void menu_Listagens(bdad *bd) {
+    char opcao;
+    do {
+        autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrar_menu(menu_listagens, '0', '5');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                printf("Tem a certeza que quer sair do programa? (S/N) ");
+                if (!sim_nao()) {
+                    opcao = '1'; //Forçar o loop a continuar
+                    //Não há problemas porque no ínicio do loop pedimos sempre o menu
+                    continue;
+                }
+                break;
+            case '1':
+                //listar_donos;
+                break;
+            case '2':
+                //listar_veiculos;
+                break;
+            case '3':
+                //listar_numero;
+                break;
+            case '4':
+                //listar_nome;
+                break;
+            case '5': 
+                //retornar;
+                break;
+            default:
+                opcao = '0'; //Sair caso haja erro
+                break;
+        }
+    } while(opcao != '0');
+}
+void menu_Trafego(bdad *bd) {
+    char opcao;
+    do {
+        autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrar_menu(menu_trafego, '0', '3');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                printf("Tem a certeza que quer sair do programa? (S/N) ");
+                if (!sim_nao()) {
+                    opcao = '1'; //Forçar o loop a continuar
+                    //Não há problemas porque no ínicio do loop pedimos sempre o menu
+                    continue;
+                }
+                break;
+            case '1':
+                //ranking_circulacao;
+                break;
+            case '2':
+                //ranking_marca;
+                break;
+            case '3':
+                //retornar;
+                break;
+            default:
+                opcao = '0'; //Sair caso haja erro
+                break;
+        }
+    } while(opcao != '0');
+}
+void menu_Infracoes(bdad *bd) {
+    char opcao;
+    do {
+        autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrar_menu(menu_infracoes, '0', '3');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                printf("Tem a certeza que quer sair do programa? (S/N) ");
+                if (!sim_nao()) {
+                    opcao = '1'; //Forçar o loop a continuar
+                    //Não há problemas porque no ínicio do loop pedimos sempre o menu
+                    continue;
+                }
+                break;
+            case '1':
+                //listar_infracoes;
+                break;
+            case '2':
+                //ranking_infracoes;
+                break;
+            case '3': 
+                //retornar;
+                break;
+            default:
+                opcao = '0'; //Sair caso haja erro
+                break;
+        }
+    } while(opcao != '0');
+}
+void menu_Velocidades(bdad *bd) {
+    char opcao;
+    do {
+        autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrar_menu(menu_velocidades, '0', '6');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                printf("Tem a certeza que quer sair do programa? (S/N) ");
+                if (!sim_nao()) {
+                    opcao = '1'; //Forçar o loop a continuar
+                    //Não há problemas porque no ínicio do loop pedimos sempre o menu
+                    continue;
+                }
+                break;
+            case '1':
+                //velocidades_medias;
+                break;
+            case '2':
+                //carro_maior_velocidade;
+                break;
+            case '3':
+                //dono_maior_velocidade;
+                break;
+            case '4':
+                //vel_cod_post;
+                break;
+            case '5':
+                //marca_comum;
+                break;
+            case '6': 
+                //retornar;
+                break;
+            default:
+                opcao = '0'; //Sair caso haja erro
+                break;
+        }
+    } while(opcao != '0');
+}
 
 /*
 As seguintes funções que começam por "menu" servem apenas para printar o menu
@@ -83,9 +292,10 @@ void menu_Listagens(){
     printf("╠══════════════════════════════════╣\n");
     printf("║  1. Listar donos                 ║\n");
     printf("║  2. Listar veículos              ║\n");
-    printf("║  3. Listar o Nº e nome           ║\n");
-    printf("║  4. Listar matrícula             ║\n");
-    printf("║  5. Retornar                     ║\n");
+    printf("║  3. Listar o Nº                  ║\n");
+    printf("║  4. Listar o nome                ║\n");
+    printf("║  5. Listar matrícula             ║\n");
+    printf("║  6. Retornar                     ║\n");
     printf("║  0. Sair do programa             ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
@@ -105,7 +315,7 @@ void menu_Trafego(){
 /*
 *@note Opções:0-3
 */
-void menu_infracoes(){
+void menu_Infracoes(){
     printf("╔══════════════════════════════════╗\n");
     printf("║        MENU DE INFRAÇÕES         ║\n");
     printf("╠══════════════════════════════════╣\n");
@@ -118,7 +328,7 @@ void menu_infracoes(){
 /*
 *@note Opções:0-6
 */
-void menu_velocidades(){
+void menu_Velocidades(){
     printf("╔══════════════════════════════════╗\n");
     printf("║    VELOCIDADES E ESTATÍSTICAS    ║\n");
     printf("╠══════════════════════════════════╣\n");
