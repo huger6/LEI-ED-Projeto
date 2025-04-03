@@ -14,6 +14,7 @@ typedef struct {
 int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float distancia);
 int compararDistancias(void *dist1, void *dist2);
 void freeDistancia(void *distancia);
+void mostrarDistancia(void *sensor1, void *sensor2, void *distancia);
 
 
 #endif

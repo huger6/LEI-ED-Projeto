@@ -56,3 +56,15 @@ void freeCarro(void *carro) {
     if (obj->modelo) free(obj->modelo);
     free(obj);
 }
+
+void mostrarCarro(void *carro){
+    if (!carro) return;
+    Carro *x = (Carro*) carro;
+    printf ("\nCódigo do Veículo: %d", x->codVeiculo);
+    printf ("\nMatrícula: %s", x->matricula);
+    printf ("\nMarca: %s", x->marca);
+    printf ("\nModelo: %s", x->modelo);
+    printf ("\nAno do Veículo: %d", x->ano);
+    printf ("\nNome do Dono: %s", x->ptrPessoa->nome);
+    printf("\nNIF do Dono: %d", x->ptrPessoa->nif);
+}

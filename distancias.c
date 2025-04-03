@@ -37,3 +37,12 @@ void freeDistancia(void *distancia) {
     Distancias *obj = (Distancias *)distancia;
     free(obj);
 }
+
+void mostrarDistancia(void *sensor1, void *sensor2, void *distancia){
+    if (!sensor1 || !sensor2 || !distancia) return;
+    Sensor *s1 = (Sensor*) sensor1;
+    Sensor *s2 = (Sensor*) sensor2;
+    Distancias *x = (Distancias*) distancia;
+    
+    printf("\nDistância do Sensor %d ao Sensor %d: %f", s1->codSensor, s2->codSensor, x->distancia);
+}
