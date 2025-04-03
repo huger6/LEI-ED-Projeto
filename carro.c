@@ -1,5 +1,4 @@
 #include "carro.h"
-#include "bdados.h"
 
 
 int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo) {
@@ -9,16 +8,10 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     if (!aut) return 0;
     
     //Matrícula
-    aut->matricula = (char *)malloc(strlen(matricula) * sizeof(char) + 1);
-    if (aut->matricula) {
-        free(aut);
-        return 0;
-    }
     strcpy(aut->matricula, matricula);
     //Marca
     aut->marca = (char *)malloc(strlen(marca) * sizeof(char) + 1);
     if (!aut->marca) {
-        free(aut->matricula);
         free(aut);
         return 0;
     }
@@ -26,7 +19,6 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Modelo
     aut->modelo = (char *)malloc(strlen(modelo) * sizeof(char) + 1);
     if (!aut->modelo) {
-        free(aut->matricula);
         free(aut->marca);
         free(aut);
         return 0;
@@ -35,7 +27,7 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Ano
     aut->ano = ano;
     //NIF (ptrPessoa)
-    aut->ptrPessoa = obterDonoCarro();
+    aut->ptrPessoa = (Dono *)pesquisarPorCodigo(bd->donos, compCodDono, nif);
     //Código Veículo
     aut->codVeiculo = codVeiculo;
     
@@ -55,18 +47,6 @@ int compararCarros(void *carro1, void *carro2) {
     if (x->codVeiculo > y->codVeiculo) return 1;
     if (x->codVeiculo < y->codVeiculo) return -1;
     return 0;
-}
-
-Dono * obterDonoCarro(Bdados *bd, int nif) {
-    if (!bd || !bd->donos || !bd->donos->inicio) return NULL;
-
-    No *p = bd->donos->inicio;
-    while(p) {
-        if (p->info->nif == nif) {
-            return (Dono *)p->info;
-        }
-    }
-    return NULL;
 }
 
 //Não se liberta o ponteiro para Dono certo?

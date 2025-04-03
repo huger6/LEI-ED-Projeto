@@ -1,16 +1,15 @@
 #include "passagens.h"
-#include "bdados.h"	
 
 int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto) {
     if (!bd || !bd->passagens) return 0;
 
-    Passagem * pas = (Passagem *)malloc(Passagem);
+    Passagem *pas = (Passagem *)malloc(sizeof(Passagem));
     if (!pas) return 0;
 
     //Id Sensor
     pas->idSensor = idSensor;
     //Ptr Carro (código veículo)
-    Carro * ptrCarro = obterCarroPorId(bd, codVeiculo);
+    Carro *ptrCarro = (Carro *)pesquisarPorCodigo(bd->carros, compCodPassagem, codVeiculo);
     if (ptrCarro) {
         pas->veiculo = ptrCarro;
     }
@@ -33,16 +32,12 @@ int compararPassagens(void *passagem1, void *passagem2) {
     return (compararDatas(x->data, y->data));
 }
 
-Carro * obterCarroPorId(Bdados *bd, int codigo) {
-    if (!bd || !bd->carros || !bd->carros->inicio) return 0;
+int compCodPassagem(void *passagem, int codigo) {
+    if (!passagem || codigo < 0) return 0;
 
-    No *p = bd->carros->inicio;
-    while(p) {
-        if (p->info->codVeiculo == codigo) {
-            return (Carro *)p->info;
-        }
-    }
-    return NULL;
+    Passagem *x = (Passagem *)passagem;
+    if (x->idSensor == codigo) return 1;
+    return 0;
 }
 
 void freePassagem(void *passagem) {

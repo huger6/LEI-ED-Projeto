@@ -6,6 +6,7 @@
 
 #include "sensores.h"
 #include "carro.h"
+#include "bdados.h"
 #include "uteis.h"
 
 typedef struct {
@@ -18,7 +19,7 @@ typedef struct {
 
 int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
 int compararPassagens(void *passagem1, void *passagem2);
-Carro * obterCarroPorId(Bdados *bd, int codigo);
+int compCodPassagem(void *passagem, int codigo);
 void freePassagem(void *passagem);
 
 

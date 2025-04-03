@@ -6,8 +6,8 @@
 #include <string.h>
 
 #include "dono.h"
-
-#define MAX_MATRICULA 8
+#include "constantes.h"
+#include "bdados.h"
 
 typedef struct {
     char matricula[MAX_MATRICULA + 1];
@@ -21,7 +21,6 @@ typedef struct {
 
 int compararCarros(void *carro1, void *carro2);
 int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
-Dono * obterDonoCarro(Bdados *bd, int nif);
 void freeCarro(void *carro);
 
 #endif

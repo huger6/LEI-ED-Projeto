@@ -16,10 +16,10 @@ int inicializarListasBD(Bdados *bd) {
 }
 
 void freeTudo(Bdados *bd) {
-    freeLista(bd->carros, freeCarros);
-    freeLista(bd->distancias, freeDistancias);
-    freeLista(bd->donos, freeDonos);
-    freeLista(bd->passagens, freePassagens);
-    freeLista(bd->sensores, freeSensores);
+    freeLista(bd->carros, freeCarro);
+    freeLista(bd->distancias, freeDistancia);
+    freeLista(bd->donos, freeDono);
+    freeLista(bd->passagens, freePassagem);
+    freeLista(bd->sensores, freeSensor);
     free(bd);
 }

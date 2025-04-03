@@ -3,12 +3,12 @@
 #include "dados.h"
 #include "uteis.h"
 #include "validacoes.h"
-#include "bdados.h"
 #include "dono.h"
 #include "carro.h"
 #include "sensores.h"
 #include "distancias.h"
 #include "passagens.h"
+#include "constantes.h"
 
 
 /**
@@ -27,7 +27,7 @@
  * @note Os ficheiros podem ser passados como NULL para usar o valor default
  */
 int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, char *fDistancias, char *fPassagem, char *fLogs) {
-    const char * logFile = (fLogs) ? fLogs : LOGS_TXT; //Usar default em caso de não ser especificado
+    const char *logFile = (fLogs) ? fLogs : LOGS_TXT; //Usar default em caso de não ser especificado
 
     //pode se criar um ficheiro html com o logs
     FILE *logs = fopen(logFile, "a");
@@ -38,8 +38,8 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
 
     char erro = '0';
     fprintf(logs, "#ÍNICIO DA LEITURA DOS DADOS#\n\n\n");
-    if (!carregarDonosTxt(fDonos, logs) || !carregarCarrosTxt(fCarros, logs) || !carregarSensoresTxt(fSensores, logs) || 
-        !carregarDistanciasTxt(fDistancias, logs) || !carregarPassagensTxt(fPassagem, logs)) {
+    if (!carregarDonosTxt(bd, fDonos, logs) || !carregarCarrosTxt(bd, fCarros, logs) || !carregarSensoresTxt(bd, fSensores, logs) || 
+        !carregarDistanciasTxt(bd, fDistancias, logs) || !carregarPassagensTxt(bd, fPassagem, logs)) {
             erro = '1';
         }
 
@@ -326,7 +326,7 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
                 }
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
-                    if(!inserirDistanciaLido(bd, codSensor1, codSensor2, parametros[2], parametros[3])) {
+                    if(!inserirDistanciaLido(bd, codSensor1, codSensor2, distancia)) {
                         linhaInvalida(linha, nLinhas, logs);
                         fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória");
                     }
@@ -398,20 +398,20 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     fprintf(logs, "Razão: %s\n\n", mensagemData);
                     erro = '1';
                 }
-                else if (!validarData(date)) {
+                else if (!validarData(date, '0')) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Data inválida\n\n");
                     erro = '1';
                 }
                 //Tipo de registo
-                if (!validarTipoRegisto(parametros[3])) {
+                if (!validarTipoRegisto((char)parametros[3])) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Tipo de registo inválido\n\n");
                     erro = '1';
                 }
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
-                    if(!inserirPassagemLido(bd, idSensor, codVeiculo, date, parametros[3])) {
+                    if(!inserirPassagemLido(bd, idSensor, codVeiculo, date, (char)parametros[3])) {
                         linhaInvalida(linha, nLinhas, logs);
                         fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória");
                     }
@@ -504,7 +504,7 @@ void separarParametros(const char *linha, char **parametros, int *num_parametros
         //Aqui fim está a apontar para o separador, o fim da linha ou um \n (se bem que neste caso \n é o fim da linha)
         char temp = *fim; //Armazena o tab ou o nul char
         *fim = '\0'; //vai terminar a string de inicio (ou seja, um parâmetro); também corta o \n aqui, se exitir
-        remover_espacos(inicio);
+        removerEspacos(inicio);
 
         if (*inicio != '\0') { //Se o inicio não for o fim da linha, então temos um parametro
             //Alocamos memória para o parametro e copia o conteúdo

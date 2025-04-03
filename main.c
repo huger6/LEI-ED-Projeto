@@ -1,6 +1,5 @@
 #include "uteis.h"
 #include "menus.h"
-#include "bdados.h"
 #include "listaGenerica.h"
 #include "carro.h"
 #include "dono.h"
@@ -41,12 +40,12 @@ int main(void) {
 
     Bdados * bd = (Bdados *)malloc(sizeof(Bdados));
     
-    if (!carregarDadosTxt(NULL, NULL, NULL, NULL, NULL, NULL)) {
-        printf("Ocorreu um erro a carregar os dados para memória!\n")
+    if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
+        printf("Ocorreu um erro a carregar os dados para memória!\n");
         return EXIT_FAILURE;
     }
 
-    the_architect();
+    the_architect(bd);
 
     
     freeTudo(bd);

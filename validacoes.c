@@ -1,5 +1,4 @@
 #include "validacoes.h"
-#include "dados.h"
 
 
 int validarNif(const int nif) 
@@ -26,8 +25,12 @@ char * validarNome(char *nome)
     for (int i = 0; i < comprimento; i++) 
     {
         //Verificar se tem separador
-        if (nome[i] == SEPARADOR) return ("\nO nome contém um caracter separador inválido (%c).\n", SEPARADOR);
-
+        if (nome[i] == SEPARADOR) {
+            char mensagemErro[60];
+            sprintf(mensagemErro, "\nO nome contém um caracter separador inválido (%c).\n", SEPARADOR);
+            return mensagemErro;
+        }
+        
         // Verificar se há dois espaços seguidos
         if (i < comprimento -1 && nome[i] == ' ' && nome[i+1] == ' ') return "\nO nome não pode conter espaços consecutivos!\n";
 
@@ -69,8 +72,8 @@ int validarMatricula(const char *matricula)
     return 0;
 }
 
-char * validarMarca(const char *marca) {
-    validarNome (marca);
+char * validarMarca(char *marca) {
+    validarNome(marca);
     return NULL;
 }
 
@@ -80,8 +83,8 @@ char * validarMarca(const char *marca) {
  * @param modelo Modelo
  * @return char* NULL caso válido, mensagem de erro caso contrário
  */
-char * validarModelo(const char *modelo) {
-    validarNome (modelo);
+char * validarModelo(char *modelo) {
+    validarNome(modelo);
     return NULL;
 }
 

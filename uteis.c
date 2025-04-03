@@ -111,8 +111,8 @@ void data_atual() {
     DATA_ATUAL.mes = tm_atual->tm_mon + 1; //tm_mon vai de 0-11
     DATA_ATUAL.ano = tm_atual->tm_year + 1900;
     DATA_ATUAL.hora = 0;
-    DATA_ATUAL.minuto = 0;
-    DATA_ATUAL.segundos = 0.0f;
+    DATA_ATUAL.min = 0;
+    DATA_ATUAL.seg = 0.0f;
 }
 
 //TODO
@@ -438,11 +438,11 @@ int compararDatas(Data data1, Data data2) {
     if (data1.hora < data2.hora) return -1;
     if (data1.hora > data2.hora) return 1;
     //Minuto
-    if (data1.minuto < data2.minuto) return -1;
-    if (data1.minuto > data2.minuto) return 1;
+    if (data1.min < data2.min) return -1;
+    if (data1.min > data2.min) return 1;
     //Segundos
-    if (data1.segundos < data2.segundos) return -1;
-    if (data1.segundos > data2.segundos) return 1;
+    if (data1.seg < data2.seg) return -1;
+    if (data1.seg > data2.seg) return 1;
     
     //São iguais
     return 0;

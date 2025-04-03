@@ -148,8 +148,7 @@ void the_architect(Bdados *bd) {
         switch(opcao) {
             case '0':
                 limpar_terminal();
-                printf("Tem a certeza que quer sair do programa? (S/N) ");
-                if (!sim_nao()) {
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
                     opcao = '1'; //Forçar o loop a continuar
                     //Não há problemas porque no ínicio do loop pedimos sempre o menu
                     continue;
@@ -171,7 +170,7 @@ void the_architect(Bdados *bd) {
                 //Velocidades e estatísticas
                 break;
             case '6': 
-                processar_opcoes(bd);
+                //processar_opcoes(bd);
                 break;
             default:
                 opcao = '0'; //Sair caso haja erro
