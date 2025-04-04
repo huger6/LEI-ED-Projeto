@@ -28,7 +28,12 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal) {
     dono->codigoPostal.local = codigoPostal.local;
     dono->codigoPostal.zona = codigoPostal.zona;
     
-    if (!addInicioLista(bd->donos, (void *)dono)) return 0;
+    if (!addInicioLista(bd->donos, (void *)dono)) {
+        free(dono->nome);
+        free(dono);
+        return 0;
+    }
+        
 
     return 1;
 }
@@ -66,4 +71,12 @@ void freeDono(void *dono) {
     Dono *obj = (Dono *)dono;
     if (obj->nome) free(obj->nome);
     free(dono);
+}
+
+void msotrarDono(void *dono){
+    if (!dono) return;
+    Dono  *x = (Dono*) dono;
+    printf ("\nNome: %s", x->nome);
+    printf ("\nNIF: %d", x->nif);
+    printf ("Código Posta: %d-%d", x->codigoPostal.local, x->codigoPostal.zona);
 }

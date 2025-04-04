@@ -18,5 +18,6 @@ int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitud
 int compararSensores(void *sensor1, void *sensor2);
 int compIdSensor(void *sensor, void *idSensor);
 void freeSensor(void *sensor);
+void mostrarSensor(void *sensor);
 
 #endif

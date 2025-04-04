@@ -5,7 +5,7 @@
  * 
  * @return Lista* ou NULL em caso de erro
  */
-Lista * criarLista() {
+Lista *criarLista() {
     Lista *li = (Lista *)malloc(sizeof(Lista));
     if (!li) return NULL;
     
@@ -161,9 +161,9 @@ void ordenarLista(Lista * li, int (*compObjs)(void *obj1, void *obj2)) {
 
     char trocou;
     do {
-        No * ant = NULL;
-        No * a = li->inicio; //atual
-        No * p = a->prox; //proximo
+        No *ant = NULL;
+        No *a = li->inicio; //atual
+        No *p = a->prox; //proximo
         trocou = '0';
         
         while (p) {

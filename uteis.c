@@ -110,9 +110,9 @@ void data_atual() {
     DATA_ATUAL.dia = tm_atual->tm_mday;
     DATA_ATUAL.mes = tm_atual->tm_mon + 1; //tm_mon vai de 0-11
     DATA_ATUAL.ano = tm_atual->tm_year + 1900;
-    DATA_ATUAL.hora = 0;
-    DATA_ATUAL.min = 0;
-    DATA_ATUAL.seg = 0.0f;
+    DATA_ATUAL.hora = tm_atual->tm_hour;
+    DATA_ATUAL.min = tm_atual->tm_min;
+    DATA_ATUAL.seg = tm_atual->tm_sec;
 }
 
 //TODO
@@ -310,7 +310,7 @@ int stringToShort(const char * str, short * resultado) {
  * @note Requer string terminada em \0
  */
 int stringToFloat(const char * str, float * resultado) {
-    printf("String original: [%s]\n\n", str);
+    printf("String original: [%s]\n", str);
     char * ptr_fim;
     float valor = strtof(str, &ptr_fim);
     //Verificar erros de conversão
@@ -320,6 +320,18 @@ int stringToFloat(const char * str, float * resultado) {
     //Já não há necessidade de verificar limites pois converte diretamente para float
     *resultado = (float) valor;
     return 1;
+}
+
+/**
+ * @brief Converte todos os pontos de str para vírgula
+ * 
+ * @param str String a converter
+ */
+void converterPontoVirgulaDecimal(char *str) {
+    size_t pos = strcspn(str, ".");
+    if (str[pos] == '.') {
+        str[pos] = ',';
+    }
 }
 
 /* Lê uma linha completa de um ficheiro, qualquer que seja o tamanho

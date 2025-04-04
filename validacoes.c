@@ -1,14 +1,20 @@
 #include "validacoes.h"
 
 
-int validarNif(const int nif) {
+
+int validarNif(const int nif) 
+{
     return 1;
 }
 
-char * validarNome(char *nome) {
-    //Alterar caso haja tempo (a forma como se retorna a mensagem de erro)
-
-
+/**
+ * @brief Validar nome
+ * 
+ * @param nome Nome
+ * @return NULL se válido; retorna uma mensagem de erro se for inválido;
+ */
+char * validarNome(char *nome)
+{
     int comprimento = strlen(nome);
 
     //Verificar nome vazio
@@ -40,17 +46,31 @@ char * validarNome(char *nome) {
     return NULL;
 }
 
-int validarCodPostal(const short zona, const short local) {
+int validarCodPostal(const short zona, const short local)
+{
     return 1;
 }
 
-int validarAnoCarro(const short ano) {
+/**
+ * @brief Validar ano do carro
+ * 
+ * @param ano Ano do carro
+ * @return int 1,se válido; int 0, se inválido;
+ */
+int validarAnoCarro(const short ano)
+{
     if (ano < 1885 || ano > DATA_ATUAL.ano) return 0;
     
     return 1;
 }
-
-int validarMatricula(const char *matricula) {
+/**
+ * @brief Validar matricula de veículo
+ * 
+ * @param matricula Matricula de um veículo
+ * @return int 1,se válido; int 0, se inválido; 
+ */
+int validarMatricula(const char *matricula)
+{
     //Ver regex
     if ((isalpha(matricula[0]) && isalpha(matricula[1])) || (isdigit(matricula[0]) && isdigit(matricula[1])))
     {
@@ -67,7 +87,12 @@ int validarMatricula(const char *matricula) {
     }
     return 0;
 }
-
+/**
+ * @brief Valida a marca do veículo
+ * 
+ * @param marca Marca
+ * @return char* NULL caso válido, mensagem de erro caso contrário
+ */
 char * validarMarca(char *marca) {
     validarNome(marca);
     return NULL;
@@ -83,22 +108,45 @@ char * validarModelo(char *modelo) {
     validarNome(modelo);
     return NULL;
 }
-
+/**
+ * @brief Validar código de veículo
+ * 
+ * @param codigo Código do veículo
+ * @return int 0, se o Código do veículo for zero ou negativo, logo é inválido; int 1, se o código do veículo maior ou igual que 1, logo válido;
+ */
 int validarCodVeiculo(const int codigo) {
     if (codigo < 1) return 0;
     return 1;
 }
-
+/**
+ * @brief Validar código de sensor
+ * 
+ * @param codSensor Código do Sensor
+ * @return int 0, se o Código do sensor for zero ou negativo, logo é inválido; int 1, se o código do sensor maior ou igual que 1, logo válido;
+ */
 int validarCodSensor(const int codSensor) {
     if (codSensor < 1) return 0;
     return 1;
 }
 
+/**
+ * @brief Validar distâncias
+ * 
+ * @param distancia Distância
+ * @return int 0 se for negativa, logo é inválida; int 1 se for positiva, logo é válida;
+ */
 int validarDistancia(const float distancia) {
     if (distancia < 0) return 0;
     return 1;
 }
 
+/**
+ * @brief validar data
+ * 
+ * @param date Data
+ * @param modo escrever mensagem de erro se 1;
+ * @return int 0 se for inválida; int 1 se válida;
+ */
 int validarData(const Data date, const char modo) {
     short dia = date.dia;
     short mes = date.mes;
@@ -127,7 +175,7 @@ int validarData(const Data date, const char modo) {
     //Criamos um vetor com os dias de cada mes, fevereiro com 28 pois é o mais comum
     short dias_por_mes[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     //Apenas criado para propóstios de informação ao user
-    const char * nome_do_mes[] = {"janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"};
+    const char *nome_do_mes[] = {"janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"};
 
     //Verificar anos bissextos
     if (mes == 2 && ((ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0))) {
@@ -140,7 +188,12 @@ int validarData(const Data date, const char modo) {
     }
     return 1;
 }
-
+/**
+ * @brief Validar registo
+ * 
+ * @param tipoRegisto Registo
+ * @return int 1,se válido; int 0, se inválido;
+ */
 int validarTipoRegisto(const char tipoRegisto) {
     if (tipoRegisto == '0' || tipoRegisto == '1') return 1;
     return 0;

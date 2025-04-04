@@ -5,17 +5,33 @@
 
 #include "bdados.h"
 
-char mostrar_menu(void (*escrever_menu)(), char min_opcao, char max_opcao);
-void validacao_menus(short *valido, const char opcao, const char limInf, const char limSup);
+char mostrarMenu(void (*escrever_menu)(), char min_opcao, char max_opcao);
+void validacaoMenus(short *valido, const char opcao, const char limInf, const char limSup);
 
-void menu_principal();
-void menu_registos();
-void menu_listagens();
-void menu_trafego();
-void menu_infracoes();
-void menu_velocidades();
+void menuPrincipal();
+void menuDonos();
+void menuVeiculos();
+void menuListagemVeiculos();
+void menuPassagens();
+void menuEstatisticas();
+void menuVelocidadesMedias();
+void menuInfracoes();
+void menuAnaliseDados();
+void menuExportacao();
+void menuOpcoes();
 
 void the_architect(Bdados *bd);
+void processarMenuDonos(Bdados *bd);
+void processarMenuVeiculos(Bdados *bd);
+void processarMenuListagemVeiculos(Bdados *bd);
+void processarMenuPassagens(Bdados *bd);
+void processarMenuEstatisticas(Bdados *bd);
+void processarMenuVelocidades(Bdados *bd);
+void processarMenuInfracoes(Bdados *bd);
+void processarMenuAnaliseDados(Bdados *bd);
+void processarMenuExportacao(Bdados *bd);
+void processarMenuOpcoes(Bdados *bd);
+
 
 
 

@@ -32,7 +32,13 @@ int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitud
     }
     strcpy(sen->longitude, longitude);
 
-    if (!addInicioLista(bd->sensores, (void *)sen)) return 0;
+    if (!addInicioLista(bd->sensores, (void *)sen)) {
+        free(sen->designacao);
+        free(sen->latitude);
+        free(sen->longitude);
+        free(sen);
+        return 0;
+    }
 
     return 1;
 }
@@ -65,4 +71,12 @@ void freeSensor(void *sensor) {
     if (obj->latitude) free(obj->latitude);
     if (obj->longitude) free(obj->longitude);
     free(obj);
+}
+
+void mostrarSensor(void *sensor){
+    if (!sensor) return;
+    Sensor *x = (Sensor *) sensor;
+    printf ("\nCódigo do Sensor: %d", x->codSensor);
+    printf ("\nDesignação do Sensor: %s", x->designacao);
+    printf ("\nLocalização do Sensor: %s\t%s", x->latitude, x->longitude);
 }

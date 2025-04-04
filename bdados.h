@@ -7,11 +7,11 @@
 #include "listaGenerica.h"
 
 typedef struct {
-    Lista * donos;
-    Lista * carros;
-    Lista * sensores;
-    Lista * distancias;
-    Lista * passagens;
+    Lista *donos;
+    Lista *carros;
+    Lista *sensores;
+    Lista *distancias;
+    Lista *passagens;
 } Bdados;
 
 

@@ -21,6 +21,7 @@ int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, cha
 int compararPassagens(void *passagem1, void *passagem2);
 int compCodPassagem(void *passagem, void *codigo);
 void freePassagem(void *passagem);
+void mostrarPassagem(void *passagem);
 
 
 #endif

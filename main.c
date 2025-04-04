@@ -32,6 +32,7 @@ Para compilar em Linux, usar:
 	Testado em Linux Ubuntu 20.04.6 LTS
 */
 
+// TODO: Modificar separarParametros
 
 int main(void) {
     limpar_terminal();
@@ -42,7 +43,6 @@ int main(void) {
     Bdados *bd = (Bdados *)malloc(sizeof(Bdados));
     inicializarListasBD(bd);
     
-    printf("Ínicio carregamento dos dados\n");
     if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
         printf("Ocorreu um erro a carregar os dados para memória!\n");
         return EXIT_FAILURE;

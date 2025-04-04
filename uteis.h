@@ -18,14 +18,6 @@ typedef struct {
 } Data;
 
 extern Data DATA_ATUAL;
-extern char autosaveON;
-extern char *fLogs;
-extern char *fDonos;
-extern char *fCarros;
-extern char *fSensores;
-extern char *fDistancias;
-extern char *fPassagens;
-
 
 
 void limpar_buffer();
@@ -41,6 +33,7 @@ char * strlwrSafe(char * str);
 int stringToInt(const char * str, int * resultado);
 int stringToShort(const char * str, short * resultado);
 int stringToFloat(const char * str, float * resultado);
+void converterPontoVirgulaDecimal(char *str);
 char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
 int converterCodPostal(const char *codPostal, short *zona, short *local);
 int compararDatas(Data data1, Data data2);

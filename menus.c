@@ -2,7 +2,6 @@
 
 #include "menus.h"
 #include "uteis.h"
-#include "bdados.h"
 
 /* Mostra menu e processa entrada do utilizador
  *
@@ -16,7 +15,7 @@
  * @note Valida entrada via validacao_menus()
  * @note Só sai quando adquire uma entrada válida
  */
-char mostrar_menu(void (*escrever_menu)(), char min_opcao, char max_opcao) { 
+char mostrarMenu(void (*escrever_menu)(), char min_opcao, char max_opcao) { 
     short valido = 0;
     char opcao = '0';
     do {
@@ -25,7 +24,7 @@ char mostrar_menu(void (*escrever_menu)(), char min_opcao, char max_opcao) {
         printf("=>Escolha uma opção: ");
 
         valido = scanf(" %c", &opcao);
-        validacao_menus(&valido, opcao, min_opcao, max_opcao);
+        validacaoMenus(&valido, opcao, min_opcao, max_opcao);
 
         if (valido == 1) {
             return opcao;
@@ -40,111 +39,225 @@ As seguintes funções que começam por "menu" servem apenas para printar o menu
 Nas notas das funções estão os limites de cada menu
 */
 
-/* Menu principal da aplicação
- *
+/**
+ * @brief Mostra o menu principal
+ * 
  * @return void
- *         
- * @note Opções: 0-6
+ * 
+ * @note Opções: 0-8
  */
-void menu_principal() {
-    //https://desenvolvedorinteroperavel.wordpress.com/2011/09/11/tabela-ascii-completa/
-    //Link da tabela ASCII completa de onde foram retirados as duplas barras do menu (a partir do 185 decimal)
+void menuPrincipal() {
     printf("╔══════════════════════════════════╗\n");
-    printf("║          MENU PRINCIPAL          ║\n");
+    printf("║           MENU PRINCIPAL         ║\n");
     printf("╠══════════════════════════════════╣\n");
-    printf("║  1. Registos                     ║\n");
-    printf("║  2. Listagens                    ║\n");
-    printf("║  3. Análises de Tráfego          ║\n");
-    printf("║  4. Infrações de Trânsito        ║\n");
-    printf("║  5. Velocidades e Estatísticas   ║\n");
-    printf("║  6. Opções                       ║\n");
-    printf("║  0. Sair do programa             ║\n");
+    printf("║  1. Gestão de Donos              ║\n");
+    printf("║  2. Gestão de Veículos           ║\n");
+    printf("║  3. Passagens                    ║\n");
+    printf("║  4. Estatísticas e Rankings      ║\n");
+    printf("║  5. Infrações                    ║\n");
+    printf("║  6. Análise de Dados             ║\n");
+    printf("║  7. Exportação                   ║\n");
+    printf("║  8. Opções                       ║\n");
+    printf("║  0. Sair                         ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
 
-/*
-*@note Opções:0-4
-*/
-void menu_registos() {
+/**
+ * @brief Mostra o menu dos donos
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-3
+ */
+void menuDonos() {
+    printf("╔═════════════════════════════════════╗\n");
+    printf("║           GESTÃO DE DONOS           ║\n");
+    printf("╠═════════════════════════════════════╣\n");
+    printf("║  1. Registar dono                   ║\n");
+    printf("║  2. Listar donos (alfabeticamente)  ║\n");
+    printf("║  3. Listar donos (por NIF)          ║\n");
+    printf("║  0. Voltar ao menu anterior         ║\n");
+    printf("╚═════════════════════════════════════╝\n\n");
+}
+
+/**
+ * @brief Mostra o menu dos veículos
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-3
+ */
+void menuVeiculos() {
+    printf("╔════════════════════════════════════════════╗\n");
+    printf("║             GESTÃO DE VEÍCULOS             ║\n");
+    printf("╠════════════════════════════════════════════╣\n");
+    printf("║  1. Registar veículo                       ║\n");
+    printf("║  2. Listar veículos                        ║\n");
+    printf("║  3. Veículos por período de circulação     ║\n");
+    printf("║  0. Voltar ao menu anterior                ║\n");
+    printf("╚════════════════════════════════════════════╝\n\n");
+}
+
+/**
+ * @brief Mostra o submenu da listagem de veículos
+ * 
+ * @return void
+ * 
+ * @note Submenu de menuVeiculos (menu dos veículos)
+ * @note Opções: 0-4
+ */
+void menuListagemVeiculos() {
     printf("╔══════════════════════════════════╗\n");
-    printf("║         MENU DE REGISTOS         ║\n");
+    printf("║      LISTAGEM DE VEÍCULOS        ║\n");
     printf("╠══════════════════════════════════╣\n");
-    printf("║  1. Registar dono                ║\n");
-    printf("║  2. Registar veículo             ║\n");
-    printf("║  3. Registar Passagem            ║\n");
-    printf("║  4. Retornar                     ║\n");
-    printf("║  0. Sair do programa             ║\n");
+    printf("║  1. Mostrar todos                ║\n");
+    printf("║  2. Mostrar por matrícula        ║\n");
+    printf("║  3. Mostrar por marca            ║\n");
+    printf("║  4. Mostrar por modelo           ║\n");
+    printf("║  0. Voltar ao menu anterior      ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
 
-/*
-*@note Opções:0-5
-*/
-void menu_listagens() {
-    printf("╔══════════════════════════════════╗\n");
-    printf("║         MENU DE LISTAGENS        ║\n");
-    printf("╠══════════════════════════════════╣\n");
-    printf("║  1. Listar donos                 ║\n");
-    printf("║  2. Listar veículos              ║\n");
-    printf("║  3. Listar o Nº e nome           ║\n");
-    printf("║  4. Listar matrícula             ║\n");
-    printf("║  5. Retornar                     ║\n");
-    printf("║  0. Sair do programa             ║\n");
-    printf("╚══════════════════════════════════╝\n\n");
+/**
+ * @brief Mostra o menu das passagens
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-2
+ */
+void menuPassagens() {
+    printf("╔═════════════════════════════════╗\n");
+    printf("║           PASSAGENS             ║\n");
+    printf("╠═════════════════════════════════╣\n");
+    printf("║  1. Registar passagem           ║\n");
+    printf("║  2. Ver todas as passagens      ║\n");
+    printf("║  0. Voltar ao menu anterior     ║\n");
+    printf("╚═════════════════════════════════╝\n\n");
 }
 
-/*
-*@note Opções:0-3
-*/
-void menu_trafego() {
+/**
+ * @brief Mostra o menu das estatísticas e rankings
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-4
+ */
+void menuEstatisticas() {
     printf("╔══════════════════════════════════╗\n");
-    printf("║        ANÁLISE DE TRAFEGO        ║\n");
+    printf("║     ESTATÍSTICAS E RANKINGS      ║\n");
     printf("╠══════════════════════════════════╣\n");
     printf("║  1. Ranking de circulação        ║\n");
     printf("║  2. Ranking por marca            ║\n");
-    printf("║  3. Retornar                     ║\n");
-    printf("║  0. Sair do programa             ║\n");
+    printf("║  3. Ranking de infrações         ║\n");
+    printf("║  4. Velocidades médias           ║\n");
+    printf("║  0. Voltar ao menu anterior      ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
 
-/*
-*@note Opções:0-3
-*/
-void menu_infracoes() {
+/**
+ * @brief Mostra o submenu das velocidades médias
+ * 
+ * @return void
+ * 
+ * @note Submenu de menuEstatisticas (menu das estatísticas)
+ * @note Opções: 0-4
+ */
+void menuVelocidadesMedias() {
+    printf("╔═══════════════════════════════════╗\n");
+    printf("║        VELOCIDADES MÉDIAS         ║\n");
+    printf("╠═══════════════════════════════════╣\n");
+    printf("║  1. Geral (cada condutor)         ║\n");
+    printf("║  2. Marca mais rápida             ║\n");
+    printf("║  3. Condutor mais rápido          ║\n");
+    printf("║  4. Média por código postal       ║\n");
+    printf("║  0. Voltar ao menu anterior       ║\n");
+    printf("╚═══════════════════════════════════╝\n\n");
+}
+
+/**
+ * @brief Mostra o menu das infrações
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-2
+ */
+void menuInfracoes() {
+    printf("╔════════════════════════════════════╗\n");
+    printf("║             INFRAÇÕES              ║\n");
+    printf("╠════════════════════════════════════╣\n");
+    printf("║  1. Veículos com infrações         ║\n");
+    printf("║  2. Total de infrações por veículo ║\n");
+    printf("║  0. Voltar ao menu anterior        ║\n");
+    printf("╚════════════════════════════════════╝\n\n");
+}
+
+/**
+ * @brief Mostra o menu de análise de dados
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-2
+ */
+void menuAnaliseDados() {
     printf("╔══════════════════════════════════╗\n");
-    printf("║        MENU DE INFRAÇÕES         ║\n");
+    printf("║         ANÁLISE DE DADOS         ║\n");
     printf("╠══════════════════════════════════╣\n");
-    printf("║  1. Listagem de Infrações        ║\n");
-    printf("║  2. Ranking de Infrações         ║\n");
-    printf("║  3. Retornar                     ║\n");
-    printf("║  0. Sair do programa             ║\n");
+    printf("║  1. Memória ocupada              ║\n");
+    printf("║  2. Marca automóvel mais comum   ║\n");
+    printf("║  0. Voltar ao menu anterior      ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
 
-/*
-*@note Opções:0-6
-*/
-void menu_velocidades() {
+/**
+ * @brief Mostra o menu de exportação
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-3
+ */
+void menuExportacao() {
     printf("╔══════════════════════════════════╗\n");
-    printf("║    VELOCIDADES E ESTATÍSTICAS    ║\n");
+    printf("║           EXPORTAÇÃO             ║\n");
     printf("╠══════════════════════════════════╣\n");
-    printf("║  1. Velocidades médias           ║\n");
-    printf("║  2. Carro com maior velocidade   ║\n");
-    printf("║  3. Dono com maior velocidade    ║\n");
-    printf("║  4. Vel. média por Cod. Post.    ║\n");
-    printf("║  5. Marca mais comum             ║\n");
-    printf("║  6. Retornar                     ║\n");
-    printf("║  0. Sair do programa             ║\n");
+    printf("║  1. Exportar dados para CSV      ║\n");
+    printf("║  2. Exportar dados para XML      ║\n");
+    printf("║  3. Exportar dados para HTML     ║\n");
+    printf("║  0. Voltar ao menu anterior      ║\n");
     printf("╚══════════════════════════════════╝\n\n");
 }
+
+/**
+ * @brief Escreve o menu das opções
+ * 
+ * @return void
+ * 
+ * @note Opções: 0-3
+ */
+void menuOpcoes() {
+    printf("╔══════════════════════════════════╗\n");
+    printf("║              OPÇÕES              ║\n");
+    printf("╠══════════════════════════════════╣\n");
+    printf("║  1. Ativar/Desativar autosave    ║\n");
+    printf("║  2. Repor definições             ║\n");
+    printf("║  3. Guia de utilização           ║\n");
+    printf("║  0. Voltar ao menu anterior      ║\n");
+    printf("╚══════════════════════════════════╝\n\n");
+}
+
 
 //Processar os menus
 
+/**
+ * @brief Coração do programa. Chama os menus com as suas funcionalidades
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
 void the_architect(Bdados *bd) {
     char opcao;
     do {
         //autosave(bd); //Guarda automaticamente caso autosaveON ativo
-        opcao = mostrar_menu(menu_principal, '0', '6');
+        opcao = mostrarMenu(menuPrincipal, '0', '6');
         switch(opcao) {
             case '0':
                 limpar_terminal();
@@ -155,22 +268,28 @@ void the_architect(Bdados *bd) {
                 }
                 break;
             case '1':
-                //Registos
+                processarMenuDonos(bd);
                 break;
             case '2':
-                //Listagens
+                processarMenuVeiculos(bd);
                 break;
             case '3':
-                //Análises de Tráfego
+                processarMenuPassagens(bd);
                 break;
             case '4':
-                //Infrações de trânsito
+                processarMenuEstatisticas(bd);
                 break;
             case '5': 
-                //Velocidades e estatísticas
+                processarMenuInfracoes(bd);
                 break;
             case '6': 
-                //processar_opcoes(bd);
+                processarMenuAnaliseDados(bd);
+                break;
+            case '7': 
+                processarMenuExportacao(bd);
+                break;
+            case '8': 
+                processarMenuOpcoes(bd);
                 break;
             default:
                 opcao = '0'; //Sair caso haja erro
@@ -179,12 +298,370 @@ void the_architect(Bdados *bd) {
     } while(opcao != '0');
 }
 
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados aos Donos
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuDonos(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuDonos, '0', '3');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1';
+                    continue;
+                }
+                break;
+            case '1':
+                //Registar dono
+                break;
+            case '2':
+                //Listar donos (alfabeticamente)
+                break;
+            case '3':
+                //Listar donos (por NIF)
+                break;
+            default:
+                opcao = '0';
+                break;
+        }
+    } while(opcao != '0');
+}
 
-//
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados aos veículos
+ * 
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuVeiculos(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuVeiculos, '0', '3');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1'; 
+                    continue;
+                }
+                break;
+            case '1':
+                //Registar veículo
+                break;
+            case '2':
+                processarMenuListagemVeiculos(bd);
+                break;
+            case '3':
+                //Veículos por período de circulação
+                break;
+            default:
+                opcao = '0'; 
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades relativas às listagens de veículos
+ * 
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ * @note Submenu do Menu de Veículos
+ */
+void processarMenuListagemVeiculos(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuListagemVeiculos, '0', '4');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1'; 
+                    continue;
+                }
+                break;
+            case '1':
+                // Mostrar todos
+                break;
+            case '2':
+                // Mostrar por matrícula
+                break;
+            case '3':
+                // Mostrar por marca
+                break;
+            case '4':
+                // Mostrar por modelo
+                break;
+            default:
+                opcao = '0';
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados às passagens
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuPassagens(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuPassagens, '0', '2');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1';
+                    continue;
+                }
+                break;
+            case '1':
+                // Registar passagem
+                break;
+            case '2':
+                // Ver todas as passagens
+                break;
+            default:
+                opcao = '0'; 
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados às estatísticas
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuEstatisticas(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuEstatisticas, '0', '4');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1'; 
+                    continue;
+                }
+                break;
+            case '1':
+                // Ranking de circulação
+                break;
+            case '2':
+                // Ranking por marca
+                break;
+            case '3': 
+                // Ranking de infrações
+                break;
+            case '4': 
+                processarMenuVelocidades(bd);
+                break;
+            default:
+                opcao = '0';
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades relativas às velocidades médias
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ * @note Submenu do menu de estatísticas
+ */
+void processarMenuVelocidades(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuVelocidadesMedias, '0', '4');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1'; 
+                    continue;
+                }
+                break;
+            case '1':
+                // Geral (cada condutor)
+                break;
+            case '2':
+                // Marca mais rápida
+                break;
+            case '3': 
+                // Condutor mais rápido
+                break;
+            case '4': 
+                // Média por código postal
+                break;
+            default:
+                opcao = '0';
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados às infrações
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuInfracoes(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuInfracoes, '0', '2');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1';
+                    continue;
+                }
+                break;
+            case '1':
+                // Veículos com infrações
+                break;
+            case '2':
+                // Total de infrações por veículo
+                break;
+            default:
+                opcao = '0'; 
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados à análise de dados
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuAnaliseDados(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuAnaliseDados, '0', '2');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1';
+                    continue;
+                }
+                break;
+            case '1':
+                // Memória ocupada
+                break;
+            case '2':
+                // Marca mais comum
+                break;
+            default:
+                opcao = '0';
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados à exportação dos dados
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuExportacao(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        opcao = mostrarMenu(menuExportacao, '0', '3');
+        switch(opcao) {
+            case '0':
+                limpar_terminal();
+                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
+                    opcao = '1';
+                    continue;
+                }
+                break;
+            case '1':
+                // Exportar dados para CSV
+                break;
+            case '2':
+                // Exportar dados para XML
+                break;
+            case '3':
+                // Exportar dados para HTML
+                break;
+            default:
+                opcao = '0';
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Chama as funcionalidades e/ou submenus associados às opções
+ * @param bd Ponteiro para a base de dados
+ * 
+ * @return void
+ */
+void processarMenuOpcoes(Bdados *bd) {
+    char opcao;
+    do {
+        //autosave(bd);
+        opcao = mostrarMenu(menuOpcoes, '0', '3');
+        switch(opcao) {
+            case '0': break;
+            case '1':
+                /*
+                limpar_terminal();
+                if (autosaveON == '0') {
+                    autosaveON = '1';
+                    printf("O autosave foi ativado.\n");
+                }
+                else {
+                    autosaveON = '0';
+                    printf("O autosave foi desativado.\n");
+                }
+                pressione_enter();
+                */
+                break;
+            case '2':
+                //repor_estado_inicial(bd);
+                break;
+            case '3':
+                //guia_de_utilizacao();
+                break;
+            default: 
+                opcao = '0';
+                break;
+        }
+    } while (opcao != '0');
+}
+
 
 //Validações
 
-void validacao_menus(short *valido, const char opcao, const char limInf, const char limSup) { 
+
+void validacaoMenus(short *valido, const char opcao, const char limInf, const char limSup) { 
     if (*valido != 1) {
         printf("Entrada inválida! Introduza um número do menu (%c a %c)\n", limInf, limSup); 
         pressione_enter();

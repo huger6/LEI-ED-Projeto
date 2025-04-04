@@ -16,7 +16,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs);
 
 
 void removerEspacos(char * str);
-void separarParametros(const char * linha, char ** parametros, int * num_parametros);
+void separarParametros(char *linha, char **parametros, int *numParametros, const int paramEsperados);
 void linhaInvalida(const char *linha, int nLinha, FILE *logs);
 
 

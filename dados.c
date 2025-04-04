@@ -44,16 +44,19 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
 
     char erro = '0';
     if (logsExiste == '1') {
-        fprintf(logs, "\n\n\n#ÍNICIO DA LEITURA DOS DADOS#\n\n\n");
+        fprintf(logs, "\n\n\n");
     }
-    else fprintf(logs, "#ÍNICIO DA LEITURA DOS DADOS#\n\n\n");
+    time_t inicio = time(NULL);
+    fprintf(logs, "#ÍNICIO DA LEITURA DOS DADOS#\t\t%s\n\n", ctime(&inicio));
 
     if (!carregarDonosTxt(bd, fDonos, logs) || !carregarCarrosTxt(bd, fCarros, logs) || !carregarSensoresTxt(bd, fSensores, logs) || 
         !carregarDistanciasTxt(bd, fDistancias, logs) || !carregarPassagensTxt(bd, fPassagem, logs)) {
             erro = '1';
         }
-    printf("fim de leitura");
-    fprintf(logs, "\n#FIM DA LEITURA DOS DADOS#");
+    time_t fim = time(NULL);
+    char *tempoFinal = ctime(&fim); // Não precisa de free
+    tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
+    fprintf(logs, "\n#FIM DA LEITURA DOS DADOS#\t\t%s\t\tTEMPO DE CARREGAMENTO:%.0fsegundos\n\n", tempoFinal, difftime(fim, inicio));
     fclose(logs);
 
     if (erro == '1') {
@@ -73,7 +76,9 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
  */
 int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
     const char *donosFile = (donosFilename) ? donosFilename : DONOS_TXT;
-    fprintf(logs, "#FICHEIRO DONOS#\n\n");
+
+    time_t inicio = time(NULL);   
+    fprintf(logs, "#FICHEIRO DONOS#\t\t%s\n", ctime(&inicio));
 
     FILE *donos = fopen(donosFile, "r");
     if (donos) {
@@ -82,7 +87,8 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
         while((linha = lerLinhaTxt(donos, &nLinhas)) != NULL) {
             char *parametros[PARAM_DONOS];
             int numParam = 0; //Nº real de param lidos
-            separarParametros(linha, parametros, &numParam);
+            char *copiaLinha = strdup(linha); //Cópia da linha para passar para separarParam e evitar alterações à original
+            separarParametros(copiaLinha, parametros, &numParam, PARAM_DONOS);
             char erro = '0';
 
             if (numParam == PARAM_DONOS) {
@@ -128,10 +134,7 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_DONOS, numParam);
             }
-            //Libertamos a memória alocada para os parametros
-            for(int i = 0; i < numParam; i++) 
-                free(parametros[i]);
-
+            free(copiaLinha);
             free(linha); 
         }
         fclose(donos);
@@ -142,7 +145,11 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
     }
     //Ordenar a lista
     ordenarLista(bd->donos, compararDonos);
-    fprintf(logs, "\n#FIM FICHEIRO DONOS#\n\n");
+
+    time_t fim = time(NULL);
+    char *tempoFinal = ctime(&fim); // Não precisa de free
+    tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
+    fprintf(logs, "\n#FIM FICHEIRO DONOS#\t\t%s\t\tTEMPO DE CARREGAMENTO:%.0fsegundos\n\n", tempoFinal, difftime(fim, inicio));
     return 1;
 }
 
@@ -156,7 +163,9 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
  */
 int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
     const char *carrosFile = (carrosFilename) ? carrosFilename : CARROS_TXT;
-    fprintf(logs, "#FICHEIRO CARROS#\n\n");
+
+    time_t inicio = time(NULL);   
+    fprintf(logs, "#FICHEIRO CARROS#\t\t%s\n", ctime(&inicio));
 
     FILE *carros = fopen(carrosFile, "r");
     if (carros) {
@@ -165,7 +174,8 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
         while((linha = lerLinhaTxt(carros, &nLinhas)) != NULL) {
             char *parametros[PARAM_CARROS];
             int numParam = 0; //Nº real de param lidos
-            separarParametros(linha, parametros, &numParam);
+            char *copiaLinha = strdup(linha);
+            separarParametros(copiaLinha, parametros, &numParam, PARAM_CARROS);
             char erro = '0';
 
             if (numParam == PARAM_CARROS) {
@@ -228,10 +238,7 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_CARROS, numParam);
             }
-            //Libertamos a memória alocada para os parametros
-            for(int i = 0; i < numParam; i++) 
-                free(parametros[i]);
-
+            free(copiaLinha);
             free(linha); 
         }
         fclose(carros);
@@ -241,7 +248,10 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
         return 0;
     }
     ordenarLista(bd->carros, compararCarros);
-    fprintf(logs, "\n#FIM FICHEIRO CARROS#\n\n");
+    time_t fim = time(NULL);
+    char *tempoFinal = ctime(&fim); // Não precisa de free
+    tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
+    fprintf(logs, "\n#FIM FICHEIRO CARROS#\t\t%s\t\tTEMPO DE CARREGAMENTO:%.0fsegundos\n\n", tempoFinal, difftime(fim, inicio));
     return 1;
 }
 
@@ -255,7 +265,9 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
  */
 int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
     const char *sensoresFile = (sensoresFilename) ? sensoresFilename : SENSORES_TXT;
-    fprintf(logs, "#FICHEIRO SENSORES#\n\n");
+    
+    time_t inicio = time(NULL);   
+    fprintf(logs, "#FICHEIRO SENSORES#\t\t%s\n", ctime(&inicio));
 
     FILE *sens = fopen(sensoresFile, "r");
     if (sens) {
@@ -264,7 +276,8 @@ int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
         while((linha = lerLinhaTxt(sens, &nLinhas)) != NULL) {
             char *parametros[PARAM_SENSORES];
             int numParam = 0; //Nº real de param lidos
-            separarParametros(linha, parametros, &numParam);
+            char *copiaLinha = strdup(linha);
+            separarParametros(copiaLinha, parametros, &numParam, PARAM_SENSORES);
             char erro = '0';
 
             if (numParam == PARAM_SENSORES) {
@@ -291,10 +304,7 @@ int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_SENSORES, numParam);
             }
-            //Libertamos a memória alocada para os parametros
-            for(int i = 0; i < numParam; i++) 
-                free(parametros[i]);
-
+            free(copiaLinha);
             free(linha); 
         }
         fclose(sens);
@@ -305,7 +315,10 @@ int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
     }
     //Ordenar a lista
     ordenarLista(bd->sensores, compararSensores);
-    fprintf(logs, "\n#FIM FICHEIRO SENSORES#\n\n");
+    time_t fim = time(NULL);
+    char *tempoFinal = ctime(&fim); // Não precisa de free
+    tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
+    fprintf(logs, "\n#FIM FICHEIRO SENSORES#\t\t%s\t\tTEMPO DE CARREGAMENTO:%.0fsegundos\n\n", tempoFinal, difftime(fim, inicio));
     return 1;
 }
 
@@ -319,7 +332,9 @@ int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
  */
 int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
     const char *distanciasFile = (distanciasFilename) ? distanciasFilename : DISTANCIAS_TXT;
-    fprintf(logs, "#FICHEIRO DISTANCIAS#\n\n");
+
+    time_t inicio = time(NULL);   
+    fprintf(logs, "#FICHEIRO DISTANCIAS#\t\t%s\n", ctime(&inicio));
 
     FILE *dists = fopen(distanciasFile, "r");
     if (dists) {
@@ -328,7 +343,8 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
         while((linha = lerLinhaTxt(dists, &nLinhas)) != NULL) {
             char *parametros[PARAM_DISTANCIAS];
             int numParam = 0; //Nº real de param lidos
-            separarParametros(linha, parametros, &numParam);
+            char *copiaLinha = strdup(linha);
+            separarParametros(copiaLinha, parametros, &numParam, PARAM_DISTANCIAS);
             char erro = '0';
 
             if (numParam == PARAM_DISTANCIAS) {
@@ -347,6 +363,7 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
                     erro = '1';
                 }
                 float distancia;
+                converterPontoVirgulaDecimal(parametros[2]); // Passa notação de floats para vírgulas caso necessário
                 if (!stringToFloat(parametros[2], &distancia) || !validarDistancia(distancia)) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Distância inválida\n\n");
@@ -369,10 +386,7 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_DISTANCIAS, numParam);
             }
-            //Libertamos a memória alocada para os parametros
-            for(int i = 0; i < numParam; i++) 
-                free(parametros[i]);
-
+            free(copiaLinha);
             free(linha); 
         }
         fclose(dists);
@@ -383,7 +397,10 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
     }
     //Ordenar a lista
     ordenarLista(bd->distancias, compararDistancias);
-    fprintf(logs, "\n#FIM FICHEIRO DISTANCIAS#\n\n");
+    time_t fim = time(NULL);
+    char *tempoFinal = ctime(&fim); // Não precisa de free
+    tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
+    fprintf(logs, "\n#FIM FICHEIRO DISTANCIAS#\t\t%s\t\tTEMPO DE CARREGAMENTO:%.0fsegundos\n\n", tempoFinal, difftime(fim, inicio));
     return 1;
 }
 
@@ -397,8 +414,10 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
  */
 int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
     const char *passagensFile = (passagensFilename) ? passagensFilename : PASSAGEM_TXT;
-    fprintf(logs, "#FICHEIRO PASSAGENS#\n\n");
-    printf("Começo leitura passagens");
+
+    time_t inicio = time(NULL);   
+    fprintf(logs, "#FICHEIRO PASSAGENS#\t\t%s\n", ctime(&inicio));
+
     FILE *passagem = fopen(passagensFile, "r");
     if (passagem) {
         int nLinhas = 0;
@@ -406,9 +425,10 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
         while((linha = lerLinhaTxt(passagem, &nLinhas)) != NULL) {
             char *parametros[PARAM_PASSAGEM];
             int numParam = 0; //Nº real de param lidos
-            separarParametros(linha, parametros, &numParam);
+            char *copiaLinha = strdup(linha);
+            separarParametros(copiaLinha, parametros, &numParam, PARAM_PASSAGEM);
             char erro = '0';
-
+            
             if (numParam == PARAM_PASSAGEM) {
                 //ID do sensor
                 int idSensor;
@@ -449,7 +469,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                 if (erro == '0') {
                     if(!inserirPassagemLido(bd, idSensor, codVeiculo, date, parametros[3][0])) {
                         linhaInvalida(linha, nLinhas, logs);
-                        fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória");
+                        fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória\n\n");
                     }
                 }
             }
@@ -461,10 +481,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                 linhaInvalida(linha, nLinhas, logs);
                 fprintf(logs, "Razão: Demasiados parametros (%d NECESSÁRIOS, %d LIDOS)\n\n", PARAM_PASSAGEM, numParam);
             }
-            //Libertamos a memória alocada para os parametros
-            for(int i = 0; i < numParam; i++) 
-                free(parametros[i]);
-
+            free(copiaLinha);
             free(linha); 
         }
         fclose(passagem);
@@ -473,10 +490,12 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Passagens: '%s'.", passagensFile);
         return 0;
     }
-    printf("Fim leitura de passagens\n");
     //Ordenar a lista
     //ordenarLista(bd->passagens, compararPassagens); Demoraria 5dias!
-    fprintf(logs, "\n#FIM FICHEIRO PASSAGENS#\n\n");
+    time_t fim = time(NULL);
+    char *tempoFinal = ctime(&fim); // Não precisa de free
+    tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
+    fprintf(logs, "\n#FIM FICHEIRO PASSAGENS#\t\t%s\t\tTEMPO DE CARREGAMENTO:%.0fsegundos\n\n", tempoFinal, difftime(fim, inicio));
     return 1;
 }
 
@@ -521,53 +540,27 @@ void removerEspacos(char *str) {
  *
  * @param linha            String com linha completa a separar
  * @param parametros       Array de ponteiros para armazenar os parâmetros extraídos
- * @param num_parametros   Ponteiro para contar os parâmetros
+ * @param numParametros   Ponteiro para contar os parâmetros
+ * @param paramEsperados  Número de parâmetros esperados para separar
  *
  * @return void
  *         
  * @note Remove espaços extra via remover_espacos()
- * @note Aloca memória para cada parâmetro
  * @note Em caso de erro:
  *       - Define num_parametros = 0
- *       - Liberta memória já alocada
  */
-void separarParametros(const char *linha, char **parametros, int *num_parametros) { // char ** parametros serve para armazenar os ponteiros dos parametros, de modo a que não sejam perdidos
-    if(linha == NULL || parametros == NULL || num_parametros == NULL) return;
-    char *inicio = strdup(linha); //Ponteiro para o inicio da linha
-    //!!NOTA IMPORTANTE - É feita uma cópia da linha pois caso contrário, caso a função tenha um erro em qualquer parte, a linha original será perdida!!
-    char *fim = NULL;
-    //Não colocamos *num_parametros = 0 pois esta função poderá ser chamada várias vezes numa linha, e não queremos alterar a var nesse caso
-    int indice = 0; //Indice do array
+void separarParametros(char *linha, char **parametros, int *numParametros, const int paramEsperados) { // char ** parametros serve para armazenar os ponteiros dos parametros, de modo a que não sejam perdidos
+    if (!linha || !parametros || !numParametros) return;
 
-    while(*inicio != '\0') { //Se não for o fim da linha entramos no loop
-        fim = inicio; 
+    *numParametros = 0;
 
-        //Vamos veriricar se o ponteiro atual de fim é um separador ou o fim da linha, caso não seja avançamos
-        while(*fim != SEPARADOR && *fim != '\0' && *fim != '\n') fim++;
-        //Aqui fim está a apontar para o separador, o fim da linha ou um \n (se bem que neste caso \n é o fim da linha)
-        char temp = *fim; //Armazena o tab ou o nul char
-        *fim = '\0'; //vai terminar a string de inicio (ou seja, um parâmetro); também corta o \n aqui, se exitir
-        removerEspacos(inicio);
+    char *token = strtok(linha, SEPARADOR_STR); 
 
-        if (*inicio != '\0') { //Se o inicio não for o fim da linha, então temos um parametro
-            //Alocamos memória para o parametro e copia o conteúdo
-            parametros[indice] = malloc(strlen(inicio) + 1); //Lembrar que parâmetros recebe um ponteiro
-            if (parametros[indice] != NULL) {
-                strcpy(parametros[indice], inicio);
-                indice++;
-                (*num_parametros)++;
-            }
-            else {
-                //ERRO!!
-                *num_parametros = 0; //Usamos num_parametros como uma flag para evitar que a linha seja lida
-                //Libertar a memória alocada até ao indice atual
-                for (int i = 0; i < indice; i++) 
-                    free(parametros[i]); 
-                break;
-            }
-        }
-        *fim = temp; //Volta a colocar o tab ou '\0' onde estava 
-        inicio = (*fim == '\0') ? fim : fim + 1; //Verifica se já estamos no fim da string, se sim, inicio = fim, se não inicio = fim +1 (avança uma casa)
+    while (token != NULL && *numParametros < paramEsperados) {
+        removerEspacos(token);  
+        parametros[*numParametros] = token;
+        (*numParametros)++;
+        token = strtok(NULL, "\t");
     }
 }
 
@@ -583,3 +576,28 @@ void linhaInvalida(const char *linha, int nLinha, FILE *logs) {
 }
 
 
+// Dados Binários
+
+int guardarDadosBin(Bdados *bd, const char *nome) {
+    if (!bd || !nome) return 0;
+
+    FILE *file = fopen(nome, "wb");
+    if (!file) return 0;
+
+    fwrite(&bd, sizeof(Bdados), 1, file);
+
+    fclose(file);
+    return 1;
+}
+
+int carregarDadosBin(Bdados *bd, const char *nome) {
+    if (!bd || !nome) return 0;
+
+    FILE *file = fopen(nome, "rb");
+    if (!file) return 0;
+
+    fread(&bd, sizeof(Bdados), 1, file);
+
+    fclose(file);
+    return 1;
+}

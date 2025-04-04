@@ -31,7 +31,12 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Código Veículo
     aut->codVeiculo = codVeiculo;
     
-    if (!addInicioLista(bd->carros, (void *)aut)) return 0;
+    if (!addInicioLista(bd->carros, (void *)aut)) {
+        free(aut->modelo);
+        free(aut->marca);
+        free(aut);
+        return 0;
+    }
     
     return 1;
 }
@@ -64,4 +69,16 @@ void freeCarro(void *carro) {
     if (obj->marca) free(obj->marca);
     if (obj->modelo) free(obj->modelo);
     free(obj);
+}
+
+void mostrarCarro(void *carro){
+    if (!carro) return;
+    Carro *x = (Carro*) carro;
+    printf ("\nCódigo do Veículo: %d", x->codVeiculo);
+    printf ("\nMatrícula: %s", x->matricula);
+    printf ("\nMarca: %s", x->marca);
+    printf ("\nModelo: %s", x->modelo);
+    printf ("\nAno do Veículo: %d", x->ano);
+    printf ("\nNome do Dono: %s", x->ptrPessoa->nome);
+    printf("\nNIF do Dono: %d", x->ptrPessoa->nif);
 }

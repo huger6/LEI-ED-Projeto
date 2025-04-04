@@ -2,6 +2,7 @@
 #define CONSTANTES_HEADERS
 
 #define SEPARADOR '\t'
+#define SEPARADOR_STR "\t" //Para usar no strtok
 #define MAX_MATRICULA 8
 #define TAMANHO_INICIAL_BUFFER 128
 
@@ -19,5 +20,10 @@
 #define PARAM_SENSORES 4
 #define PARAM_DISTANCIAS 3
 #define PARAM_PASSAGEM 4
+
+
+//extern char autosaveON;
+
+
 
 #endif
