@@ -1,4 +1,5 @@
 #include "carro.h"
+#include "validacoes.h"
 
 
 int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo) {
@@ -81,4 +82,58 @@ void mostrarCarro(void *carro){
     printf ("\nAno do Veículo: %d", x->ano);
     printf ("\nNome do Dono: %s", x->ptrPessoa->nome);
     printf("\nNIF do Dono: %d", x->ptrPessoa->nif);
+}
+
+void RegistarVeiculo(Bdados *bd){
+    do{
+        int codVeiculo, nif;
+        char *matricula;
+        char *marca;
+        char *modelo;
+        short ano;
+    
+        printf ("\n\tIntroduza as Informações:\n");
+        do{
+            printf ("\nCódigo do Veículo: ");
+            scanf("%d", &codVeiculo);
+        }while (validarCodVeiculo(codVeiculo) == 0);
+        
+        do{
+            printf ("\nMatrícula:");
+            matricula = lerLinhaTxt (stdin, NULL);
+        }while (validarMatricula (matricula) == 0);
+        
+        do{
+            printf ("\nMarca:");
+            marca = lerLinhaTxt (stdin, NULL);
+        }while (!validarMarca (marca));
+    
+        do {
+            printf ("\nModelo:");
+            modelo = lerLinhaTxt (stdin, NULL);
+        }while (!validarMarca (modelo));
+    
+        do{
+            printf ("\nAno do Veículo:");
+            scanf ("%hd", &ano);
+        }while (validarAnoCarro(ano) == 0);
+        
+        do{
+            printf ("\nNIF do Dono:");
+            scanf ("%d", &nif);
+        }while (validarNif(nif) == 0);
+    
+        inserirCarroLido(bd, matricula, marca, modelo, ano, nif, codVeiculo);  
+        
+        free (matricula);
+        free (marca);
+        free (modelo);
+        
+        if (sim_nao("\nQuer introduzir outro elemento?") == 0) return;
+
+    } while(1);
+}
+
+void listarVeiculos(Bdados *bd){
+
 }
