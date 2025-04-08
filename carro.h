@@ -25,4 +25,6 @@ int compCodVeiculo(void *carro, void *codigo);
 void freeCarro(void *carro);
 void mostrarCarro(void *carro);
 
+void RegistarVeiculo(Bdados *bd);
+
 #endif

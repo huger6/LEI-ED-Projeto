@@ -12,6 +12,7 @@
 /*
 Aplicação desenvolvida no âmbito da cadeira "Estruturas de Dados" da ESTGV, em 2024-2025.
 Membros do grupo:
+    -Guilherme Pais, NºMEC 30007;
     -Hugo Afonso, NºMEC 30032;
     -Mateus Silva, NºMEC 29989;
 
