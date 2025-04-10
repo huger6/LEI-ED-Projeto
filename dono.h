@@ -26,5 +26,7 @@ void freeDono(void *dono);
 void mostrarDono(void *dono);
 void guardarDonoBin(void *obj, FILE *file);
 int ordenarAlfNome(void *dono1, void *dono2);
+int compChaveNIF(void *chave, void *dono);
+int compChaveNome(void *chave, void *dono);
 
 #endif

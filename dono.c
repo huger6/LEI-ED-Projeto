@@ -83,9 +83,8 @@ void mostrarDono(void *dono){
 
 void guardarDonoBin(void *obj, FILE *file) {
     if (!obj || !file) return;
-
-    Dono *x = (Dono *)obj;
-    fwrite(x->codigoPostal, sizeof(CodPostal), 1, file);
+    Dono *x = (Dono*) obj;
+    fwrite(&x->codigoPostal, sizeof(CodPostal), 1, file);
     fwrite(x->nif, sizeof(int), 1, file);
 
     size_t tamanhoNome = strlen(x->nome) + 1;
@@ -101,4 +100,22 @@ int ordenarAlfNome(void *dono1, void *dono2){
     normalizar_string(n2->nome);
     if (strcmp((n1->nome), (n2->nome)) == 1) return 1;
     return 0;
+}
+
+int compChaveNIF(void *chave, void *dono){
+    if (!chave || !dono) return 0;
+    int *key = (int*) chave;
+    Dono *x = (Dono*) dono;
+    if (key > x->nif) return 1;
+    if (key < x->nif) return -1;
+    return 0;
+}
+
+int compChaveNome(void *chave, void *dono){
+    if (!chave || !dono) return 0;
+    char *key = (char*) chave;
+    Dono *x = (Dono*) dono;
+    if (strcmp(tolower(key), tolower(x->nome) == 0)) return 0;
+    if (strcmp(tolower(key), tolower(x->nome) == 1)) return 1;
+    if (strcmp(tolower(key), tolower(x->nome) == -1)) return -1;
 }
