@@ -1,5 +1,5 @@
 #include "dono.h"
-#include "listaGenerica.h"
+#include "structsGenericas.h"
 
 /**
  * @brief Introduz o dono na base de dados
@@ -73,10 +73,22 @@ void freeDono(void *dono) {
     free(dono);
 }
 
-void msotrarDono(void *dono){
+void mostrarDono(void *dono){
     if (!dono) return;
     Dono  *x = (Dono*) dono;
-    printf ("\nNome: %s", x->nome);
-    printf ("\nNIF: %d", x->nif);
-    printf ("Código Posta: %d-%d", x->codigoPostal.local, x->codigoPostal.zona);
+    printf ("\nNome: %s\n", x->nome);
+    printf ("NIF: %d\n", x->nif);
+    printf ("Código Postal: %hd-%hd\n", x->codigoPostal.local, x->codigoPostal.zona);
+}
+
+void guardarDonoBin(void *obj, FILE *file) {
+    if (!obj || !file) return;
+
+    Dono *x = (Dono *)obj;
+    fwrite(x->codigoPostal, sizeof(CodPostal), 1, file);
+    fwrite(x->nif, sizeof(int), 1, file);
+
+    size_t tamanhoNome = strlen(x->nome) + 1;
+    fwrite(&tamanhoNome, sizeof(size_t), 1, file);
+    fwrite(x->nome, tamanhoNome, 1, file);
 }

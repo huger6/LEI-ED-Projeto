@@ -24,5 +24,6 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
 int compCodVeiculo(void *carro, void *codigo);
 void freeCarro(void *carro);
 void mostrarCarro(void *carro);
+void guardarCarroBin(void *carro, FILE *file);
 
 #endif

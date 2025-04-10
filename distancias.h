@@ -9,7 +9,7 @@
 typedef struct {
     Sensor *sensor1, *sensor2;
     float distancia;
-} Distancias, Dist, *ptDistancias, *ptDist;
+} Distancias, Dist, *ptDistancias, *ptDist; //guardar numa matriz
 
 int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float distancia);
 int compararDistancias(void *dist1, void *dist2);

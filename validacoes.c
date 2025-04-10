@@ -1,7 +1,6 @@
 #include "validacoes.h"
 
 
-
 int validarNif(const int nif) 
 {
     return 1;

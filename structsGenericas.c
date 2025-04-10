@@ -1,4 +1,4 @@
-#include "listaGenerica.h"
+#include "structsGenericas.h"
 
 /**
  * @brief Cria uma lista genérica
@@ -194,7 +194,7 @@ void ordenarLista(Lista * li, int (*compObjs)(void *obj1, void *obj2)) {
  * @param chave Ponteiro para o dado a procurar
  * @return void* Fazer cast consoante o tipo de dados
  */
-void * pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave) {
+void *pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave) {
     if (!li || !li->inicio) return NULL;
 
     No *p = li->inicio;
@@ -205,4 +205,106 @@ void * pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), v
         p = p->prox;
     }
     return NULL;
+}
+
+void guardarListaBin(Lista *li, void (*saveInfo)(void *obj, FILE *fileObj), FILE *file) {
+    if (!li || !li->inicio || !file) return;
+    No *p = li->inicio;
+    fwrite(&li->nel, sizeof(int), 1, file);
+    for (int i = 0; i < li.nel; i++) {
+        (*saveInfo)(p->info, file);
+        p = p->prox;
+    }
+}
+
+// Hashing/Dicts
+
+Dict *criarDict() {
+    Dict *has = (Dict *)malloc(sizeof(Dict));
+    has->Inicio = NULL;
+    has->N_CHAVES = 0;
+    return has;
+}
+
+//Deve retornar o ponteiro para o nó onde inserir
+NoHashing *posicaoInsercao(Dict *has, void *obj, void (*compChave)(void *chave, void *obj)) {
+    if (!has || !obj) return NULL;
+
+    NoHashing *p = has->inicio;
+    while(p) {
+        if ((*compChave)(p->chave, obj))
+            return p;
+        p = p->prox;
+    }
+    return NULL;
+}
+
+int appendToDict(Dict *has, void *obj, void (*compChave)(void *chave, void *obj), void (*criarChave)(void *chave, void *obj)) {
+    if (!has || !obj) return 0;
+
+    NoHashing *p = posicaoInsercao(has, obj, compChave);
+    // Caso não haja esse tipo de entrada ainda criada
+    if (!p) {
+        p = (NoHashing *)malloc(sizeof(NoHashing));
+        // Criar a chave 
+        criarChave(p->chave, obj);
+        p->dados = criarLista();
+        p->prox = has->inicio;
+        has->inicio = p;
+        has->nelDict++;
+    }
+    addInicioLista(p->Dados,obj);
+    return 1;
+}
+
+void printDict(Dict *has, void (*printObj)(void *obj)) {
+    if (!has) return;
+
+    NoHashing *p = has->inicio;
+    while(p)
+    {
+        printLista(p->dados, printObj);
+        p = p->prox;
+    }
+}
+
+void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj)) {
+    if (!has) return;
+
+    NoHashing *p = has->inicio;
+    while(p) {
+        freeChave(p->chave);
+        freeLista(p->dados, freeObj);
+        p = p->prox;
+    }
+}
+
+void ordenarDict(Dict *has, void (*compChave)(void *chave1, void *obj)) {
+    if (!has || has->nelDict < 2) return;
+
+    char trocou;
+    do {
+        NoHashing *ant = NULL;
+        NoHashing *a = has->inicio; //atual
+        NoHashing *p = a->prox; //proximo
+        trocou = '0';
+        
+        while (p) {
+            if ((*compChave)(a->chave, p->chave) > 0) {
+                trocou = '1'; //trocar p para a posicao de atual
+                a->prox = p->prox;
+                p->prox = a;
+
+                if (ant) ant->prox = p;
+                else has->inicio = p; //atual é o inicio
+
+                ant = p;
+                p = a->prox;
+            } else {
+                ant = a;
+                a = p;
+                p = p->prox;
+            }
+        }
+    } while (trocou == '1');
 }

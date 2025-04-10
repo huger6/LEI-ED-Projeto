@@ -80,3 +80,22 @@ void mostrarSensor(void *sensor){
     printf ("\nDesignação do Sensor: %s", x->designacao);
     printf ("\nLocalização do Sensor: %s\t%s", x->latitude, x->longitude);
 }
+
+void guardarSensorBin(void *obj, FILE *file) {
+    if (!obj || !file) return;
+
+    Sensor *x = (Sensor *)obj;
+    fwrite(x->codSensor, sizeof(int), 1, file);
+
+    size_t tamanhoDesignacao = strlen(x->designacao) + 1;
+    fwrite(tamanhoDesignacao, sizeof(size_t), 1, file);
+    fwrite(x->designacao, tamanhoDesignacao, 1, file);
+
+    size_t tamanhoLatitude = strlen(x->latitude) + 1;
+    fwrite(tamanhoLatitude, sizeof(size_t), 1, file);
+    fwrite(x->latitude, tamanhoLatitude, 1, file);
+
+    size_t tamanhoLongitude = strlen(x->longitude) + 1;
+    fwrite(tamanhoLongitude, sizeof(size_t), 1, file);
+    fwrite(x->longitude, tamanhoLongitude, 1, file);
+}

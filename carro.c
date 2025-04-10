@@ -71,14 +71,34 @@ void freeCarro(void *carro) {
     free(obj);
 }
 
-void mostrarCarro(void *carro){
+void mostrarCarro(void *carro) {
     if (!carro) return;
-    Carro *x = (Carro*) carro;
-    printf ("\nCódigo do Veículo: %d", x->codVeiculo);
-    printf ("\nMatrícula: %s", x->matricula);
-    printf ("\nMarca: %s", x->marca);
-    printf ("\nModelo: %s", x->modelo);
-    printf ("\nAno do Veículo: %d", x->ano);
-    printf ("\nNome do Dono: %s", x->ptrPessoa->nome);
+
+    Carro *x = (Carro*)carro;
+    printf("\nCódigo do Veículo: %d", x->codVeiculo);
+    printf("\nMatrícula: %s", x->matricula);
+    printf("\nMarca: %s", x->marca);
+    printf("\nModelo: %s", x->modelo);
+    printf("\nAno do Veículo: %d", x->ano);
+    printf("\nNome do Dono: %s", x->ptrPessoa->nome);
     printf("\nNIF do Dono: %d", x->ptrPessoa->nif);
+}
+
+void guardarCarroBin(void *carro, FILE *file) {
+    if (!carro || !file) return;
+
+    Carro *x = (Carro *)carro;
+    fwrite(&x->ano, sizeof(short), 1, file);
+    fwrite(&x->codVeiculo, sizeof(int), 1, file);
+    fwrite(x->matricula, sizeof(x->matricula), 1, file);
+
+    size_t tamanhoMarca = strlen(x->marca) + 1;
+    fwrite(&tamanhoMarca, sizeof(size_t), 1, file);
+    fwrite(x->marca, tamanhoMarca, 1, file);
+
+    size_t tamanhoModelo = strlen(x->modelo) + 1;
+    fwrite(&tamanhoModelo, sizeof(size_t), 1, file);
+    fwrite(x->modelo, tamanhoModelo, 1, file);
+
+    fwrite(&x->ptrPessoa->nif, sizeof(int), 1, file);
 }

@@ -1,6 +1,6 @@
 #include "uteis.h"
 #include "menus.h"
-#include "listaGenerica.h"
+#include "structsGenericas.h"
 #include "carro.h"
 #include "dono.h"
 #include "distancias.h"
@@ -41,7 +41,7 @@ int main(void) {
     srand(time(NULL));
 
     Bdados *bd = (Bdados *)malloc(sizeof(Bdados));
-    inicializarListasBD(bd);
+    inicializarBD(bd);
     
     if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
         printf("Ocorreu um erro a carregar os dados para memória!\n");

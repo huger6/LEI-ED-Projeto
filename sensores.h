@@ -19,5 +19,6 @@ int compararSensores(void *sensor1, void *sensor2);
 int compIdSensor(void *sensor, void *idSensor);
 void freeSensor(void *sensor);
 void mostrarSensor(void *sensor);
+void guardarSensorBin(void *obj, FILE *file);
 
 #endif

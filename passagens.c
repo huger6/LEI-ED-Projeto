@@ -1,6 +1,6 @@
 #include "passagens.h"
 
-int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto) {
+Passagem * obterPassagem(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto) {
     if (!bd || !bd->passagens) return 0;
 
     Passagem *pas = (Passagem *)malloc(sizeof(Passagem));
@@ -16,9 +16,37 @@ int inserirPassagemLido(Bdados *bd, int idSensor, int codVeiculo, Data date, cha
     pas->data = date;
     pas->tipoRegisto = tipoRegisto;
 
-    if (!addInicioLista(bd->passagens, (void *)pas)) return 0;
+    return pas;
+}
 
-    return 1;
+/**
+ * @brief Insere a viagem com a passagem de entrada e saída
+ * 
+ * @param bd Base de dados
+ * @param v Viagem a colocar na bd
+ * @param entrada Ponteiro para a passagem de entrada
+ * @param saida Ponteiro para a passagem de saída
+ * @return int 0 em caso de erro, -1 se inserido APENAS entrada, 1 se inserido APENAS saida, 2 caso inserido AMBOS
+ */
+int inserirViagemLido(Bdados *bd, Viagem *v, Passagem *entrada, Passagem *saida) {
+    if (!bd || !bd->viagens || !v) return 0;
+    if (!entrada && !saida) {
+        return 0;
+    }
+
+    if (entrada && !saida) {
+        v.entrada = entrada;
+        return -1;
+    }
+    if (saida && !entrada) {
+        v->saida = saida;
+        return 1;
+    }
+    if (entrada && saida) {
+        v->entrada = entrada;
+        v->saida = saida;
+        return 2;
+    }
 }
 
 int compararPassagens(void *passagem1, void *passagem2) {
@@ -45,6 +73,31 @@ int compCodPassagem(void *passagem, void *codigo) {
 void freePassagem(void *passagem) {
     Passagem *obj = (Passagem *)passagem;
     free(obj);
+}
+
+void freeViagem(void *viagem) {
+    Viagem *obj = (Viagem *)viagem;
+    freePassagem((void *)obj->entrada);
+    freePassagem((void *)obj->saida);
+    free(obj);
+}
+
+void guardarViagemBin(void *viagem, FILE *file) {
+    if (!viagem || !file) return;
+
+    Viagem *x = (Viagem *)viagem;
+    guardarPassagemBin((void *)x->entrada, file);
+    guardarPassagemBin((void *)x->saida, file);
+}
+
+void guardarPassagemBin(void *passagem, FILE *file) {
+    if (!passagem || !file) return;
+
+    Passagem *x = (Passagem *)passagem;
+    fwrite(&x->data, sizeof(Data), 1, file);
+    fwrite(&x->idSensor, sizeof(int), 1, file);
+    fwrite(&x->tipoRegisto, sizeof(char), 1, file);
+    fwrite(&x->veiculo->codVeiculo, sizeof(int), 1, file);
 }
 
 /*

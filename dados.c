@@ -335,7 +335,15 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
 
     time_t inicio = time(NULL);   
     fprintf(logs, "#FICHEIRO DISTANCIAS#\t\t%s\n", ctime(&inicio));
-
+    int tamMatriz = contarLinhas(distanciasFile);
+    if (tamMatriz < 0) {
+        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Distancias: '%s'.", distanciasFile);
+        return 0;
+    }
+    if (!realocarMatrizDistancias(bd, tamMatriz)) {
+        fprintf(logs, "Ocorreu um erro a realocar a matriz das distâncias\n\n");
+        return 0;
+    }
     FILE *dists = fopen(distanciasFile, "r");
     if (dists) {
         int nLinhas = 0;
@@ -421,13 +429,35 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
     FILE *passagem = fopen(passagensFile, "r");
     if (passagem) {
         int nLinhas = 0;
+        int nPassagens = 0; //Para verificar os pares das viagens
         char *linha = NULL;
+
+        Viagem *v = NULL;
+        char skipPassagem2 = '0';
         while((linha = lerLinhaTxt(passagem, &nLinhas)) != NULL) {
+            //Verificar se houve erro na Passagem1
+            if (skipPassagem2 == '1') {
+                free(linha);
+                continue;
+            }
             char *parametros[PARAM_PASSAGEM];
             int numParam = 0; //Nº real de param lidos
             char *copiaLinha = strdup(linha);
             separarParametros(copiaLinha, parametros, &numParam, PARAM_PASSAGEM);
+
             char erro = '0';
+            char passagem1 = (nPassagens % 2 == 0) ? '1' : '0';
+
+            if (passagem1 == '1') {
+                v = (Viagem *)malloc(sizeof(Viagem));
+                if (!v) {
+                    fprintf(logs, "Erro a alocar memoria para viagem %d.\n\n", bd->viagens->nel + 1);
+                    free(copiaLinha);
+                    free(linha);
+                    skipPassagem2 = '1';
+                    continue;
+                }
+            }
             
             if (numParam == PARAM_PASSAGEM) {
                 //ID do sensor
@@ -458,7 +488,6 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     fprintf(logs, "Razão: Data inválida\n\n");
                     erro = '1';
                 }
-
                 //Tipo de registo
                 if (!validarTipoRegisto(parametros[3][0])) {
                     linhaInvalida(linha, nLinhas, logs);
@@ -467,9 +496,41 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                 }
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
-                    if(!inserirPassagemLido(bd, idSensor, codVeiculo, date, parametros[3][0])) {
-                        linhaInvalida(linha, nLinhas, logs);
-                        fprintf(logs, "Razão: Ocorreu um erro fatal a carregar a linha para a memória\n\n");
+                    Passagem *p = obterPassagem(bd, idSensor, codVeiculo, date, parametros[3][0]);
+                    //Primeira passagem da viagem
+                    if (passagem1 == '1') {
+                        if (inserirViagemLido(bd, v, p, NULL) != -1) {
+                            linhaInvalida(linha, nLinhas, logs);
+                            fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de entrada da viagem\n\n");
+                            erro = '1';
+                        };
+                    }
+                    //Segunda passagem da viagem
+                    else {
+                        if (inserirViagemLido(bd, v, NULL, p) != 1) {
+                            linhaInvalida(linha, nLinhas, logs);
+                            fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de saída da viagem\n\n");
+                            erro = '1';
+                        }
+                        addInicioLista(bd->viagens, (void *)v);
+                    }
+                    if (erro == '0') {
+                        nPassagens++;
+                    }
+                    //Em caso de erro
+                    else {
+                        free(p);
+                        // Segunda passagem errada
+                        if (passagem1 == '0') {
+                            freePassagem((void *)v->entrada);
+                            free(v);
+                            nPassagens--; // De modo a alocar memória para o próximo
+                        }
+                        //Primeira passagem errada 
+                        else {
+                            // Assumimos o v criado como a viagem do próximo, já que não tem nada
+                            skipPassagem2 = '1'; // Passar à frente o respetivo par
+                        }
                     }
                 }
             }
@@ -560,7 +621,7 @@ void separarParametros(char *linha, char **parametros, int *numParametros, const
         removerEspacos(token);  
         parametros[*numParametros] = token;
         (*numParametros)++;
-        token = strtok(NULL, "\t");
+        token = strtok(NULL, SEPARADOR_STR);
     }
 }
 
@@ -575,6 +636,30 @@ void linhaInvalida(const char *linha, int nLinha, FILE *logs) {
     fprintf(logs, "Linha %d inválida: %s\n", nLinha, linha);
 }
 
+/**
+ * @brief Conta as linhas de um ficheiro
+ * 
+ * @param filename Nome do ficheiro
+ * @return int -1 se erro, Nº linhas caso contrário
+ */
+int contarLinhas(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        return -1;
+    }
+
+    int linhas = 0;
+    int c;
+    while ((c = fgetc(f)) != EOF) {
+        if (c == '\n') {
+            linhas++;
+        }
+    }
+
+    fclose(f);
+
+    return linhas;
+}
 
 // Dados Binários
 
@@ -586,6 +671,29 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
 
     fwrite(&bd, sizeof(Bdados), 1, file);
 
+    No *p = NULL;
+
+    // Donos
+    guardarListaBin(bd->donos, guardarDonoBin, file);
+
+    // Carros
+    guardarListaBin(bd->carros, guardarCarroBin, file);
+
+    // Sensores
+    guardarListaBin(bd->carros, guardarSensorBin, file);
+
+    // Passagens/Viagens
+    guardarListaBin(bd->viagens, guardarViagemBin, file);
+
+    // Distâncias
+    if (bd->matrizDist) {
+        fwrite(&bd->tamMatrizDist, sizeof(int), 1, file);
+        for (int i = 0; i < bd->tamMatrizDist; i++) {
+            fwrite(bd->matrizDist[i], sizeof(float), 1, file);
+        }
+    }
+    
+    
     fclose(file);
     return 1;
 }
@@ -601,3 +709,5 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     fclose(file);
     return 1;
 }
+
+
