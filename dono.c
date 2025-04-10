@@ -80,3 +80,13 @@ void msotrarDono(void *dono){
     printf ("\nNIF: %d", x->nif);
     printf ("Código Posta: %d-%d", x->codigoPostal.local, x->codigoPostal.zona);
 }
+
+int ordenarAlfNome(void *dono1, void *dono2){
+    if (!dono1 || !dono2) return 0;
+    Dono *n1 = (Dono*) dono1;
+    Dono *n2 = (Dono*) dono2;
+    normalizar_string(n1->nome);
+    normalizar_string(n2->nome);
+    if (strcmp((n1->nome), (n2->nome)) == 1) return 1;
+    return 0;
+}

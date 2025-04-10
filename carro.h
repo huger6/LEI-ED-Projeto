@@ -19,11 +19,14 @@ typedef struct {
 } Carro, Car, *ptCar, *ptCarro;
 
 
-int compararCarros(void *carro1, void *carro2);
-int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
-int compCodVeiculo(void *carro, void *codigo);
-void freeCarro(void *carro);
-void mostrarCarro(void *carro);
+int compararCarros (void *carro1, void *carro2);
+int inserirCarroLido (Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
+int compCodVeiculo (void *carro, void *codigo);
+void freeCarro (void *carro);
+void mostrarCarro (void *carro);
+int ordenarAlfMarca (void *carro1, void *carro2);
+int ordenarAlfModelo (void *carro1, void *carro2);
+int ordenarAlfMatricula (void *carro1, void *carro2);
 
 void RegistarVeiculo(Bdados *bd);
 

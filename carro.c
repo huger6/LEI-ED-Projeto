@@ -134,6 +134,30 @@ void RegistarVeiculo(Bdados *bd){
     } while(1);
 }
 
+int ordenarAlfMarca (void *carro1, void *carro2){
+    if (!carro1 || !carro2) return 0;
+    Carro *x1 = (Carro*) carro1;
+    Carro *x2 = (Carro*) carro2;
+    if (strcmp(tolower(x1->marca),tolower(x2->marca)) == 1) return 1;
+    return 0;
+}
+
+int ordenarAlfModelo (void *carro1, void *carro2){
+    if (!carro1 || !carro2) return 0;
+    Carro *x1 = (Carro*) carro1;
+    Carro *x2 = (Carro*) carro2;
+    if (strcmp(tolower(x1->modelo),tolower(x2->modelo)) == 1) return 1;
+    return 0;
+}
+
+int ordenarAlfMatricula (void *carro1, void *carro2){
+    if (!carro1 || !carro2) return 0;
+    Carro *x1 = (Carro*) carro1;
+    Carro *x2 = (Carro*) carro2;
+    if (strcmp(x1->matricula, x2->matricula) == 1) return 1;
+    return 0;
+}
+
 void listarVeiculos(Bdados *bd){
 
 }

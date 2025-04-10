@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "bdados.h"
 
@@ -23,5 +24,6 @@ int compararDonos(void *dono1, void *dono2);
 int compCodDono(void *dono, void *codigo);
 void freeDono(void *dono);
 void msotrarDono(void *dono);
+int ordenarAlfNome(void *dono1, void *dono2);
 
 #endif
