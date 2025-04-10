@@ -1,4 +1,5 @@
 #include "carro.h"
+#include "validacoes.h"
 
 
 int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo) {
@@ -101,4 +102,82 @@ void guardarCarroBin(void *carro, FILE *file) {
     fwrite(x->modelo, tamanhoModelo, 1, file);
 
     fwrite(&x->ptrPessoa->nif, sizeof(int), 1, file);
+}
+
+void RegistarVeiculo(Bdados *bd){
+    do{
+        int codVeiculo, nif;
+        char *matricula;
+        char *marca;
+        char *modelo;
+        short ano;
+    
+        printf ("\n\tIntroduza as Informações:\n");
+        do{
+            printf ("\nCódigo do Veículo: ");
+            scanf("%d", &codVeiculo);
+        }while (validarCodVeiculo(codVeiculo) == 0);
+        
+        do{
+            printf ("\nMatrícula:");
+            matricula = lerLinhaTxt (stdin, NULL);
+        }while (validarMatricula (matricula) == 0);
+        
+        do{
+            printf ("\nMarca:");
+            marca = lerLinhaTxt (stdin, NULL);
+        }while (!validarMarca (marca));
+    
+        do {
+            printf ("\nModelo:");
+            modelo = lerLinhaTxt (stdin, NULL);
+        }while (!validarMarca (modelo));
+    
+        do{
+            printf ("\nAno do Veículo:");
+            scanf ("%hd", &ano);
+        }while (validarAnoCarro(ano) == 0);
+        
+        do{
+            printf ("\nNIF do Dono:");
+            scanf ("%d", &nif);
+        }while (validarNif(nif) == 0);
+    
+        inserirCarroLido(bd, matricula, marca, modelo, ano, nif, codVeiculo);  
+        
+        free (matricula);
+        free (marca);
+        free (modelo);
+        
+        if (sim_nao("\nQuer introduzir outro elemento?") == 0) return;
+
+    } while(1);
+}
+
+int ordenarAlfMarca (void *carro1, void *carro2){
+    if (!carro1 || !carro2) return 0;
+    Carro *x1 = (Carro*) carro1;
+    Carro *x2 = (Carro*) carro2;
+    if (strcmp(tolower(x1->marca),tolower(x2->marca)) == 1) return 1;
+    return 0;
+}
+
+int ordenarAlfModelo (void *carro1, void *carro2){
+    if (!carro1 || !carro2) return 0;
+    Carro *x1 = (Carro*) carro1;
+    Carro *x2 = (Carro*) carro2;
+    if (strcmp(tolower(x1->modelo),tolower(x2->modelo)) == 1) return 1;
+    return 0;
+}
+
+int ordenarAlfMatricula (void *carro1, void *carro2){
+    if (!carro1 || !carro2) return 0;
+    Carro *x1 = (Carro*) carro1;
+    Carro *x2 = (Carro*) carro2;
+    if (strcmp(x1->matricula, x2->matricula) == 1) return 1;
+    return 0;
+}
+
+void listarVeiculos(Bdados *bd){
+
 }

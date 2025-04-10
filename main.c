@@ -12,11 +12,14 @@
 /*
 Aplicação desenvolvida no âmbito da cadeira "Estruturas de Dados" da ESTGV, em 2024-2025.
 Membros do grupo:
+    -Guilherme Pais, NºMEC 30007;
     -Hugo Afonso, NºMEC 30032;
     -Mateus Silva, NºMEC 29989;
 
 Todas as versões do programa estão disponíveis no seguinte repositório do github:
 https://github.com/huger6/ProjetoED
+
+Para compilar MATEUS (versão antiga compilador):  gcc -Wall -Wextra -g -O0 -std=c2x -o "filename" main.c uteis.c validacoes.c sensores.c passagens.c menus.c listaGenerica.c dono.c distancias.c dados.c carro.c bdados.c
 
 Para compilar em Windows, usar:
 	gcc -Wall -Wextra -g -O0 -std=c23 -o (**FILENAME**) main.c uteis.c validacoes.c sensores.c passagens.c menus.c listaGenerica.c dono.c distancias.c dados.c carro.c bdados.c

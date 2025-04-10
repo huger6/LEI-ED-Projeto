@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "bdados.h"
 
@@ -24,5 +25,6 @@ int compCodDono(void *dono, void *codigo);
 void freeDono(void *dono);
 void mostrarDono(void *dono);
 void guardarDonoBin(void *obj, FILE *file);
+int ordenarAlfNome(void *dono1, void *dono2);
 
 #endif
