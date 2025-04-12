@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bdados.h"
+struct Bdados;
 
 typedef struct {
     int codSensor; //PRIMARY KEY
@@ -14,11 +14,11 @@ typedef struct {
     char *longitude;
 } Sensor, *ptSensor;
 
-int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude);
+int inserirSensorLido(struct Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude);
 int compararSensores(void *sensor1, void *sensor2);
 int compIdSensor(void *sensor, void *idSensor);
 void freeSensor(void *sensor);
-void mostrarSensor(void *sensor);
-void guardarSensorBin(void *obj, FILE *file);
+void printSensor(void *sensor);
+void guardarSensorBin(void *sensor, FILE *file);
 
 #endif

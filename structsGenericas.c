@@ -77,7 +77,7 @@ int addFimLista(Lista *li, void *elemento) {
  * @param printObj  Função para mostrar o elemento
  */
 void printLista(Lista *li, void (*printObj)(void *obj)) {
-    if (!li) return;
+    if (!li || !printObj) return;
 
     No *p = li->inicio;
     while(p) {
@@ -91,6 +91,8 @@ void printLista(Lista *li, void (*printObj)(void *obj)) {
  * 
  * @param li    Lista
  * @param freeObj   Função para libertar a memória de cada x elemento
+ * 
+ * @note freeObj pode ser passada como NULL para ignorar a libertação de cada elemento
  */
 void freeLista(Lista *li, void (*freeObj)(void *obj)) {
     if (!li) return;
@@ -100,7 +102,9 @@ void freeLista(Lista *li, void (*freeObj)(void *obj)) {
 
     while(p) {
         seg = p->prox;
-        (*freeObj)(p->info);
+        if (freeObj) {
+            (*freeObj)(p->info);
+        }
         free(p);
         p = seg;
     }
@@ -116,7 +120,7 @@ void freeLista(Lista *li, void (*freeObj)(void *obj)) {
  * @return int 
  */
 int pesquisarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2), void *obj) {
-    if (!li || !li->inicio) return 0;
+    if (!li || !li->inicio || !compObjs) return 0;
 
     No *p = li->inicio;
     while(p) {
@@ -157,7 +161,7 @@ void inverterLista(Lista *li) {
  * @note Troca os elementos obj1 com obj2 quando a função compObjs retorna 1
  */
 void ordenarLista(Lista * li, int (*compObjs)(void *obj1, void *obj2)) {
-    if (!li || li->nel < 2) return;
+    if (!li || li->nel < 2 || !compObjs) return;
 
     char trocou;
     do {
@@ -194,8 +198,8 @@ void ordenarLista(Lista * li, int (*compObjs)(void *obj1, void *obj2)) {
  * @param chave Ponteiro para o dado a procurar
  * @return void* Fazer cast consoante o tipo de dados
  */
-void *pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave) {
-    if (!li || !li->inicio) return NULL;
+void *searchLista(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave) {
+    if (!li || !li->inicio || !compCod) return NULL;
 
     No *p = li->inicio;
     while(p) {
@@ -217,7 +221,7 @@ void *pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), vo
  * @note Guarda o Nº de elementos da lista primeiro
  */
 void guardarListaBin(Lista *li, void (*saveInfo)(void *obj, FILE *fileObj), FILE *file) {
-    if (!li || !li->inicio || !file) return;
+    if (!li || !li->inicio || !file || !saveInfo) return;
 
     No *p = li->inicio;
     fwrite(&li->nel, sizeof(int), 1, file);
@@ -235,7 +239,7 @@ void guardarListaBin(Lista *li, void (*saveInfo)(void *obj, FILE *fileObj), FILE
  * @return Lista* Lista com os elementos lidos ou NULL se erro
  */
 Lista *lerListaBin(void (*readInfo)(Lista *li, FILE *fileObj), FILE *file) {
-    if (!file) return NULL;
+    if (!file || !readInfo) return NULL;
 
     Lista *li = criarLista();
     if (!li) return NULL;
@@ -275,7 +279,7 @@ Dict *criarDict() {
  * @return NoHashing* de inserção ou NULL se erro ou essa chave ainda não existe
  */
 NoHashing *posicaoInsercao(Dict *has, void *obj, int (*compChave)(void *chave, void *obj)) {
-    if (!has || !obj) return NULL;
+    if (!has || !obj || !compChave) return NULL;
 
     NoHashing *p = has->inicio;
     while(p) {
@@ -296,7 +300,7 @@ NoHashing *posicaoInsercao(Dict *has, void *obj, int (*compChave)(void *chave, v
  * @return int 0 se erro, 1 se sucesso
  */
 int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj)) {
-    if (!has || !obj) return 0;
+    if (!has || !obj || !compChave || !criarChave) return 0;
 
     NoHashing *p = posicaoInsercao(has, obj, compChave);
     // Caso não haja esse tipo de entrada ainda criada
@@ -309,7 +313,7 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
         has->inicio = p;
         has->nelDict++;
     }
-    addInicioLista(p->Dados,obj);
+    addInicioLista(p->dados,obj);
     return 1;
 }
 
@@ -320,7 +324,7 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
  * @param printObj Função para mostrar cada elemento
  */
 void printDict(Dict *has, void (*printObj)(void *obj)) {
-    if (!has) return;
+    if (!has || !printObj) return;
 
     NoHashing *p = has->inicio;
     while(p)
@@ -336,9 +340,11 @@ void printDict(Dict *has, void (*printObj)(void *obj)) {
  * @param has Dicionário
  * @param freeChave Função para libertar a memória da chave
  * @param freeObj Função para libertar a memória de cada elemento
+ * 
+ * @note freeObj pode ser passada como NULL para ignorar a libertação de cada elemento da lista
  */
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj)) {
-    if (!has) return;
+    if (!has || !freeChave) return;
 
     NoHashing *p = has->inicio;
     while(p) {
@@ -349,13 +355,35 @@ void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *o
 }
 
 /**
+ * @brief Pesquisa pela chave principal de um dicionário
+ * 
+ * @param has Dicionário
+ * @param chave Chave a procurar
+ * @param compChave Função para comparar as chaves do Dict
+ * @param compCod Função para comparar a chave com o elemento da lista
+ * @return void* ou NULL se erro
+ */
+void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave)) {
+    if (!has || !chave || !compChave || has->nelDict < 1) return NULL;
+
+    NoHashing *p = has->inicio;
+    while(p) {
+        if ((*compChave)(p->chave, chave) == 0) {
+            return searchLista(p->dados, compCod, chave);
+        }
+        p = p->prox;
+    }
+    return NULL;
+}
+
+/**
  * @brief Ordena um dicionário pelas chaves
  * 
  * @param has Dicionário
  * @param compChave Função para comparar as chaves(troca quando compChave(chave1, chave2) > 0)
  */
-void ordenarDict(Dict *has, void (*compChave)(void *chave1, void *obj)) {
-    if (!has || has->nelDict < 2) return;
+void ordenarDict(Dict *has, int (*compChave)(void *chave1, void *obj)) {
+    if (!has || has->nelDict < 2 || !compChave) return;
 
     char trocou;
     do {
@@ -393,7 +421,7 @@ void ordenarDict(Dict *has, void (*compChave)(void *chave1, void *obj)) {
  * @param file Ficheiro onde guardar, aberto
  */
 void guardarDictBin(Dict *has, void (*guardarChave)(void *chave, FILE *fileObj), void (*saveInfo)(void *obj, FILE *fileObj), FILE *file) {
-    if (!has || !file) return;
+    if (!has || !file || !guardarChave || !saveInfo) return;
 
     NoHashing *p = has->inicio;
     fwrite(&has->nelDict, sizeof(int), 1, file);
@@ -415,7 +443,7 @@ void guardarDictBin(Dict *has, void (*guardarChave)(void *chave, FILE *fileObj),
  * @return Dict* Dicionário ou NULL
  */
 Dict *lerDictBin(void *(*readChave)(FILE *fileObj), void (*readInfo)(Lista *li, FILE *fileObj), FILE *file, void (*freeChave)(void *chave), void (*freeObj)(void *obj)) {
-    if (!file) return NULL;
+    if (!file || !readChave || !readInfo || !freeChave || !freeObj) return NULL;
 
     Dict *has = criarDict();
     if (!has) return NULL;

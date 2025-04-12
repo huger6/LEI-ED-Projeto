@@ -320,7 +320,7 @@ void processarMenuDonos(Bdados *bd) {
                 break;
             case '1':
                 //Registar dono
-                printLista(bd->donos, mostrarDono);
+                //printLista(bd->donos, mostrarDono);
                 break;
             case '2':
                 //Listar donos (alfabeticamente)

@@ -1,6 +1,7 @@
 #include "dono.h"
 #include "structsGenericas.h"
 #include "constantes.h"
+#include "bdados.h"
 
 /**
  * @brief Introduz o dono na base de dados
@@ -50,7 +51,7 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal) {
  * @param dono2 
  * @return int -1 se dono1 < dono2, 0 se iguais, 1 se dono1 > dono2
  */
-int compararDonos(void *dono1, void *dono2) {
+int compDonosNif(void *dono1, void *dono2) {
     if (dono1 == NULL && dono2 == NULL) return 0;
     if (dono1 == NULL) return -1; //NULL < qualquer coisa
     if (dono2 == NULL) return 1;
@@ -62,6 +63,24 @@ int compararDonos(void *dono1, void *dono2) {
     if (y->nif < x->nif) return -1;
     return 0;
 }
+
+/**
+ * @brief Ordena 
+ * 
+ * @param dono1 
+ * @param dono2 
+ * @return int 
+ */
+/* ERRO AQUI
+int compDonosNome(void *dono1, void *dono2){
+    if (!dono1 || !dono2) return 0;
+    Dono *n1 = (Dono*) dono1;
+    Dono *n2 = (Dono*) dono2;
+    normalizar_string(n1->nome);
+    normalizar_string(n2->nome);
+    return strcmp((n1->nome), (n2->nome));
+}
+    */
 
 /**
  * @brief Compara um dono(Nif) com um código
@@ -144,7 +163,7 @@ void *criarChaveDonoNif(void *dono) {
     if (!dono) return NULL;
 
     Dono *x = (Dono *)dono;
-    int *chaveNif = malloc(sizeof(int));
+    int *chaveNif = (int *)malloc(sizeof(int));
     if (!chaveNif) return NULL;
 
     *chaveNif = x->nif % HASH_DONOS_NIF;
@@ -152,11 +171,23 @@ void *criarChaveDonoNif(void *dono) {
 }
 
 /**
+ * @brief Liberta a memória ocupada pela chave dos donos por Nif
+ * 
+ * @param chave Chave
+ */
+void freeChaveDonoNif(void *chave) {
+    if (!chave) return;
+
+    int *key = (int *)chave;
+    free(key);
+}
+
+/**
  * @brief Compara as chaves dos donos por Nif
  * 
  * @param chave Chave
  * @param dono Dono
- * @return int 0 se igual, 1 se diferente
+ * @return int 0 se igual, 1 se diferente 
  */
 int compChaveDonoNif(void *chave, void *dono) {
     if (!chave || !dono) return -1;
@@ -164,7 +195,7 @@ int compChaveDonoNif(void *chave, void *dono) {
     int *key = (int *)chave;
     Dono *x = (Dono *)dono;
 
-    if (*key == x->nif) return 0;
+    if (*key == (x->nif % HASH_DONOS_NIF)) return 0;
     return 1;
 } 
 
@@ -181,16 +212,28 @@ void *criarChaveDonoAlfabeticamente(void *dono) {
     char *chaveAlf = malloc(sizeof(char));
     if (!chaveAlf) return NULL;
 
-    *chaveAlf = x->nome[0];
+    *chaveAlf = tolower(x->nome[0]);
     return (void *)chaveAlf;
+}
+
+/**
+ * @brief Liberta a memória da chave dos donos por ordem alfabética
+ * 
+ * @param chave Chave
+ */
+void freeChaveDonoAlfabeticamente(void *chave) {
+    if (!chave) return;
+
+    char *key = (char *)chave;
+    free(key);
 }
 
 /**
  * @brief Compara as chaves dos donos alfabeticamente
  * 
- * @param chave 
- * @param dono 
- * @return int 
+ * @param chave Chave
+ * @param dono Dono
+ * @return int -1 se erro, 0 se iguais, 1 se diferentes
  */
 int compChaveDonoAlfabeticamente(void *chave, void *dono) {
     if (!chave || !dono) return -1;
@@ -198,23 +241,7 @@ int compChaveDonoAlfabeticamente(void *chave, void *dono) {
     char *key = (char *)chave;
     Dono *x = (Dono *)dono;
 
-    if (*key == x->nome[0]) return 0;
+    if (*key == tolower(x->nome[0])) return 0;
     return 1;
 } 
 
-/**
- * @brief Ordena 
- * 
- * @param dono1 
- * @param dono2 
- * @return int 
- */
-/* ERRO AQUI
-int compDonosNome(void *dono1, void *dono2){
-    if (!dono1 || !dono2) return 0;
-    Dono *n1 = (Dono*) dono1;
-    Dono *n2 = (Dono*) dono2;
-    normalizar_string(n1->nome);
-    normalizar_string(n2->nome);
-    return strcmp((n1->nome), (n2->nome));
-}

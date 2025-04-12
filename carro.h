@@ -7,7 +7,8 @@
 
 #include "dono.h"
 #include "constantes.h"
-#include "bdados.h"
+
+struct Bdados;
 
 typedef struct {
     char matricula[MAX_MATRICULA + 1];
@@ -20,21 +21,21 @@ typedef struct {
 
 
 int compararCarros(void *carro1, void *carro2);
-int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
+int inserirCarroLido(struct Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
 int compCodVeiculo(void *carro, void *codigo);
 void freeCarro(void *carro);
 void mostrarCarro(void *carro);
 void guardarCarroBin(void *carro, FILE *file);
-int compararCarros (void *carro1, void *carro2);
-int inserirCarroLido (Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
-int compCodVeiculo (void *carro, void *codigo);
-void freeCarro (void *carro);
-void mostrarCarro (void *carro);
+void guardarChaveCarroMarca(void *chaveMarca, FILE *file);
+void *criarChaveCarroMarca(void *carro);
+void freeChaveCarroMarca(void *chave);
+int compChaveCarroMarca(void *chave, void *carro);
+
 int ordenarAlfMarca (void *carro1, void *carro2);
 int ordenarAlfModelo (void *carro1, void *carro2);
 int ordenarAlfMatricula (void *carro1, void *carro2);
 int compChaveMarca(void *chave, void *carro);
 
-void RegistarVeiculo(Bdados *bd);
+void RegistarVeiculo(struct Bdados *bd);
 
 #endif

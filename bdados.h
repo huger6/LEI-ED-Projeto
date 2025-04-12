@@ -7,7 +7,7 @@
 #include "structsGenericas.h"
 #include "distancias.h"
 
-typedef struct {
+typedef struct Bdados{
     Dict *donosNif;
     Dict *donosAlfabeticamente;
     Dict *carrosMarca;
@@ -19,6 +19,8 @@ typedef struct {
 
 int inicializarBD(Bdados *bd);
 void freeTudo(Bdados *bd);
+
+// Exportação fica aqui
 
 
 #endif

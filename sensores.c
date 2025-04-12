@@ -1,5 +1,16 @@
 #include "sensores.h"
+#include "bdados.h"
 
+/**
+ * @brief Insere um sensor na base de dados
+ * 
+ * @param bd Base de dados
+ * @param codSensor Código do sensor
+ * @param designacao Designação do sensor
+ * @param latitude 
+ * @param longitude 
+ * @return int 0 se erro, 1 se sucesso
+ */
 int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitude, char *longitude) {
     if (!bd || !designacao || !latitude || !longitude) return 0;
 
@@ -43,6 +54,13 @@ int inserirSensorLido(Bdados *bd, int codSensor, char *designacao, char *latitud
     return 1;
 }
 
+/**
+ * @brief Compara 2 sensores
+ * 
+ * @param sensor1 
+ * @param sensor2 
+ * @return int -1 se sensor1 < sensor2, 0 se iguais, 1 se sensor1 > sensor2
+ */
 int compararSensores(void *sensor1, void *sensor2) {
     if (sensor1 == NULL && sensor2 == NULL) return 0;
     if (sensor1 == NULL) return -1; //NULL < qualquer coisa
@@ -56,15 +74,27 @@ int compararSensores(void *sensor1, void *sensor2) {
     return 0;
 }
 
-int compIdSensor(void *sensor, void *idSensor) {
-    if (!sensor || !idSensor) return 0;
+/**
+ * @brief Comparar um ID com um sensor(e respetivo ID)
+ * 
+ * @param sensor Sensor
+ * @param idSensor ID
+ * @return int 0 se iguais, 1 se diferentes ou erro
+ */
+int compIdSensor(void *sensor, void *idSensor) { //FUNCAO NAO USADA
+    if (!sensor || !idSensor) return 1;
 
     Sensor *x = (Sensor *)sensor;
     int *id = (int *)idSensor;
-    if (x->codSensor == *id) return 1;
-    return 0;
+    if (x->codSensor == *id) return 0;
+    return 1;
 }
 
+/**
+ * @brief Liberta toda a memória associada aos sensores
+ * 
+ * @param sensor Sensor a libertar
+ */
 void freeSensor(void *sensor) {
     Sensor *obj = (Sensor *)sensor;
     if (obj->designacao) free(obj->designacao);
@@ -73,7 +103,12 @@ void freeSensor(void *sensor) {
     free(obj);
 }
 
-void mostrarSensor(void *sensor){
+/**
+ * @brief Mostra um sensor
+ * 
+ * @param sensor Sensor a mostrar
+ */
+void printSensor(void *sensor){
     if (!sensor) return;
     Sensor *x = (Sensor *) sensor;
     printf ("\nCódigo do Sensor: %d", x->codSensor);
@@ -81,21 +116,28 @@ void mostrarSensor(void *sensor){
     printf ("\nLocalização do Sensor: %s\t%s", x->latitude, x->longitude);
 }
 
-void guardarSensorBin(void *obj, FILE *file) {
-    if (!obj || !file) return;
+/**
+ * @brief Guarda um sensor em ficheiro binário
+ * 
+ * @param sensor Sensor
+ * @param file Ficheiro binário, aberto
+ */
+void guardarSensorBin(void *sensor, FILE *file) {
+    if (!sensor || !file) return;
 
-    Sensor *x = (Sensor *)obj;
-    fwrite(x->codSensor, sizeof(int), 1, file);
+    Sensor *x = (Sensor *)sensor;
+    fwrite(&x->codSensor, sizeof(int), 1, file);
 
     size_t tamanhoDesignacao = strlen(x->designacao) + 1;
-    fwrite(tamanhoDesignacao, sizeof(size_t), 1, file);
+    fwrite(&tamanhoDesignacao, sizeof(size_t), 1, file);
     fwrite(x->designacao, tamanhoDesignacao, 1, file);
 
     size_t tamanhoLatitude = strlen(x->latitude) + 1;
-    fwrite(tamanhoLatitude, sizeof(size_t), 1, file);
+    fwrite(&tamanhoLatitude, sizeof(size_t), 1, file);
     fwrite(x->latitude, tamanhoLatitude, 1, file);
 
     size_t tamanhoLongitude = strlen(x->longitude) + 1;
-    fwrite(tamanhoLongitude, sizeof(size_t), 1, file);
+    fwrite(&tamanhoLongitude, sizeof(size_t), 1, file);
     fwrite(x->longitude, tamanhoLongitude, 1, file);
 }
+

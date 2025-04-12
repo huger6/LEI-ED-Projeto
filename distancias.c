@@ -1,6 +1,5 @@
 #include "distancias.h"
 #include "bdados.h"
-#include "passagens.h"
 
 /**
  * @brief Insere a distância entre os dois sensores na matriz
@@ -12,7 +11,7 @@
  * @return int 0 se erro, 1 se sucesso
  */
 int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float distancia) {
-    if (!bd || !bd->matrizDistancias) return 0;
+    if (!bd || !bd->distancias) return 0;
 
     bd->distancias->matriz[codSensor1 * bd->distancias->nColunas + codSensor2] = distancia;
     return 1;
@@ -42,7 +41,7 @@ void inicializarMatrizDistancias(Bdados *bd) {
  * @note O tamanho anterior não é tido em conta
  */
 int realocarMatrizDistancias(Bdados *bd, int tamanho) {
-    float *matriz = (float *)realloc(bd->matrizDistancias->distancias, tamanho*tamanho);
+    float *matriz = (float *)realloc(bd->distancias->matriz, tamanho*tamanho);
     if (!matriz) return 0;
 
     bd->distancias->matriz = matriz;
@@ -50,6 +49,35 @@ int realocarMatrizDistancias(Bdados *bd, int tamanho) {
     return 1;
 }
 
+/**
+ * @brief Liberta toda a memória associada às distâncias
+ * 
+ * @param distancia Distâncias (na base de dados)
+ */
+void freeMatrizDistancias(Distancias *distancia) {
+    if (!distancia) return;
+
+    free(distancia->matriz);
+    free(distancia);
+}
+
+/**
+ * @brief Guarda as distâncias num ficheiro binário
+ * 
+ * @param distancia Distâncias
+ * @param file Ficheiro binário, aberto
+ */
+void guardarDistanciasBin(Distancias *distancia, FILE *file) {
+    fwrite(&distancia->nColunas, sizeof(int), 1, file);
+    fwrite(distancia->matriz, sizeof(float), distancia->nColunas * distancia->nColunas, file);
+}   
+
+/**
+ * @brief Obter e colocar na estrutura de Viagem os dados estatísticos da mesma
+ * 
+ * @param bd Base de dados
+ * @param v Viagem 
+ */
 void getStatsViagem(Bdados *bd, Viagem *v) {
     v->kms = bd->distancias->matriz[v->entrada->idSensor * bd->distancias->nColunas + v->saida->idSensor];
     v->tempo = calcularIntervaloTempo(&v->entrada->data, &v->saida->data); //min

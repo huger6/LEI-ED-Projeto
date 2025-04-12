@@ -209,8 +209,9 @@ char * normalizar_string(char * str) {
     }
 
     //Converter para minúsculas
-    strlwrSafe(resultado);
-    return resultado;
+    char *res = strlwrSafe(resultado);
+    free(resultado);
+    return res;
 }
  
 /* Converte string para minúsculas
@@ -220,22 +221,26 @@ char * normalizar_string(char * str) {
  * @return Ponteiro para a string convertida ou NULL se:
  *         - str for NULL
  *         
- * @note Modifica a string original
  * @note Usa unsigned char para suportar caracteres estendidos ASCII
  * @note Versão segura do strlwr() da string.h (para linux)
+ * @note Aloca memória para a cópia
  */
-char * strlwrSafe(char * str) {
+char *strlwrSafe(const char *str) {
     if (!str) return NULL;
-    
-    unsigned char * p = (unsigned char *)str;
 
+    char *copia = (char *)malloc(strlen(str) + 1);
+    if (!copia) return NULL;
+
+    strcpy(copia, str);
+
+    char *p = copia;
     while (*p) {
         *p = tolower((unsigned char)*p);
         p++;
     }
 
-    return str;
-}   
+    return copia;
+} 
 
 /* Converte string para inteiro
  *

@@ -143,7 +143,8 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Donos: '%s'\n\n", donosFile);
         return 0;
     }
-
+    ordenarDict(bd->donosNif, compDonosNif);
+    //ordenarDict(bd->donosAlfabeticamente, compDonosNome)
     time_t fim = time(NULL);
     char *tempoFinal = ctime(&fim); // Não precisa de free
     tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
@@ -245,7 +246,7 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Carros: '%s'.", carrosFile);
         return 0;
     }
-    ordenarLista(bd->carros, compararCarros);
+    ordenarDict(bd->carrosMarca, compararCarros);
     time_t fim = time(NULL);
     char *tempoFinal = ctime(&fim); // Não precisa de free
     tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
@@ -495,7 +496,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     Passagem *p = obterPassagem(bd, idSensor, codVeiculo, date, parametros[3][0]);
                     //Primeira passagem da viagem
                     if (passagem1 == '1') {
-                        if (inserirViagemLido(bd, v, p, NULL) != -1) {
+                        if (inserirViagemLido(v, p, NULL) != -1) {
                             linhaInvalida(linha, nLinhas, logs);
                             fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de entrada da viagem\n\n");
                             erro = '1';
@@ -503,13 +504,17 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     }
                     //Segunda passagem da viagem
                     else {
-                        if (inserirViagemLido(bd, v, NULL, p) != 1) {
+                        if (inserirViagemLido(v, NULL, p) != 1) {
                             linhaInvalida(linha, nLinhas, logs);
                             fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de saída da viagem\n\n");
                             erro = '1';
                         }
                         getStatsViagem(bd, v);
-                        addInicioLista(bd->viagens, (void *)v);
+                        if (!addInicioLista(bd->viagens, (void *)v)) {
+                            linhaInvalida(linha, nLinhas, logs);
+                            fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de saída da viagem para a lista\n\n");
+                            erro = '1';
+                        }
                     }
                     if (erro == '0') {
                         nPassagens++;
@@ -677,22 +682,16 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
     guardarDictBin(bd->donosNif, guardarChaveDonoNif, guardarDonoBin, file);
 
     // Carros
-    guardarListaBin(bd->carros, guardarCarroBin, file);
+    guardarDictBin(bd->carrosMarca,guardarChaveCarroMarca, guardarCarroBin, file);
 
     // Sensores
-    guardarListaBin(bd->carros, guardarSensorBin, file);
+    guardarListaBin(bd->sensores, guardarSensorBin, file);
 
     // Passagens/Viagens
     guardarListaBin(bd->viagens, guardarViagemBin, file);
  
     // Distâncias
-    if (bd->matrizDist) {
-        fwrite(&bd->tamMatrizDist, sizeof(int), 1, file);
-        for (int i = 0; i < bd->tamMatrizDist; i++) {
-            fwrite(bd->matrizDist[i], sizeof(float), 1, file);
-        }
-    }
-    
+    guardarDistanciasBin(bd->distancias, file);
     
     fclose(file);
     return 1;

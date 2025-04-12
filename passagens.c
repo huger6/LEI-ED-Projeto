@@ -1,18 +1,22 @@
 #include "passagens.h"
+#include "bdados.h"
 
 Passagem * obterPassagem(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto) {
-    if (!bd || !bd->passagens) return 0;
+    if (!bd || !bd->viagens) return 0;
 
     Passagem *pas = (Passagem *)malloc(sizeof(Passagem));
     if (!pas) return 0;
 
     //Id Sensor
     pas->idSensor = idSensor;
-    //Ptr Carro (código veículo)
-    Carro *ptrCarro = (Carro *)pesquisarPorChave(bd->carros, compCodPassagem, &codVeiculo);
+    //Ptr Carro (código veículo) 
+    /* ERRO (Hugo)
+    Carro *ptrCarro = (Carro *)searchDict(bd->carrosMarca)
+    Carro *ptrCarro = (Carro *)pesquisarPorChave(bd->carrosMarca, compCodPassagem, &codVeiculo);
     if (ptrCarro) {
         pas->veiculo = ptrCarro;
     }
+    */
     pas->data = date;
     pas->tipoRegisto = tipoRegisto;
 
@@ -34,7 +38,7 @@ int inserirViagemLido(Viagem *v, Passagem *entrada, Passagem *saida) {
     }
 
     if (entrada && !saida) {
-        v.entrada = entrada;
+        v->entrada = entrada;
         return -1;
     }
     if (saida && !entrada) {

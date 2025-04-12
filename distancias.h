@@ -6,17 +6,19 @@
 
 #include "passagens.h"
 
-typedef struct Bdados;
+struct Bdados;
 
 typedef struct {
     float *matriz;
     int nColunas;
 } Distancias;
 
-int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float distancia);
-void inicializarMatrizDistancias(Bdados *bd);
-int realocarMatrizDistancias(Bdados *bd, int tamanho);
-void getStatsViagem(Bdados *bd, Viagem *v);
+int inserirDistanciaLido(struct Bdados *bd, int codSensor1, int codSensor2, float distancia);
+void inicializarMatrizDistancias(struct Bdados *bd);
+int realocarMatrizDistancias(struct Bdados *bd, int tamanho);
+void freeMatrizDistancias(Distancias *distancia);
+void guardarDistanciasBin(Distancias *distancia, FILE *file);
+void getStatsViagem(struct Bdados *bd, Viagem *v);
 
 
 #endif

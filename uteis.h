@@ -29,7 +29,7 @@ int randomInt(int min, int max);
 void data_atual();
 int sim_nao(char * mensagem);
 char * normalizar_string(char * str);
-char * strlwrSafe(char * str);
+char *strlwrSafe(const char *str);
 int stringToInt(const char * str, int * resultado);
 int stringToShort(const char * str, short * resultado);
 int stringToFloat(const char * str, float * resultado);

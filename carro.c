@@ -1,7 +1,21 @@
 #include "carro.h"
 #include "validacoes.h"
+#include "bdados.h"
 
-
+/**
+ * @brief Inserir um carro na base de dados
+ * 
+ * @param bd Base de dados
+ * @param matricula Matrícula
+ * @param marca Marca
+ * @param modelo Modelo
+ * @param ano Ano
+ * @param nif Nif
+ * @param codVeiculo Código do veículo
+ * @return int 0 se erro, 1 se sucesso
+ * 
+ * @note Não faz validações
+ */
 int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo) {
     if (!bd) return 0;
     
@@ -28,11 +42,12 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Ano
     aut->ano = ano;
     //NIF (ptrPessoa)
-    aut->ptrPessoa = (Dono *)pesquisarPorChave(bd->donos, compCodDono, &nif);
+    void *nifPtr = (void *)&nif;
+    aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, nifPtr, compChaveDonoNif ,compCodDono);
     //Código Veículo
     aut->codVeiculo = codVeiculo;
     
-    if (!appendToDict(bd->carros, (void *)aut, compChaveCarros)) {
+    if (!appendToDict(bd->carrosMarca, (void *)aut, compChaveCarroMarca, criarChaveCarroMarca)) {
         free(aut->modelo);
         free(aut->marca);
         free(aut);
@@ -42,6 +57,13 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     return 1;
 }
 
+/**
+ * @brief Compara 2 carros
+ * 
+ * @param carro1 
+ * @param carro2 
+ * @return int -1 se carro1 < carro2, 0 se iguais, 1 se carro1 > carro2
+ */
 int compararCarros(void *carro1, void *carro2) {
     if (carro1 == NULL && carro2 == NULL) return 0;
     if (carro1 == NULL) return -1; //NULL < qualquer coisa
@@ -55,6 +77,13 @@ int compararCarros(void *carro1, void *carro2) {
     return 0;
 }
 
+/**
+ * @brief Compara o código de um veículo com um código
+ * 
+ * @param carro Carro
+ * @param codigo Código (será convertido para int*)
+ * @return int 
+ */
 int compCodVeiculo(void *carro, void *codigo) {
     if (!carro || !codigo) return 0;
 
@@ -64,13 +93,18 @@ int compCodVeiculo(void *carro, void *codigo) {
     return 0;
 }
 
-//Não se liberta o ponteiro para Dono certo?
+/**
+ * @brief Liberta a memória associada a um Carro
+ * 
+ * @param carro Carro
+ */
 void freeCarro(void *carro) {
     Carro *obj = (Carro *)carro;
     if (obj->marca) free(obj->marca);
     if (obj->modelo) free(obj->modelo);
     free(obj);
 }
+
 
 void mostrarCarro(void *carro) {
     if (!carro) return;
@@ -85,6 +119,12 @@ void mostrarCarro(void *carro) {
     printf("\nNIF do Dono: %d", x->ptrPessoa->nif);
 }
 
+/**
+ * @brief Guarda um elemento do tipo Carro num ficheiro binário
+ * 
+ * @param carro Carro
+ * @param file Ficheiro binário
+ */
 void guardarCarroBin(void *carro, FILE *file) {
     if (!carro || !file) return;
 
@@ -103,6 +143,85 @@ void guardarCarroBin(void *carro, FILE *file) {
 
     fwrite(&x->ptrPessoa->nif, sizeof(int), 1, file);
 }
+
+/**
+ * @brief Guarda a chave do carro por marca em ficheiro binário
+ * 
+ * @param chaveMarca Chave
+ * @param file Ficheiro binário, aberto
+ */
+void guardarChaveCarroMarca(void *chaveMarca, FILE *file) {
+    if (!chaveMarca || !file) return;
+
+    char *chave = (char *)chaveMarca;
+
+    size_t comp = strlen(chave) + 1;
+    fwrite(&comp, sizeof(size_t), 1, file);
+    fwrite(chave, comp, 1, file);
+}
+
+/**
+ * @brief Cria uma chave para o carro consoante a marca
+ * 
+ * @param carro Carro
+ * @return void* Chave(tipo void) ou NULL se erro
+ * 
+ * @note Coloca a chave em maiúscula
+ */
+void *criarChaveCarroMarca(void *carro) {
+    if (!carro) return NULL;
+
+    Carro *x = (Carro *)carro;
+
+    return (void *)strlwrSafe(x->marca);
+}
+
+/**
+ * @brief Liberta a memória da chave dos carros por marca
+ * 
+ * @param chave 
+ */
+void freeChaveCarroMarca(void *chave) {
+    if (!chave) return;
+
+    char *key = (char *)chave;
+    free(key);
+}
+
+/**
+ * @brief Compara as chaves dos carros pela marca
+ * 
+ * @param chave Chave
+ * @param carro Carro
+ * @return int -1 se erro, 0 se iguais, 1 se diferente
+ */
+int compChaveCarroMarca(void *chave, void *carro) {
+    if (!chave || !carro) return -1;
+
+    char *key = (char *)chave;
+    Carro *x = (Carro *)carro;
+
+    char *chaveCarro = strlwrSafe(x->marca);
+    if (!chaveCarro) return -1;
+
+    if (strcmp(key, chaveCarro) == 0){
+        free(chaveCarro);
+        return 0;
+    }
+    free(chaveCarro);
+    return 1;
+} 
+
+/* ERRO AQUI no strcmp , tolower apenas funciona com chars
+
+int ordenarAlfMarca (void *carro1, void *carro2){
+    if (!carro1 || !carro2) return 0;
+    Carro *x1 = (Carro*) carro1;
+    Carro *x2 = (Carro*) carro2;
+    if (strcmp(tolower(x1->marca),tolower(x2->marca)) == 1) return 1;
+    return 0;
+}
+    */
 
 void RegistarVeiculo(Bdados *bd){
     do{
@@ -154,14 +273,7 @@ void RegistarVeiculo(Bdados *bd){
     } while(1);
 }
 
-int ordenarAlfMarca (void *carro1, void *carro2){
-    if (!carro1 || !carro2) return 0;
-    Carro *x1 = (Carro*) carro1;
-    Carro *x2 = (Carro*) carro2;
-    if (strcmp(tolower(x1->marca),tolower(x2->marca)) == 1) return 1;
-    return 0;
-}
-
+/* ERRO tolower
 int ordenarAlfModelo (void *carro1, void *carro2){
     if (!carro1 || !carro2) return 0;
     Carro *x1 = (Carro*) carro1;
@@ -169,6 +281,7 @@ int ordenarAlfModelo (void *carro1, void *carro2){
     if (strcmp(tolower(x1->modelo),tolower(x2->modelo)) == 1) return 1;
     return 0;
 }
+    */
 
 int ordenarAlfMatricula (void *carro1, void *carro2){
     if (!carro1 || !carro2) return 0;
@@ -178,15 +291,6 @@ int ordenarAlfMatricula (void *carro1, void *carro2){
     return 0;
 }
 
-int compChaveMarca(void *chave, void *carro){
-    if (!chave || !carro) return 0;
-    char *key = (char*) chave;
-    Carro *x = (Carro*) carro;
-    if (strcmp(tolower(key), tolower(x->marca) == 0)) return 0;
-    if (strcmp(tolower(key), tolower(x->marca) == 1)) return 1;
-    if (strcmp(tolower(key), tolower(x->marca) == -1)) return -1;
-}
-
 void listarVeiculos(Bdados *bd){
-
+    return;
 }

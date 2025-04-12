@@ -6,8 +6,9 @@
 
 #include "sensores.h"
 #include "carro.h"
-#include "bdados.h"
 #include "uteis.h"
+
+struct Bdados;
 
 typedef struct {
     int idSensor; //PRIMARY KEY / FOREIGN KEY(idSensor) - REFERENCES Sensor(codSensor)
@@ -24,7 +25,7 @@ typedef struct {
 } Viagem;
 
 
-Passagem * obterPassagem(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
+Passagem * obterPassagem(struct Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
 int inserirViagemLido(Viagem *v, Passagem *entrada, Passagem *saida);
 int compararPassagens(void *passagem1, void *passagem2);
 int compCodPassagem(void *passagem, void *codigo);
