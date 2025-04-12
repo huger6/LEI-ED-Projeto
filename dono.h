@@ -23,8 +23,13 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal);
 int compararDonos(void *dono1, void *dono2);
 int compCodDono(void *dono, void *codigo);
 void freeDono(void *dono);
-void mostrarDono(void *dono);
+void printDono(void *dono);
 void guardarDonoBin(void *obj, FILE *file);
-int ordenarAlfNome(void *dono1, void *dono2);
+void guardarChaveDonoNif(void *chaveNif, FILE *file);
+void *criarChaveDonoNif(void *dono);
+int compChaveDonoNif(void *chave, void *dono);
+void *criarChaveDonoAlfabeticamente(void *dono);
+int compChaveDonoAlfabeticamente(void *chave, void *dono);
+int compDonosNome(void *dono1, void *dono2);
 
 #endif

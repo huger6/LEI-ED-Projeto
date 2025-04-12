@@ -476,3 +476,24 @@ char * converterParaData(const char *strData, Data *data) {
     return NULL;
 }
 
+/**
+ * @brief Calcula o tempo entre duas datas em minutos
+ * 
+ * @param data1 Ponteiro para a primeira data
+ * @param data2 Ponteiro para a segunda data
+ * @return float Tempo em minutos
+ */
+float calcularIntervaloTempo(Data *data1, Data *data2) {
+    if (!data1 || !data2) return 0;
+
+    float minutos = 0;
+    
+    minutos += (data2->ano - data1->ano) * 525600;    // 365 dias * 24 h * 60 min
+    minutos += (data2->mes - data1->mes) * 43200;     // 30 dias * 24 h * 60 min
+    minutos += (data2->dia - data1->dia) * 1440;      // 24 h * 60 min
+    minutos += (data2->hora - data1->hora) * 60;      // h p/ min
+    minutos += (data2->min - data1->min);             // min
+    minutos += (data2->seg - data1->seg) / 60.0f;     // seconds to minutes
+    
+    return minutos;
+}

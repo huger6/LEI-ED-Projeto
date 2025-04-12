@@ -143,8 +143,6 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Donos: '%s'\n\n", donosFile);
         return 0;
     }
-    //Ordenar a lista
-    ordenarLista(bd->donos, compararDonos);
 
     time_t fim = time(NULL);
     char *tempoFinal = ctime(&fim); // Não precisa de free
@@ -403,8 +401,6 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Distancias: '%s'.", distanciasFile);
         return 0;
     }
-    //Ordenar a lista
-    ordenarLista(bd->distancias, compararDistancias);
     time_t fim = time(NULL);
     char *tempoFinal = ctime(&fim); // Não precisa de free
     tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
@@ -512,6 +508,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                             fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de saída da viagem\n\n");
                             erro = '1';
                         }
+                        getStatsViagem(bd, v);
                         addInicioLista(bd->viagens, (void *)v);
                     }
                     if (erro == '0') {
@@ -663,18 +660,21 @@ int contarLinhas(const char *filename) {
 
 // Dados Binários
 
+/**
+ * @brief Guarda todos os dados em memória para um ficheiro binário 
+ * 
+ * @param bd Base de dados
+ * @param nome Nome do ficheiro a abrir
+ * @return int 0 se erro, 1 se sucesso
+ */
 int guardarDadosBin(Bdados *bd, const char *nome) {
     if (!bd || !nome) return 0;
 
     FILE *file = fopen(nome, "wb");
     if (!file) return 0;
 
-    fwrite(&bd, sizeof(Bdados), 1, file);
-
-    No *p = NULL;
-
     // Donos
-    guardarListaBin(bd->donos, guardarDonoBin, file);
+    guardarDictBin(bd->donosNif, guardarChaveDonoNif, guardarDonoBin, file);
 
     // Carros
     guardarListaBin(bd->carros, guardarCarroBin, file);
@@ -684,7 +684,7 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
 
     // Passagens/Viagens
     guardarListaBin(bd->viagens, guardarViagemBin, file);
-
+ 
     // Distâncias
     if (bd->matrizDist) {
         fwrite(&bd->tamMatrizDist, sizeof(int), 1, file);

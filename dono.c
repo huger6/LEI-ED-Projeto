@@ -1,5 +1,6 @@
 #include "dono.h"
 #include "structsGenericas.h"
+#include "constantes.h"
 
 /**
  * @brief Introduz o dono na base de dados
@@ -28,13 +29,17 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal) {
     dono->codigoPostal.local = codigoPostal.local;
     dono->codigoPostal.zona = codigoPostal.zona;
     
-    if (!addInicioLista(bd->donos, (void *)dono)) {
+    if (!appendToDict(bd->donosNif, (void *)dono, compChaveDonoNif, criarChaveDonoNif)) {
+        free(dono->nome);
+        free(dono);
+        return 0;
+    }
+    if (!appendToDict(bd->donosAlfabeticamente, (void *)dono, compChaveDonoAlfabeticamente, criarChaveDonoAlfabeticamente)) {
         free(dono->nome);
         free(dono);
         return 0;
     }
         
-
     return 1;
 }
 
@@ -58,22 +63,39 @@ int compararDonos(void *dono1, void *dono2) {
     return 0;
 }
 
+/**
+ * @brief Compara um dono(Nif) com um código
+ * 
+ * @param dono Dono
+ * @param codigo Código
+ * @return int 
+ */
 int compCodDono(void *dono, void *codigo) {
-    if (!dono || !codigo) return 0;
+    if (!dono || !codigo) return 1;
 
     Dono *x = (Dono *)dono;
     int *cod = (int *)codigo;
-    if (x->nif == *cod) return 1;
-    return 0;
+    if (x->nif == *cod) return 0;
+    return 1;
 }
 
+/**
+ * @brief Liberta a memória de um dono
+ * 
+ * @param dono Dono
+ */
 void freeDono(void *dono) {
     Dono *obj = (Dono *)dono;
     if (obj->nome) free(obj->nome);
     free(dono);
 }
 
-void mostrarDono(void *dono){
+/**
+ * @brief Mostra um dono
+ * 
+ * @param dono Dono
+ */
+void printDono(void *dono){
     if (!dono) return;
     Dono  *x = (Dono*) dono;
     printf ("\nNome: %s\n", x->nome);
@@ -81,24 +103,119 @@ void mostrarDono(void *dono){
     printf ("Código Postal: %hd-%hd\n", x->codigoPostal.local, x->codigoPostal.zona);
 }
 
+/**
+ * @brief Guarda um elemento do tipo Dono em ficheiro binário
+ * 
+ * @param obj Dono
+ * @param file Ficheiro binário, aberto
+ */
 void guardarDonoBin(void *obj, FILE *file) {
     if (!obj || !file) return;
 
     Dono *x = (Dono *)obj;
-    fwrite(x->codigoPostal, sizeof(CodPostal), 1, file);
-    fwrite(x->nif, sizeof(int), 1, file);
+    fwrite(&x->codigoPostal, sizeof(CodPostal), 1, file);
+    fwrite(&x->nif, sizeof(int), 1, file);
 
     size_t tamanhoNome = strlen(x->nome) + 1;
     fwrite(&tamanhoNome, sizeof(size_t), 1, file);
     fwrite(x->nome, tamanhoNome, 1, file);
 }
 
-int ordenarAlfNome(void *dono1, void *dono2){
+/**
+ * @brief Guarda a chave do dono por Nif em ficheiro binário
+ * 
+ * @param chaveNif Chave(NIF)
+ * @param file Ficheiro binário, aberto
+ */
+void guardarChaveDonoNif(void *chaveNif, FILE *file) {
+    if (!chaveNif || !file) return;
+
+    int *chave = (int *)chaveNif;
+    fwrite(chave, sizeof(int), 1, file);
+}
+
+/**
+ * @brief Cria uma chave para Donos por Nif
+ * 
+ * @param dono Dono
+ * @return void* Chave ou NULL se erro
+ */
+void *criarChaveDonoNif(void *dono) {
+    if (!dono) return NULL;
+
+    Dono *x = (Dono *)dono;
+    int *chaveNif = malloc(sizeof(int));
+    if (!chaveNif) return NULL;
+
+    *chaveNif = x->nif % HASH_DONOS_NIF;
+    return (void *)chaveNif;
+}
+
+/**
+ * @brief Compara as chaves dos donos por Nif
+ * 
+ * @param chave Chave
+ * @param dono Dono
+ * @return int 0 se igual, 1 se diferente
+ */
+int compChaveDonoNif(void *chave, void *dono) {
+    if (!chave || !dono) return -1;
+
+    int *key = (int *)chave;
+    Dono *x = (Dono *)dono;
+
+    if (*key == x->nif) return 0;
+    return 1;
+} 
+
+/**
+ * @brief Cria uma chave para donos alfabeticamente
+ * 
+ * @param dono Dono
+ * @return void* Chave ou NULL se erro
+ */
+void *criarChaveDonoAlfabeticamente(void *dono) {
+    if (!dono) return NULL;
+
+    Dono *x = (Dono *)dono;
+    char *chaveAlf = malloc(sizeof(char));
+    if (!chaveAlf) return NULL;
+
+    *chaveAlf = x->nome[0];
+    return (void *)chaveAlf;
+}
+
+/**
+ * @brief Compara as chaves dos donos alfabeticamente
+ * 
+ * @param chave 
+ * @param dono 
+ * @return int 
+ */
+int compChaveDonoAlfabeticamente(void *chave, void *dono) {
+    if (!chave || !dono) return -1;
+
+    char *key = (char *)chave;
+    Dono *x = (Dono *)dono;
+
+    if (*key == x->nome[0]) return 0;
+    return 1;
+} 
+
+/**
+ * @brief Ordena 
+ * 
+ * @param dono1 
+ * @param dono2 
+ * @return int 
+ */
+/* ERRO AQUI
+int compDonosNome(void *dono1, void *dono2){
     if (!dono1 || !dono2) return 0;
     Dono *n1 = (Dono*) dono1;
     Dono *n2 = (Dono*) dono2;
     normalizar_string(n1->nome);
     normalizar_string(n2->nome);
-    if (strcmp((n1->nome), (n2->nome)) == 1) return 1;
-    return 0;
+    return strcmp((n1->nome), (n2->nome));
 }
+    */

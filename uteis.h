@@ -38,6 +38,7 @@ char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
 int converterCodPostal(const char *codPostal, short *zona, short *local);
 int compararDatas(Data data1, Data data2);
 char * converterParaData(const char *strData, Data * data);
+float calcularIntervaloTempo(Data *data1, Data *data2);
 
 
 void medirTempo(void (*funcao()));

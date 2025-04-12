@@ -5,20 +5,20 @@
 #include <stdlib.h>
 
 #include "structsGenericas.h"
+#include "distancias.h"
 
 typedef struct {
-    Lista *donos;
-    Lista *carros;
+    Dict *donosNif;
+    Dict *donosAlfabeticamente;
+    Dict *carrosMarca;
     Lista *sensores;
-    float *distancias;
-    int nColunasMatrizDistancias;
+    Distancias *distancias;
     Lista *viagens;
 } Bdados;
 
 
 int inicializarBD(Bdados *bd);
 void freeTudo(Bdados *bd);
-int realocarMatrizDistancias(Bdados *bd, int tamanho);
 
 
 #endif

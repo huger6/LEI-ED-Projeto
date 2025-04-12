@@ -22,14 +22,13 @@ Passagem * obterPassagem(Bdados *bd, int idSensor, int codVeiculo, Data date, ch
 /**
  * @brief Insere a viagem com a passagem de entrada e saída
  * 
- * @param bd Base de dados
  * @param v Viagem a colocar na bd
  * @param entrada Ponteiro para a passagem de entrada
  * @param saida Ponteiro para a passagem de saída
  * @return int 0 em caso de erro, -1 se inserido APENAS entrada, 1 se inserido APENAS saida, 2 caso inserido AMBOS
  */
-int inserirViagemLido(Bdados *bd, Viagem *v, Passagem *entrada, Passagem *saida) {
-    if (!bd || !bd->viagens || !v) return 0;
+int inserirViagemLido(Viagem *v, Passagem *entrada, Passagem *saida) {
+    if (!v) return 0;
     if (!entrada && !saida) {
         return 0;
     }

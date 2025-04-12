@@ -4,17 +4,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sensores.h"
+#include "passagens.h"
+
+typedef struct Bdados;
 
 typedef struct {
-    Sensor *sensor1, *sensor2;
-    float distancia;
-} Distancias, Dist, *ptDistancias, *ptDist; //guardar numa matriz
+    float *matriz;
+    int nColunas;
+} Distancias;
 
 int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float distancia);
-int compararDistancias(void *dist1, void *dist2);
-void freeDistancia(void *distancia);
-void mostrarDistancia(void *sensor1, void *sensor2, void *distancia);
+void inicializarMatrizDistancias(Bdados *bd);
+int realocarMatrizDistancias(Bdados *bd, int tamanho);
+void getStatsViagem(Bdados *bd, Viagem *v);
 
 
 #endif

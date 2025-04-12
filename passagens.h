@@ -19,11 +19,13 @@ typedef struct {
 typedef struct {
     Passagem *entrada;
     Passagem *saida;
+    float kms;
+    float tempo; //Em horas
 } Viagem;
 
 
 Passagem * obterPassagem(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
-int inserirViagemLido(Bdados *bd, Viagem *v, Passagem *entrada, Passagem *saida);
+int inserirViagemLido(Viagem *v, Passagem *entrada, Passagem *saida);
 int compararPassagens(void *passagem1, void *passagem2);
 int compCodPassagem(void *passagem, void *codigo);
 void freePassagem(void *passagem);

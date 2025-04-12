@@ -32,7 +32,7 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Código Veículo
     aut->codVeiculo = codVeiculo;
     
-    if (!addInicioLista(bd->carros, (void *)aut)) {
+    if (!appendToDict(bd->carros, (void *)aut, compChaveCarros)) {
         free(aut->modelo);
         free(aut->marca);
         free(aut);

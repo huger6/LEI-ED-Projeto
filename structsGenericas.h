@@ -36,15 +36,17 @@ int pesquisarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2), void *obj
 void ordenarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2));
 void *pesquisarPorChave(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave);
 void guardarListaBin(Lista *li, void (*saveInfo)(void *obj, FILE *fileObj), FILE *file);
+Lista *lerListaBin(void (*readInfo)(Lista *li, FILE *fileObj), FILE *file);
 
 // Hashing
 
 Dict *criarDict();
-NoHashing *posicaoInsercao(Dict *has, void *obj, void (*compChave)(void *chave, void *obj));
-int appendToDict(Dict *has, void *obj, void (*compChave)(void *chave, void *obj), void (*criarChave)(void *chave, void *obj));
+NoHashing *posicaoInsercao(Dict *has, void *obj, int (*compChave)(void *chave, void *obj));
+int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj));
 void printDict(Dict *has, void (*printObj)(void *obj));
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj));
 void ordenarDict(Dict *has, void (*compChave)(void *chave1, void *obj));
-
+void guardarDictBin(Dict *has, void (*guardarChave)(void *chave, FILE *fileObj), void (*saveInfo)(void *obj, FILE *fileObj), FILE *file);
+Dict *lerDictBin(void *(*readChave)(FILE *fileObj), void (*readInfo)(Lista *li, FILE *fileObj), FILE *file, void (*freeChave)(void *chave), void (*freeObj)(void *obj));
 
 #endif
