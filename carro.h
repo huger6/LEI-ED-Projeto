@@ -33,6 +33,7 @@ void mostrarCarro (void *carro);
 int ordenarAlfMarca (void *carro1, void *carro2);
 int ordenarAlfModelo (void *carro1, void *carro2);
 int ordenarAlfMatricula (void *carro1, void *carro2);
+int compChaveMarca(void *chave, void *carro);
 
 void RegistarVeiculo(Bdados *bd);
 

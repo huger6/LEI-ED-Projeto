@@ -178,6 +178,15 @@ int ordenarAlfMatricula (void *carro1, void *carro2){
     return 0;
 }
 
+int compChaveMarca(void *chave, void *carro){
+    if (!chave || !carro) return 0;
+    char *key = (char*) chave;
+    Carro *x = (Carro*) carro;
+    if (strcmp(tolower(key), tolower(x->marca) == 0)) return 0;
+    if (strcmp(tolower(key), tolower(x->marca) == 1)) return 1;
+    if (strcmp(tolower(key), tolower(x->marca) == -1)) return -1;
+}
+
 void listarVeiculos(Bdados *bd){
 
 }
