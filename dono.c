@@ -30,12 +30,12 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal) {
     dono->codigoPostal.local = codigoPostal.local;
     dono->codigoPostal.zona = codigoPostal.zona;
     
-    if (!appendToDict(bd->donosNif, (void *)dono, compChaveDonoNif, criarChaveDonoNif)) {
+    if (!appendToDict(bd->donosNif, (void *)dono, compChaveDonoNif, criarChaveDonoNif, hashChaveDonoNif, freeChaveDonoNif)) {
         free(dono->nome);
         free(dono);
         return 0;
     }
-    if (!appendToDict(bd->donosAlfabeticamente, (void *)dono, compChaveDonoAlfabeticamente, criarChaveDonoAlfabeticamente)) {
+    if (!appendToDict(bd->donosAlfabeticamente, (void *)dono, compChaveDonoAlfabeticamente, criarChaveDonoAlfabeticamente, hashChaveDonoAlfabeticamente, freeChaveDonoAlfabeticamente)) {
         free(dono->nome);
         free(dono);
         return 0;
@@ -141,6 +141,36 @@ void guardarDonoBin(void *obj, FILE *file) {
 }
 
 /**
+ * @brief Lê um dono de um ficheiro binário
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return void* Dono ou NULL se erro
+ */
+void *readDonoBin(FILE *file) {
+    if (!file) return NULL;
+
+    Dono *x = (Dono *)malloc(sizeof(Dono));
+    fread(&x->codigoPostal, sizeof(CodPostal), 1, file);
+    fread(&x->nif, sizeof(int), 1, file);
+
+    size_t tamanho;
+    fread(&tamanho, sizeof(size_t), 1, file);
+
+    x->nome = (char *)malloc(tamanho);
+    fread(x->nome, tamanho, 1, file);
+    return (void *)x;
+}
+
+/*
+void guardarDonoDupBin(void *obj, FILE *file) {
+    if (!obj || !file) return;
+
+    Dono *x = (Dono *)obj;
+    fwrite(&x->nif, sizeof(int), 1, file);
+}
+*/
+
+/**
  * @brief Guarda a chave do dono por Nif em ficheiro binário
  * 
  * @param chaveNif Chave(NIF)
@@ -151,6 +181,22 @@ void guardarChaveDonoNif(void *chaveNif, FILE *file) {
 
     int *chave = (int *)chaveNif;
     fwrite(chave, sizeof(int), 1, file);
+}
+
+/**
+ * @brief Lê e retorna a chave por Nif
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return void* chave ou NULL se erro
+ */
+void *readChaveDonoNif(FILE *file) {
+    if (!file) return NULL;
+
+    int *chave = (int *)malloc(sizeof(int));
+    if (!chave) return NULL;
+
+    fread(chave, sizeof(int), 1, file);
+    return chave;
 }
 
 /**
@@ -200,6 +246,20 @@ int compChaveDonoNif(void *chave, void *dono) {
 } 
 
 /**
+ * @brief Função de hash para chave do tipo NIF 
+ * 
+ * @param chave Dono
+ * @return int Nif do dono ou -1 se erro
+ */
+int hashChaveDonoNif(void *chave) {
+    if (!chave) return -1;
+
+    Dono *x = (Dono *)chave;
+
+    return x->nif;
+}
+
+/**
  * @brief Cria uma chave para donos alfabeticamente
  * 
  * @param dono Dono
@@ -244,4 +304,33 @@ int compChaveDonoAlfabeticamente(void *chave, void *dono) {
     if (*key == tolower(x->nome[0])) return 0;
     return 1;
 } 
+
+/**
+ * @brief Guarda a chave do dict dos donos por ordem alfabética
+ * 
+ * @param chave Chave
+ * @param file Ficheiro binário
+ */
+void guardarChaveDonoAlfabeticamente(void *chave, FILE *file) {
+    if (!chave || !file) return;
+
+    char *key = (char *)chave;
+    size_t comp = strlen(key) + 1;
+    fwrite(&comp, sizeof(size_t), 1, file);
+    fwrite(key, comp, 1, file);
+}
+
+/**
+ * @brief Função de hash para o dono por ordem alfabética
+ * 
+ * @param chave 
+ * @return int 
+ */
+int hashChaveDonoAlfabeticamente(void *chave) {
+    if (!chave) return -1;
+
+    Dono *x = (Dono *)chave;
+    
+    return tolower(x->nome[0]) - 'a';
+}
 

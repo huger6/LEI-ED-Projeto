@@ -5,7 +5,8 @@
 #define SEPARADOR_STR "\t" //Para usar no strtok
 #define MAX_MATRICULA 8
 #define TAMANHO_INICIAL_BUFFER 128
-#define HASH_DONOS_NIF 90
+#define HASH_DONOS_NIF 100
+#define HASH_CARROS_CODIGO 100
 
 //Nomes default para os ficheiros
 #define LOGS_TXT "logs.txt"

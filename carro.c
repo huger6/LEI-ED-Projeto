@@ -1,6 +1,7 @@
 #include "carro.h"
 #include "validacoes.h"
 #include "bdados.h"
+#include "uteis.h"
 
 /**
  * @brief Inserir um carro na base de dados
@@ -43,11 +44,18 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     aut->ano = ano;
     //NIF (ptrPessoa)
     void *nifPtr = (void *)&nif;
-    aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, nifPtr, compChaveDonoNif ,compCodDono);
+    aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, nifPtr, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
     //Código Veículo
     aut->codVeiculo = codVeiculo;
-    
-    if (!appendToDict(bd->carrosMarca, (void *)aut, compChaveCarroMarca, criarChaveCarroMarca)) {
+
+    if (!appendToDict(bd->carrosCod, (void *)aut, compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeChaveCarroCod)) {
+        free(aut->modelo);
+        free(aut->marca);
+        free(aut);
+        return 0;
+    }
+
+    if (!appendToDict(bd->carrosMarca, (void *)aut, compChaveCarroMarca, criarChaveCarroMarca, hashChaveCarroMarca, freeChaveCarroMarca)) {
         free(aut->modelo);
         free(aut->marca);
         free(aut);
@@ -84,7 +92,7 @@ int compararCarros(void *carro1, void *carro2) {
  * @param codigo Código (será convertido para int*)
  * @return int 
  */
-int compCodVeiculo(void *carro, void *codigo) {
+int compCodCarro(void *carro, void *codigo) {
     if (!carro || !codigo) return 0;
 
     Carro *x = (Carro *)carro;
@@ -145,6 +153,56 @@ void guardarCarroBin(void *carro, FILE *file) {
 }
 
 /**
+ * @brief Lê um carro para memória
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return void* Carro ou NULL se erro
+ * 
+ * @note Cria uma estrutura Dono para guardar o Nif, deve ser posteriormente eliminada e obtido o respetivo ponteiro
+ */
+void *readCarroBin(FILE *file) {
+    if (!file) return NULL;
+
+    Carro *x = (Carro *)malloc(sizeof(Carro));
+    if (!x) return NULL;
+    fread(&x->ano, sizeof(int), 1, file);
+    fread(&x->codVeiculo, sizeof(int), 1, file);
+    fread(x->matricula, sizeof(x->matricula), 1, file);
+
+    size_t tamanhoMarca;
+    fread(&tamanhoMarca, sizeof(size_t), 1, file);
+    x->marca = (char *)malloc(sizeof(tamanhoMarca));
+    if (!x->marca) {
+        free(x);
+        return NULL;
+    }
+    fread(x->marca, tamanhoMarca, 1, file);
+
+    size_t tamanhoModelo;
+    fread(&tamanhoModelo, sizeof(size_t), 1, file);
+    x->modelo = (char *)malloc(sizeof(tamanhoModelo));
+    if (!x->modelo) {
+        free(x->marca);
+        free(x);
+        return NULL;
+    }
+    fread(x->modelo, tamanhoModelo, 1, file);
+
+    Dono *d = (Dono *)malloc(sizeof(Dono));
+    if (!d) {
+        free(x->marca);
+        free(x->modelo);
+        free(x);
+        return NULL;
+    }
+    fread(&d->nif, sizeof(int), 1, file);
+    x->ptrPessoa = d;
+    return (void *)x;
+}
+
+// Chave por Marca
+
+/**
  * @brief Guarda a chave do carro por marca em ficheiro binário
  * 
  * @param chaveMarca Chave
@@ -174,6 +232,16 @@ void *criarChaveCarroMarca(void *carro) {
     Carro *x = (Carro *)carro;
 
     return (void *)strlwrSafe(x->marca);
+}
+
+int hashChaveCarroMarca(void *carro) {
+    if (!carro) return -1;
+
+    Carro *x = (Carro *)carro;
+    char *marcaNorm = normalizar_string(x->marca);
+    int hash = hashString(marcaNorm);
+    free(marcaNorm);
+    return hash;
 }
 
 /**
@@ -211,6 +279,97 @@ int compChaveCarroMarca(void *chave, void *carro) {
     free(chaveCarro);
     return 1;
 } 
+
+// Chave por Código
+
+/**
+ * @brief Guarda a chave dos carros por código em ficheiro binário
+ * 
+ * @param chave Chave
+ * @param file Ficheiro binário
+ */
+void guardarChaveCarroCod(void *chave, FILE *file) {
+    if (!chave || !file) return;
+
+    int *key = (int *)chave;
+
+    fwrite(key, sizeof(int), 1, file);
+}
+
+/**
+ * @brief Lê a chave do carro por código
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return void* chave ou NULL se erro
+ */
+void *readChaveCarroCod(FILE *file) {
+    if (!file) return NULL;
+
+    int *chave = (int *)malloc(sizeof(int));
+    if (!chave) return NULL;
+    fread(chave, sizeof(int), 1, file);
+    
+    return (void *)chave;
+}
+
+/**
+ * @brief Cria uma chave para um carro pelo código
+ * 
+ * @param carro Carro
+ * @return void* chave ou NULL se erro
+ */
+void *criarChaveCarroCod(void *carro) {
+    if (!carro) return NULL;
+
+    Carro *x = (Carro *)carro;
+    int *chave = (int *)malloc(sizeof(int));
+    *chave = x->codVeiculo;
+
+    return (void *)chave;
+}
+
+/**
+ * @brief Função de hash para carro por Cod
+ * 
+ * @param carro Carro
+ * @return int -1 se erro ou codVeiculo
+ */
+int hashChaveCarroCod(void *carro) {
+    if (!carro) return -1;
+
+    Carro *x = (Carro *)carro;
+    return x->codVeiculo;
+}
+
+/**
+ * @brief Liberta a memória alocada para a chave dos carros por código
+ * 
+ * @param chave Chave
+ */
+void freeChaveCarroCod(void *chave) {
+    if (!chave) return;
+
+    int *key = (int *)chave;
+    free(key);
+}
+
+/**
+ * @brief Compara as chaves dos carros pelo código
+ * 
+ * @param chave Chave
+ * @param carro Carro
+ * @return int 
+ */
+int compChaveCarroCod(void *chave, void *carro) {
+    if (!chave || !carro) return -1;
+
+    int *key = (int *)chave;
+    Carro *x = (Carro *)carro;
+
+    if (*key == x->codVeiculo) return 0;
+    return 1;
+}
+
 
 /* ERRO AQUI no strcmp , tolower apenas funciona com chars
 

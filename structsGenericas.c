@@ -238,7 +238,7 @@ void guardarListaBin(Lista *li, void (*saveInfo)(void *obj, FILE *fileObj), FILE
  * @param file Ficheiro binário
  * @return Lista* Lista com os elementos lidos ou NULL se erro
  */
-Lista *lerListaBin(void (*readInfo)(Lista *li, FILE *fileObj), FILE *file) {
+Lista *readListaBin(void *(*readInfo)(FILE *fileObj), FILE *file) {
     if (!file || !readInfo) return NULL;
 
     Lista *li = criarLista();
@@ -250,8 +250,23 @@ Lista *lerListaBin(void (*readInfo)(Lista *li, FILE *fileObj), FILE *file) {
         return NULL;
     }
 
-    for (int i = 0;i < li->nel; i++) {
-        (*readInfo)(li, file);
+    No *ant = NULL;
+    for (int i = 0; i < li->nel; i++) {
+        No *atual = (No *)malloc(sizeof(No));
+        if (!atual) {
+            freeLista(li, NULL);
+            return NULL;
+        }
+        atual->info = (*readInfo)(file);
+        atual->prox = NULL;
+
+        if (!ant) {
+            li->inicio = atual;
+        }
+        else {
+            ant->prox = atual;
+        }
+        ant = atual;
     }
     return li;
 }
@@ -265,7 +280,10 @@ Lista *lerListaBin(void (*readInfo)(Lista *li, FILE *fileObj), FILE *file) {
  */
 Dict *criarDict() {
     Dict *has = (Dict *)malloc(sizeof(Dict));
-    has->inicio = NULL;
+    if (!has) return NULL;
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        has->tabela[i] = NULL;
+    }
     has->nelDict = 0;
     return has;
 }
@@ -274,18 +292,22 @@ Dict *criarDict() {
  * @brief Obtém o nó de inserção de um elemento
  * 
  * @param has Dicionário
+ * @param indice Índice na tabela hash
  * @param obj Elemento
  * @param compChave Função para comparar a chave (deve retornar 0 se iguais)
  * @return NoHashing* de inserção ou NULL se erro ou essa chave ainda não existe
  */
-NoHashing *posicaoInsercao(Dict *has, void *obj, int (*compChave)(void *chave, void *obj)) {
-    if (!has || !obj || !compChave) return NULL;
-
-    NoHashing *p = has->inicio;
-    while(p) {
-        if ((*compChave)(p->chave, obj) == 0)
-            return p;
-        p = p->prox;
+NoHashing *posicaoInsercao(Dict *has, int indice, void *obj, int (*compChave)(void *chave, void *obj)) {
+    if (!has || !obj || !compChave || indice < 0 || indice >= TAMANHO_TABELA_HASH) return NULL;
+    
+    if (has->tabela[indice]) {
+        NoHashing *p = has->tabela[indice];
+    
+        while(p) {
+            if ((*compChave)(p->chave, obj) == 0)
+                return p;
+            p = p->prox;
+        }
     }
     return NULL;
 }
@@ -299,21 +321,38 @@ NoHashing *posicaoInsercao(Dict *has, void *obj, int (*compChave)(void *chave, v
  * @param criarChave Função para criar uma chave
  * @return int 0 se erro, 1 se sucesso
  */
-int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj)) {
-    if (!has || !obj || !compChave || !criarChave) return 0;
+int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeChave)(void *chave)) {
+    if (!has || !obj || !compChave || !criarChave || !hashChave) return 0;
 
-    NoHashing *p = posicaoInsercao(has, obj, compChave);
-    // Caso não haja esse tipo de entrada ainda criada
-    if (!p) {
-        p = (NoHashing *)malloc(sizeof(NoHashing));
-        // Criar a chave 
-        p->chave = criarChave(obj);
-        p->dados = criarLista();
-        p->prox = has->inicio;
-        has->inicio = p;
-        has->nelDict++;
+    int indice = hashChave(obj) % TAMANHO_TABELA_HASH;
+    NoHashing *p = posicaoInsercao(has, indice, obj, compChave);
+
+    if (p) {
+        return addInicioLista(p->dados, obj);
     }
-    addInicioLista(p->dados,obj);
+
+    // Criar nova entrada
+    NoHashing *novo = (NoHashing *)malloc(sizeof(NoHashing));
+    if (!novo) return 0;
+    
+    novo->dados = criarLista();
+    if (!novo->dados) {
+        free(novo);
+        return 0;
+    }
+    novo->chave = criarChave(obj);
+    
+    if (!addInicioLista(novo->dados, obj)) {
+        freeChave(novo->chave);
+        freeLista(novo->dados, NULL);
+        free(novo);
+        return 0;
+    }
+    
+    novo->prox = has->tabela[indice];
+    has->tabela[indice] = novo;
+    has->nelDict++;
+    
     return 1;
 }
 
@@ -326,11 +365,12 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
 void printDict(Dict *has, void (*printObj)(void *obj)) {
     if (!has || !printObj) return;
 
-    NoHashing *p = has->inicio;
-    while(p)
-    {
-        printLista(p->dados, printObj);
-        p = p->prox;
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = has->tabela[i];
+        while (p) {
+            printLista(p->dados, printObj);
+            p = p->prox;
+        }
     }
 }
 
@@ -346,12 +386,17 @@ void printDict(Dict *has, void (*printObj)(void *obj)) {
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj)) {
     if (!has || !freeChave) return;
 
-    NoHashing *p = has->inicio;
-    while(p) {
-        freeChave(p->chave);
-        freeLista(p->dados, freeObj);
-        p = p->prox;
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = has->tabela[i];
+        while (p) {
+            NoHashing *temp = p;
+            p = p->prox;
+            freeChave(temp->chave);
+            freeLista(temp->dados, freeObj);
+            free(temp);
+        }
     }
+    free(has);
 }
 
 /**
@@ -363,72 +408,40 @@ void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *o
  * @param compCod Função para comparar a chave com o elemento da lista
  * @return void* ou NULL se erro
  */
-void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave)) {
-    if (!has || !chave || !compChave || has->nelDict < 1) return NULL;
+void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave), int (*hashChave)(void *chave)) {
+    if (!has || !chave || !compChave || !hashChave) return NULL;
 
-    NoHashing *p = has->inicio;
-    while(p) {
-        if ((*compChave)(p->chave, chave) == 0) {
+    int indice = hashChave(chave) % TAMANHO_TABELA_HASH;
+
+    NoHashing *p = has->tabela[indice];
+    while (p) {
+        if (compChave(p->chave, chave) == 0)
             return searchLista(p->dados, compCod, chave);
-        }
         p = p->prox;
     }
+
     return NULL;
 }
 
 /**
- * @brief Ordena um dicionário pelas chaves
+ * @brief Guarda um dicionário em ficheiro binário
  * 
  * @param has Dicionário
- * @param compChave Função para comparar as chaves(troca quando compChave(chave1, chave2) > 0)
- */
-void ordenarDict(Dict *has, int (*compChave)(void *chave1, void *obj)) {
-    if (!has || has->nelDict < 2 || !compChave) return;
-
-    char trocou;
-    do {
-        NoHashing *ant = NULL;
-        NoHashing *a = has->inicio; //atual
-        NoHashing *p = a->prox; //proximo
-        trocou = '0';
-        
-        while (p) {
-            if ((*compChave)(a->chave, p->chave) > 0) {
-                trocou = '1'; //trocar p para a posicao de atual
-                a->prox = p->prox;
-                p->prox = a;
-
-                if (ant) ant->prox = p;
-                else has->inicio = p; //atual é o inicio
-
-                ant = p;
-                p = a->prox;
-            } else {
-                ant = a;
-                a = p;
-                p = p->prox;
-            }
-        }
-    } while (trocou == '1');
-}
-
-/**
- * @brief Guarda o conteúdo de um dicionário em ficheiro binário
- * 
- * @param has Dicionário
- * @param guardarChave Função para guardar a chave no ficheiro binário
- * @param saveInfo Função para guardar cada elemento da lista 
- * @param file Ficheiro onde guardar, aberto
+ * @param guardarChave Função para guardar a chave
+ * @param saveInfo Função para guardar a informação de cada elemento
+ * @param file Ficheiro binário, aberto
  */
 void guardarDictBin(Dict *has, void (*guardarChave)(void *chave, FILE *fileObj), void (*saveInfo)(void *obj, FILE *fileObj), FILE *file) {
     if (!has || !file || !guardarChave || !saveInfo) return;
 
-    NoHashing *p = has->inicio;
     fwrite(&has->nelDict, sizeof(int), 1, file);
-    while(p) {
-        (*guardarChave)(p->chave, file);
-        guardarListaBin(p->dados, saveInfo, file);
-        p = p->prox;
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = has->tabela[i];
+        while (p) {
+            guardarChave(p->chave, file);
+            guardarListaBin(p->dados, saveInfo, file);
+            p = p->prox;
+        }
     }
 }
 
@@ -440,10 +453,11 @@ void guardarDictBin(Dict *has, void (*guardarChave)(void *chave, FILE *fileObj),
  * @param file Ficheiro binário, aberto
  * @param freeChave Função para libertar a chave, caso necessário (erro)
  * @param freeObj Função para libertar o elemento, caso necessário (erro)
+ * @param hashChave Retorna um int correspondente à chave
  * @return Dict* Dicionário ou NULL
  */
-Dict *lerDictBin(void *(*readChave)(FILE *fileObj), void (*readInfo)(Lista *li, FILE *fileObj), FILE *file, void (*freeChave)(void *chave), void (*freeObj)(void *obj)) {
-    if (!file || !readChave || !readInfo || !freeChave || !freeObj) return NULL;
+Dict *readDictBin(void *(*readChave)(FILE *fileObj), void *(*readInfo)(FILE *fileObj), FILE *file, void (*freeChave)(void *chave), void (*freeObj)(void *obj), int (*hashChave)(void *chave)) {
+    if (!file || !readChave || !readInfo || !freeChave || !freeObj || !hashChave) return NULL;
 
     Dict *has = criarDict();
     if (!has) return NULL;
@@ -454,30 +468,37 @@ Dict *lerDictBin(void *(*readChave)(FILE *fileObj), void (*readInfo)(Lista *li, 
         return NULL;
     }
 
-    char darFree = '0';
-    NoHashing *ant = NULL;
     for (int i = 0; i < has->nelDict; i++) {
-        NoHashing *atual = (NoHashing *)malloc(sizeof(NoHashing));
-        if (!atual) {
-            darFree = '1';
-            break;
+        void *chave = readChave(file);
+        Lista *lista = readListaBin(readInfo, file);
+        if (!chave || !lista) {
+            freeChave(chave);
+            freeLista(lista, freeObj);
+            freeDict(has, freeChave, freeObj);
+            return NULL;
         }
-        atual->chave = readChave(file);
-        atual->dados = lerListaBin(readInfo, file);
-        atual->prox = NULL;
 
-        if (!ant) {
-            has->inicio = atual;
-        }
-        else {
-            ant->prox = atual;
-        }
-        ant = atual;
+        int indice = hashChave(chave) % TAMANHO_TABELA_HASH;
+        NoHashing *novo = (NoHashing *)malloc(sizeof(NoHashing));
+        novo->chave = chave;
+        novo->dados = lista;
+        novo->prox = has->tabela[indice];
+        has->tabela[indice] = novo;
     }
-    if (darFree == '1') {
-        freeDict(has, freeChave, freeObj);
-        return NULL;
-    }
+
     return has;
+}
+
+
+
+// Árvores
+
+Arvore *criarArvore() {
+    Arvore *tree = malloc(sizeof(Arvore));
+    if (tree != NULL) {
+        tree->raiz = NULL;
+        tree->nelArvore = 0;
+    }
+    return tree;
 }
 

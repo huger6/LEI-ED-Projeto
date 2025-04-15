@@ -51,6 +51,7 @@ int main(void) {
     }
 
     the_architect(bd);
+    guardarDadosBin(bd, "dadosBin");
 
     freeTudo(bd);
     return EXIT_SUCCESS;

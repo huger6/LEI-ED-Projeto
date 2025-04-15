@@ -73,6 +73,31 @@ void guardarDistanciasBin(Distancias *distancia, FILE *file) {
 }   
 
 /**
+ * @brief Lê as distâncias para memória
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return Distancias* Distâncias ou NULL se erro
+ */
+Distancias *readDistanciasBin(FILE *file) {
+    Distancias *d = (Distancias *)malloc(sizeof(Distancias));
+    d->matriz = NULL;
+    fread(&d->nColunas, sizeof(int), 1, file);
+    if (d->nColunas < 0) {
+        free(d);
+        return NULL;
+    }
+
+    float *matriz = (float *)malloc(d->nColunas * d->nColunas);
+    if (!matriz) {
+        free(d);
+        return NULL;
+    }
+    fread(matriz, d->nColunas, 1, file);
+    d->matriz = matriz;
+    return d;
+}
+
+/**
  * @brief Obter e colocar na estrutura de Viagem os dados estatísticos da mesma
  * 
  * @param bd Base de dados

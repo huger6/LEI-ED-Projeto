@@ -141,3 +141,50 @@ void guardarSensorBin(void *sensor, FILE *file) {
     fwrite(x->longitude, tamanhoLongitude, 1, file);
 }
 
+/**
+ * @brief Lê um sensor para memória
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return void* Sensor ou NULL se erro
+ */
+void *readSensorBin(FILE *file) {
+    if (!file) return NULL;
+
+    Sensor *x = (Sensor *)malloc(sizeof(Sensor));
+    if (!x) return NULL;
+
+    fread(&x->codSensor, sizeof(int), 1, file);
+
+    size_t tamanhoDesignacao;
+    fread(&tamanhoDesignacao, sizeof(size_t), 1, file);
+    x->designacao = (char *)malloc(tamanhoDesignacao);
+    if (!x->designacao) {
+        free(x);
+        return NULL;
+    }
+    fread(x->designacao, tamanhoDesignacao, 1, file);
+
+    size_t tamanhoLatitude;
+    fread(&tamanhoLatitude, sizeof(size_t), 1, file);
+    x->latitude = (char *)malloc(tamanhoLatitude);
+    if (!x->latitude) {
+        free(x->designacao);
+        free(x);
+        return NULL;
+    }
+    fread(x->latitude, tamanhoLatitude, 1, file);
+
+    size_t tamanhoLongitude;
+    fread(&tamanhoLongitude, sizeof(size_t), 1, file);
+    x->longitude = (char *)malloc(tamanhoLongitude);
+    if (!x->longitude) {
+        free(x->designacao);
+        free(x->latitude);
+        free(x);
+        return NULL;
+    }
+    fread(x->longitude, tamanhoLongitude, 1, file);
+
+    return (void *)x;
+}
+

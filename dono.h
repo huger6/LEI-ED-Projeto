@@ -21,18 +21,23 @@ typedef struct {
 
 int inserirDonoLido(struct Bdados *bd, char *nome, int nif, CodPostal codigoPostal);
 int compDonosNif(void *dono1, void *dono2);
+int compDonosNome(void *dono1, void *dono2);
 int compCodDono(void *dono, void *codigo);
 void freeDono(void *dono);
 void printDono(void *dono);
 void guardarDonoBin(void *obj, FILE *file);
+void *readDonoBin(FILE *file);
 void guardarChaveDonoNif(void *chaveNif, FILE *file);
+void *readChaveDonoNif(FILE *file);
 void *criarChaveDonoNif(void *dono);
 void freeChaveDonoNif(void *chave);
 int compChaveDonoNif(void *chave, void *dono);
+int hashChaveDonoNif(void *chave);
 void *criarChaveDonoAlfabeticamente(void *dono);
 void freeChaveDonoAlfabeticamente(void *chave);
 int compChaveDonoAlfabeticamente(void *chave, void *dono);
-int compDonosNome(void *dono1, void *dono2);
+void guardarChaveDonoAlfabeticamente(void *chave, FILE *file);
+int hashChaveDonoAlfabeticamente(void *chave);
 
 
 

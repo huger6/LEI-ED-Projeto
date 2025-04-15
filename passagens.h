@@ -12,12 +12,12 @@ struct Bdados;
 
 typedef struct {
     int idSensor; //PRIMARY KEY / FOREIGN KEY(idSensor) - REFERENCES Sensor(codSensor)
-    Carro *veiculo;
     Data data;
     char tipoRegisto;
 } Passagem, Pass, *ptPassagem, *ptPass;
 
 typedef struct {
+    Carro *ptrCarro;
     Passagem *entrada;
     Passagem *saida;
     float kms;
@@ -25,14 +25,16 @@ typedef struct {
 } Viagem;
 
 
-Passagem * obterPassagem(struct Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto);
+Passagem *obterPassagem(int idSensor, Data date, char tipoRegisto);
 int inserirViagemLido(Viagem *v, Passagem *entrada, Passagem *saida);
 int compararPassagens(void *passagem1, void *passagem2);
 int compCodPassagem(void *passagem, void *codigo);
 void freePassagem(void *passagem);
 void freeViagem(void *viagem);
 void guardarViagemBin(void *viagem, FILE *file);
+void *readViagemBin(FILE *file);
 void guardarPassagemBin(void *passagem, FILE *file);
+void *readPassagemBin(FILE *file);
 void mostrarPassagem(void *passagem);
 
 

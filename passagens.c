@@ -1,22 +1,22 @@
 #include "passagens.h"
 #include "bdados.h"
 
-Passagem * obterPassagem(Bdados *bd, int idSensor, int codVeiculo, Data date, char tipoRegisto) {
-    if (!bd || !bd->viagens) return 0;
-
+/**
+ * @brief Aloca memória para a passagem 
+ * 
+ * @param bd Base de dados
+ * @param idSensor Id do Sensor
+ * @param codVeiculo Código do véiculo
+ * @param date Data de passagem
+ * @param tipoRegisto Tipo de registo
+ * @return Passagem* Passagem ou NULL se erro
+ */
+Passagem *obterPassagem(int idSensor, Data date, char tipoRegisto) {
     Passagem *pas = (Passagem *)malloc(sizeof(Passagem));
-    if (!pas) return 0;
+    if (!pas) return NULL;
 
     //Id Sensor
     pas->idSensor = idSensor;
-    //Ptr Carro (código veículo) 
-    /* ERRO (Hugo)
-    Carro *ptrCarro = (Carro *)searchDict(bd->carrosMarca)
-    Carro *ptrCarro = (Carro *)pesquisarPorChave(bd->carrosMarca, compCodPassagem, &codVeiculo);
-    if (ptrCarro) {
-        pas->veiculo = ptrCarro;
-    }
-    */
     pas->data = date;
     pas->tipoRegisto = tipoRegisto;
 
@@ -85,12 +85,60 @@ void freeViagem(void *viagem) {
     free(obj);
 }
 
+/**
+ * @brief Guarda uma viagem em ficheiro binário
+ * 
+ * @param viagem Viagem
+ * @param file Ficheiro binário, aberto
+ */
 void guardarViagemBin(void *viagem, FILE *file) {
     if (!viagem || !file) return;
 
     Viagem *x = (Viagem *)viagem;
+    fwrite(&x->kms, sizeof(float), 1, file);
+    fwrite(&x->tempo, sizeof(float), 1, file);
     guardarPassagemBin((void *)x->entrada, file);
     guardarPassagemBin((void *)x->saida, file);
+    fwrite(&x->ptrCarro->codVeiculo, sizeof(int), 1, file);
+}
+
+/**
+ * @brief Lê uma viagem para memória
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return void* Viagem ou NULL se erro
+ * 
+ * @note Cria uma estrutura Carro para guardar o codVeiculo, deve ser libertada posteriormente e obtido o respetivo ponteiro
+ */
+void *readViagemBin(FILE *file) {
+    if (!file) return NULL;
+
+    Viagem *x = (Viagem *)malloc(sizeof(Viagem));
+    if (!x) return NULL;
+
+    fread(&x->kms, sizeof(float), 1, file);
+    fread(&x->tempo, sizeof(float), 1, file);
+    x->entrada = (Passagem *)readPassagemBin(file);
+    if (!x->entrada) {
+        free(x);
+        return NULL;
+    }
+    x->saida = (Passagem *)readPassagemBin(file);
+    if (!x->saida) {
+        freePassagem(x->entrada);
+        free(x);
+        return NULL;
+    }
+    x->ptrCarro = (Carro *)malloc(sizeof(Carro));
+    if (!x->ptrCarro) {
+        freePassagem(x->entrada);
+        freePassagem(x->saida);
+        free(x);
+        return NULL;
+    }
+    fread(&x->ptrCarro->codVeiculo, sizeof(int), 1, file);
+
+    return (void *)x;
 }
 
 void guardarPassagemBin(void *passagem, FILE *file) {
@@ -100,7 +148,27 @@ void guardarPassagemBin(void *passagem, FILE *file) {
     fwrite(&x->data, sizeof(Data), 1, file);
     fwrite(&x->idSensor, sizeof(int), 1, file);
     fwrite(&x->tipoRegisto, sizeof(char), 1, file);
-    fwrite(&x->veiculo->codVeiculo, sizeof(int), 1, file);
+}
+
+/**
+ * @brief Lê uma passagem para memória
+ * 
+ * @param file Ficheiro binário, aberto
+ * @return void* Passagem ou NULL se erro
+ * 
+ * @note Cria uma estrutura Carro para guardar o codVeiculo, deve ser libertada posteriormente e obtido o respetivo ponteiro
+ */
+void *readPassagemBin(FILE *file) {
+    if (!file) return NULL;
+
+    Passagem *x = (Passagem *)malloc(sizeof(Passagem));
+    if (!x) return NULL;
+
+    fread(&x->data, sizeof(Data), 1, file);
+    fread(&x->idSensor, sizeof(int), 1, file);
+    fread(&x->tipoRegisto, sizeof(char), 1, file);
+
+    return (void *)x;
 }
 
 /*

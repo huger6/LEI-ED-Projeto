@@ -13,6 +13,7 @@
  */
 int inicializarBD(Bdados *bd) {
     bd->carrosMarca = criarDict();
+    bd->carrosCod = criarDict();
     bd->donosNif = criarDict();
     bd->donosAlfabeticamente = criarDict();
     bd->viagens = criarLista();

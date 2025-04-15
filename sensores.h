@@ -20,5 +20,6 @@ int compIdSensor(void *sensor, void *idSensor);
 void freeSensor(void *sensor);
 void printSensor(void *sensor);
 void guardarSensorBin(void *sensor, FILE *file);
+void *readSensorBin(FILE *file);
 
 #endif

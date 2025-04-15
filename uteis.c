@@ -163,7 +163,7 @@ int sim_nao(char * mensagem) {
  * @note A string retornada deve ser libertada com free()
  * @note Suporta caracteres UTF-8 multi-byte através de strstr()
  */
-char * normalizar_string(char * str) {
+char *normalizar_string(const char *str) {
     if (!str) return NULL;
     
     const char * acentos[] = {"á","à","ã","â","ä","é","è","ê","ë","í","ì","î","ï",
@@ -501,4 +501,20 @@ float calcularIntervaloTempo(Data *data1, Data *data2) {
     minutos += (data2->seg - data1->seg) / 60.0f;     // seconds to minutes
     
     return minutos;
+}
+
+/**
+ * @brief Devolve o hash de uma string
+ * 
+ * @param str String, em minúsculas
+ * @return int hash ou -1 se erro
+ */
+int hashString(const char *str) {
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = *str++))
+        hash = ((hash << 5) + hash) + c;  // hash * 33 + c
+
+    return (int)(hash);
 }

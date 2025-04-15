@@ -18,6 +18,7 @@ void inicializarMatrizDistancias(struct Bdados *bd);
 int realocarMatrizDistancias(struct Bdados *bd, int tamanho);
 void freeMatrizDistancias(Distancias *distancia);
 void guardarDistanciasBin(Distancias *distancia, FILE *file);
+Distancias *readDistanciasBin(FILE *file);
 void getStatsViagem(struct Bdados *bd, Viagem *v);
 
 
