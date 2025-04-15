@@ -44,6 +44,11 @@ int main(void) {
 
     Bdados *bd = (Bdados *)malloc(sizeof(Bdados));
     inicializarBD(bd);
+
+    if (fase_instalacao(CONFIG_TXT, '0') == 1) {
+        carregarDadosBin(bd, CONFIG_TXT);
+    }
+    carregarDadosTxt(bd, CONFIG_TXT);
     
     if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
         printf("Ocorreu um erro a carregar os dados para memória!\n");

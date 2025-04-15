@@ -731,4 +731,20 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     return 1;
 }
 
+int fase_instalacao(const char * flag, const char abrir) {
+    if (!flag) return 1;
 
+    FILE * ficheiro = fopen(flag, "r");
+    //Verificar primeira abertura
+    if (!ficheiro && abrir == '0') return 1;
+    //Abrir o ficheiro quando pedido (na primeira abertura)
+    else if (!ficheiro && abrir == '1') {
+        ficheiro = fopen(flag, "w");
+        fprintf(ficheiro, "NÃO ELIMINAR ESTE FICHEIRO SOB QUALQUER CIRCUNSTÂNCIA!");
+        fclose(ficheiro);
+        return 0; //A partir deste momento já passamos a ter o ficheiro aberto
+    }
+    //Só chega aqui se o ficheiro já existir previamente
+    fclose(ficheiro);
+    return 0;
+}
