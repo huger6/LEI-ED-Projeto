@@ -24,5 +24,7 @@ int contarLinhas(const char *filename);
 int guardarDadosBin(Bdados *bd, const char *nome);
 int carregarDadosBin(Bdados *bd, const char *nome);
 
+int fase_instalacao(const char * flag, const char abrir);
+
 
 #endif
