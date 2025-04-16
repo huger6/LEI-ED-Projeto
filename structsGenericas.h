@@ -54,8 +54,8 @@ Lista *readListaBin(void *(*readInfo)(FILE *fileObj), FILE *file);
 // Hashing
 
 Dict *criarDict();
-NoHashing *posicaoInsercao(Dict *has, int indice, void *obj, int (*compChave)(void *chave, void *obj));
-int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeChave)(void *chave));
+NoHashing *posicaoInsercao(Dict *has, int indice, void *chave, int (*compChave)(void *chave, void *chave2));
+int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave));
 void printDict(Dict *has, void (*printObj)(void *obj));
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj));
 void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave), int (*hashChave)(void *chave));

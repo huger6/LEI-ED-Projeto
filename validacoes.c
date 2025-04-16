@@ -39,7 +39,7 @@ char * validarNome(char *nome)
         if (i < comprimento -1 && nome[i] == ' ' && nome[i+1] == ' ') return "O nome não pode conter espaços consecutivos!";
 
         //Verificar caracteres inválidos
-        if (!iswalpha(nome[i]) && nome[i] != ' ' && nome[i] != '-') return "O Nome contém caracteres inválidos!";
+        if (!iswalpha(nome[i]) && nome[i] != ' ' && nome[i] != '-' && nome[i] != '?') return "O Nome contém caracteres inválidos!"; // ? para evitar excluir muitos dados
         //iswalpha apenas retorna válido a-z e A-Z, logo as outras condições validam espaços e hifens
     }
     return NULL;

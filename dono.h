@@ -31,11 +31,11 @@ void guardarChaveDonoNif(void *chaveNif, FILE *file);
 void *readChaveDonoNif(FILE *file);
 void *criarChaveDonoNif(void *dono);
 void freeChaveDonoNif(void *chave);
-int compChaveDonoNif(void *chave, void *dono);
+int compChaveDonoNif(void *chave, void *chave2);
 int hashChaveDonoNif(void *chave);
 void *criarChaveDonoAlfabeticamente(void *dono);
 void freeChaveDonoAlfabeticamente(void *chave);
-int compChaveDonoAlfabeticamente(void *chave, void *dono);
+int compChaveDonoAlfabeticamente(void *chave, void *chave2);
 void guardarChaveDonoAlfabeticamente(void *chave, FILE *file);
 int hashChaveDonoAlfabeticamente(void *chave);
 

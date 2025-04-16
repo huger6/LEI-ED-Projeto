@@ -28,7 +28,7 @@ void colocar_terminal_utf8();
 int randomInt(int min, int max);
 void data_atual();
 int sim_nao(char * mensagem);
-char *normalizar_string(const char *str);
+char *normString(const char *str);
 char *strlwrSafe(const char *str);
 int stringToInt(const char * str, int * resultado);
 int stringToShort(const char * str, short * resultado);

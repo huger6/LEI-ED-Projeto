@@ -297,14 +297,14 @@ Dict *criarDict() {
  * @param compChave Função para comparar a chave (deve retornar 0 se iguais)
  * @return NoHashing* de inserção ou NULL se erro ou essa chave ainda não existe
  */
-NoHashing *posicaoInsercao(Dict *has, int indice, void *obj, int (*compChave)(void *chave, void *obj)) {
-    if (!has || !obj || !compChave || indice < 0 || indice >= TAMANHO_TABELA_HASH) return NULL;
+NoHashing *posicaoInsercao(Dict *has, int indice, void *chave, int (*compChave)(void *chave, void *chave2)) {
+    if (!has || !chave || !compChave || indice < 0 || indice >= TAMANHO_TABELA_HASH) return NULL;
     
     if (has->tabela[indice]) {
         NoHashing *p = has->tabela[indice];
     
         while(p) {
-            if ((*compChave)(p->chave, obj) == 0)
+            if ((*compChave)(p->chave, chave) == 0)
                 return p;
             p = p->prox;
         }
@@ -321,11 +321,18 @@ NoHashing *posicaoInsercao(Dict *has, int indice, void *obj, int (*compChave)(vo
  * @param criarChave Função para criar uma chave
  * @return int 0 se erro, 1 se sucesso
  */
-int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeChave)(void *chave)) {
+int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave)) {
     if (!has || !obj || !compChave || !criarChave || !hashChave) return 0;
 
-    int indice = hashChave(obj) % TAMANHO_TABELA_HASH;
-    NoHashing *p = posicaoInsercao(has, indice, obj, compChave);
+    void *chave = criarChave(obj);
+    if (!chave) return 0;
+
+    int indice = hashChave(chave);
+    if (indice < 0) return 0;
+    
+    indice %= TAMANHO_TABELA_HASH;
+
+    NoHashing *p = posicaoInsercao(has, indice, chave, compChave);
 
     if (p) {
         return addInicioLista(p->dados, obj);
@@ -340,14 +347,15 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
         free(novo);
         return 0;
     }
-    novo->chave = criarChave(obj);
+    novo->chave = chave;
     
     if (!addInicioLista(novo->dados, obj)) {
         freeChave(novo->chave);
-        freeLista(novo->dados, NULL);
+        freeLista(novo->dados, freeObj);
         free(novo);
         return 0;
     }
+    novo->prox = NULL;
     
     novo->prox = has->tabela[indice];
     has->tabela[indice] = novo;
@@ -403,7 +411,7 @@ void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *o
  * @brief Pesquisa pela chave principal de um dicionário
  * 
  * @param has Dicionário
- * @param chave Chave a procurar
+ * @param chave Chave a procurar (Deve ser do tipo objeto a retornar com a chave no respetivo campo)
  * @param compChave Função para comparar as chaves do Dict
  * @param compCod Função para comparar a chave com o elemento da lista
  * @return void* ou NULL se erro
@@ -411,7 +419,10 @@ void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *o
 void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave), int (*hashChave)(void *chave)) {
     if (!has || !chave || !compChave || !hashChave) return NULL;
 
-    int indice = hashChave(chave) % TAMANHO_TABELA_HASH;
+    int indice = hashChave(chave);
+    if (indice < 0) return NULL;
+    
+    indice %= TAMANHO_TABELA_HASH;
 
     NoHashing *p = has->tabela[indice];
     while (p) {

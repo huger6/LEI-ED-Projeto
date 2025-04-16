@@ -163,7 +163,7 @@ int sim_nao(char * mensagem) {
  * @note A string retornada deve ser libertada com free()
  * @note Suporta caracteres UTF-8 multi-byte através de strstr()
  */
-char *normalizar_string(const char *str) {
+char *normString(const char *str) {
     if (!str) return NULL;
     
     const char * acentos[] = {"á","à","ã","â","ä","é","è","ê","ë","í","ì","î","ï",
@@ -516,5 +516,6 @@ int hashString(const char *str) {
     while ((c = *str++))
         hash = ((hash << 5) + hash) + c;  // hash * 33 + c
 
-    return (int)(hash);
+    int result = (int)(hash % INT_MAX);
+    return result;
 }

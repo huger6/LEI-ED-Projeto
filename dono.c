@@ -30,12 +30,12 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal) {
     dono->codigoPostal.local = codigoPostal.local;
     dono->codigoPostal.zona = codigoPostal.zona;
     
-    if (!appendToDict(bd->donosNif, (void *)dono, compChaveDonoNif, criarChaveDonoNif, hashChaveDonoNif, freeChaveDonoNif)) {
+    if (!appendToDict(bd->donosNif, (void *)dono, compChaveDonoNif, criarChaveDonoNif, hashChaveDonoNif, freeDono, freeChaveDonoNif)) {
         free(dono->nome);
         free(dono);
         return 0;
     }
-    if (!appendToDict(bd->donosAlfabeticamente, (void *)dono, compChaveDonoAlfabeticamente, criarChaveDonoAlfabeticamente, hashChaveDonoAlfabeticamente, freeChaveDonoAlfabeticamente)) {
+    if (!appendToDict(bd->donosAlfabeticamente, (void *)dono, compChaveDonoAlfabeticamente, criarChaveDonoAlfabeticamente, hashChaveDonoAlfabeticamente, freeDono, freeChaveDonoAlfabeticamente)) {
         free(dono->nome);
         free(dono);
         return 0;
@@ -212,7 +212,7 @@ void *criarChaveDonoNif(void *dono) {
     int *chaveNif = (int *)malloc(sizeof(int));
     if (!chaveNif) return NULL;
 
-    *chaveNif = x->nif % HASH_DONOS_NIF;
+    *chaveNif = x->nif;
     return (void *)chaveNif;
 }
 
@@ -235,13 +235,13 @@ void freeChaveDonoNif(void *chave) {
  * @param dono Dono
  * @return int 0 se igual, 1 se diferente 
  */
-int compChaveDonoNif(void *chave, void *dono) {
-    if (!chave || !dono) return -1;
+int compChaveDonoNif(void *chave, void *chave2) {
+    if (!chave || !chave2) return -1;
 
     int *key = (int *)chave;
-    Dono *x = (Dono *)dono;
+    int *key2 = (int *)chave2;
 
-    if (*key == (x->nif % HASH_DONOS_NIF)) return 0;
+    if (*key == *key2) return 0;
     return 1;
 } 
 
@@ -254,9 +254,9 @@ int compChaveDonoNif(void *chave, void *dono) {
 int hashChaveDonoNif(void *chave) {
     if (!chave) return -1;
 
-    Dono *x = (Dono *)chave;
+    int *key = (int *)chave;
 
-    return x->nif;
+    return *key;
 }
 
 /**
@@ -291,17 +291,17 @@ void freeChaveDonoAlfabeticamente(void *chave) {
 /**
  * @brief Compara as chaves dos donos alfabeticamente
  * 
- * @param chave Chave
- * @param dono Dono
+ * @param chave Chave 1
+ * @param chave2 Chave 2
  * @return int -1 se erro, 0 se iguais, 1 se diferentes
  */
-int compChaveDonoAlfabeticamente(void *chave, void *dono) {
-    if (!chave || !dono) return -1;
+int compChaveDonoAlfabeticamente(void *chave, void *chave2) {
+    if (!chave || !chave2) return -1;
 
     char *key = (char *)chave;
-    Dono *x = (Dono *)dono;
+    char *key2 = (char *)chave2;
 
-    if (*key == tolower(x->nome[0])) return 0;
+    if (*key == *key2) return 0;
     return 1;
 } 
 
@@ -329,8 +329,8 @@ void guardarChaveDonoAlfabeticamente(void *chave, FILE *file) {
 int hashChaveDonoAlfabeticamente(void *chave) {
     if (!chave) return -1;
 
-    Dono *x = (Dono *)chave;
+    char *letra = (char *)chave;
     
-    return tolower(x->nome[0]) - 'a';
+    return tolower(*letra) - 'a';
 }
 

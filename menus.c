@@ -320,13 +320,16 @@ void processarMenuDonos(Bdados *bd) {
                 break;
             case '1':
                 //Registar dono
-                //printLista(bd->donos, mostrarDono);
                 break;
             case '2':
                 //Listar donos (alfabeticamente)
+                printDict(bd->donosAlfabeticamente, printDono);
+                pressione_enter();
                 break;
             case '3':
                 //Listar donos (por NIF)
+                printDict(bd->donosNif, printDono);
+                pressione_enter();
                 break;
             default:
                 opcao = '0';
@@ -394,12 +397,16 @@ void processarMenuListagemVeiculos(Bdados *bd) {
                 break;
             case '1':
                 // Mostrar todos
+                printDict(bd->carrosCod, printCarro);
+                pressione_enter();
                 break;
             case '2':
                 // Mostrar por matrícula
                 break;
             case '3':
                 // Mostrar por marca
+                printDict(bd->carrosMarca, printCarro);
+                pressione_enter();
                 break;
             case '4':
                 // Mostrar por modelo

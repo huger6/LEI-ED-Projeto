@@ -36,6 +36,9 @@ Para compilar em Linux, usar:
 */
 
 
+//TODO: ordenar donos alf (cada lista)
+// Mudar o regressar nos submenus
+
 int main(void) {
     limpar_terminal();
     colocar_terminal_utf8();

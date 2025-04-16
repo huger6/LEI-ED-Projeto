@@ -508,9 +508,11 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                                 erro = '1';
                                 break;
                             }
-                            void *cod = (void *)&codVeiculo;
-                            v->ptrCarro = (Carro *)searchDict(bd->carrosCod, cod, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
+                            void *temp = (void *)&codVeiculo;
+                            v->ptrCarro = (Carro *)searchDict(bd->carrosCod, (void *)temp, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
                             if (!v->ptrCarro) {
+                                linhaInvalida(linha, nLinhas, logs);
+                                fprintf(logs, "Razão: Ocorreu um erro a procurar o Carro na memória\n\n");
                                 erro = '1';
                                 break;
                             }

@@ -43,19 +43,24 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Ano
     aut->ano = ano;
     //NIF (ptrPessoa)
-    void *nifPtr = (void *)&nif;
-    aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, nifPtr, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
+    void *temp = (void *)&nif;
+    aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, temp, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
+    static int count = 0;
+    if (!aut->ptrPessoa) {
+        count++;
+        printf("Count: %d\n", count);
+    }
     //Código Veículo
     aut->codVeiculo = codVeiculo;
 
-    if (!appendToDict(bd->carrosCod, (void *)aut, compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeChaveCarroCod)) {
+    if (!appendToDict(bd->carrosCod, (void *)aut, compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod)) {
         free(aut->modelo);
         free(aut->marca);
         free(aut);
         return 0;
     }
 
-    if (!appendToDict(bd->carrosMarca, (void *)aut, compChaveCarroMarca, criarChaveCarroMarca, hashChaveCarroMarca, freeChaveCarroMarca)) {
+    if (!appendToDict(bd->carrosMarca, (void *)aut, compChaveCarroMarca, criarChaveCarroMarca, hashChaveCarroMarca, freeCarro, freeChaveCarroMarca)) {
         free(aut->modelo);
         free(aut->marca);
         free(aut);
@@ -90,15 +95,15 @@ int compararCarros(void *carro1, void *carro2) {
  * 
  * @param carro Carro
  * @param codigo Código (será convertido para int*)
- * @return int 
+ * @return int 0 se igual
  */
 int compCodCarro(void *carro, void *codigo) {
-    if (!carro || !codigo) return 0;
+    if (!carro || !codigo) return 1;
 
     Carro *x = (Carro *)carro;
     int *cod = (int *)codigo;
-    if (x->codVeiculo == *cod) return 1;
-    return 0;
+    if (x->codVeiculo == *cod) return 0;
+    return 1;
 }
 
 /**
@@ -114,7 +119,7 @@ void freeCarro(void *carro) {
 }
 
 
-void mostrarCarro(void *carro) {
+void printCarro(void *carro) {
     if (!carro) return;
 
     Carro *x = (Carro*)carro;
@@ -234,13 +239,19 @@ void *criarChaveCarroMarca(void *carro) {
     return (void *)strlwrSafe(x->marca);
 }
 
-int hashChaveCarroMarca(void *carro) {
-    if (!carro) return -1;
+/**
+ * @brief Função de hash para o carro por marca
+ * 
+ * @param chave Chave (marca)
+ * @return int hash ou -1 se erro
+ */
+int hashChaveCarroMarca(void *chave) {
+    if (!chave) return -1;
 
-    Carro *x = (Carro *)carro;
-    char *marcaNorm = normalizar_string(x->marca);
+    char *key = (char *)chave;
+    char *marcaNorm = normString(key);
     int hash = hashString(marcaNorm);
-    free(marcaNorm);
+    free(marcaNorm); // Liberta a cópia criada por normString
     return hash;
 }
 
@@ -263,20 +274,15 @@ void freeChaveCarroMarca(void *chave) {
  * @param carro Carro
  * @return int -1 se erro, 0 se iguais, 1 se diferente
  */
-int compChaveCarroMarca(void *chave, void *carro) {
-    if (!chave || !carro) return -1;
+int compChaveCarroMarca(void *chave, void *chave2) {
+    if (!chave || !chave2) return -1;
 
     char *key = (char *)chave;
-    Carro *x = (Carro *)carro;
+    char *key2 = (char *)chave2;
 
-    char *chaveCarro = strlwrSafe(x->marca);
-    if (!chaveCarro) return -1;
-
-    if (strcmp(key, chaveCarro) == 0){
-        free(chaveCarro);
+    if (strcmp(key, key2) == 0) {
         return 0;
     }
-    free(chaveCarro);
     return 1;
 } 
 
@@ -334,11 +340,11 @@ void *criarChaveCarroCod(void *carro) {
  * @param carro Carro
  * @return int -1 se erro ou codVeiculo
  */
-int hashChaveCarroCod(void *carro) {
-    if (!carro) return -1;
+int hashChaveCarroCod(void *chave) {
+    if (!chave) return -1;
 
-    Carro *x = (Carro *)carro;
-    return x->codVeiculo;
+    int *key = (int *)chave;
+    return *key;
 }
 
 /**
@@ -360,13 +366,13 @@ void freeChaveCarroCod(void *chave) {
  * @param carro Carro
  * @return int 
  */
-int compChaveCarroCod(void *chave, void *carro) {
-    if (!chave || !carro) return -1;
+int compChaveCarroCod(void *chave, void *chave2) {
+    if (!chave || !chave2) return -1;
 
     int *key = (int *)chave;
-    Carro *x = (Carro *)carro;
+    int *key2 = (int *)chave2;
 
-    if (*key == x->codVeiculo) return 0;
+    if (*key == *key2) return 0;
     return 1;
 }
 

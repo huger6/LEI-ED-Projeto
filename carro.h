@@ -24,20 +24,20 @@ int compararCarros(void *carro1, void *carro2);
 int inserirCarroLido(struct Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
 int compCodCarro(void *carro, void *codigo);
 void freeCarro(void *carro);
-void mostrarCarro(void *carro);
+void printCarro(void *carro);
 void guardarCarroBin(void *carro, FILE *file);
 void *readCarroBin(FILE *file);
 void guardarChaveCarroMarca(void *chaveMarca, FILE *file);
 void *criarChaveCarroMarca(void *carro);
-int hashChaveCarroMarca(void *carro);
+int hashChaveCarroMarca(void *chave);
 void freeChaveCarroMarca(void *chave);
-int compChaveCarroMarca(void *chave, void *carro);
+int compChaveCarroMarca(void *chave, void *chave2);
 void guardarChaveCarroCod(void *chave, FILE *file);
 void *readChaveCarroCod(FILE *file);
 void *criarChaveCarroCod(void *carro);
 int hashChaveCarroCod(void *carro);
 void freeChaveCarroCod(void *chave);
-int compChaveCarroCod(void *chave, void *carro);
+int compChaveCarroCod(void *chave, void *chave2);
 
 
 int ordenarAlfMarca (void *carro1, void *carro2);

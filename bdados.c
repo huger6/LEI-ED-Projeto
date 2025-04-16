@@ -9,7 +9,7 @@
  * @brief Inicializa a base de dados criando as estruturas necessárias
  * 
  * @param bd Base de dados
- * @return int 1 se uscesso, 0 se erro
+ * @return int 1 se sucesso, 0 se erro
  */
 int inicializarBD(Bdados *bd) {
     bd->carrosMarca = criarDict();
@@ -19,7 +19,7 @@ int inicializarBD(Bdados *bd) {
     bd->viagens = criarLista();
     bd->sensores = criarLista();
     inicializarMatrizDistancias(bd);
-    if (!bd->carrosMarca || !bd->distancias || !bd->distancias->matriz || !bd->donosNif ||
+    if (!bd->carrosMarca || !bd->carrosCod|| !bd->distancias || !bd->distancias->matriz || !bd->donosNif ||
          !bd->donosAlfabeticamente	|| !bd->viagens || !bd->sensores) return 0;
     return 1;
 }
