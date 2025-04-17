@@ -561,7 +561,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                             v->ptrCarro = (Carro *)searchDict(bd->carrosCod, (void *)temp, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
                             if (!v->ptrCarro) {
                                 linhaInvalida(linha, nLinhas, logs);
-                                fprintf(logs, "Razão: BOMBOCLATOcorreu um erro a procurar o Carro na memória\n\n");
+                                fprintf(logs, "Razão: Ocorreu um erro a procurar o Carro na memória\n\n");
                                 erro = '1';
                                 break;
                             }
