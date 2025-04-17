@@ -24,7 +24,6 @@ void limpar_buffer();
 int verificar_e_limpar_buffer();
 void limpar_terminal();
 void pressione_enter();
-void colocar_terminal_utf8();
 int randomInt(int min, int max);
 void data_atual();
 int sim_nao(char * mensagem);
@@ -40,9 +39,8 @@ int compararDatas(Data data1, Data data2);
 char * converterParaData(const char *strData, Data * data);
 float calcularIntervaloTempo(Data *data1, Data *data2);
 int hashString(const char *str);
+int deleteFile(const char *nome, const char modo);
 
-
-void medirTempo(void (*funcao()));
 
 
 

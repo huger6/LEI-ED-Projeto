@@ -15,6 +15,8 @@
 #define SENSORES_TXT "Dados/sensores.txt"
 #define DISTANCIAS_TXT "Dados/distancias.txt"
 #define PASSAGEM_TXT "Dados/passagem.txt"
+#define CONFIG_TXT "config.txt"
+#define AUTOSAVE_BIN "autosave.bin"
 
 //Número de paraâmetros por cada ficheiro
 #define PARAM_DONOS 3

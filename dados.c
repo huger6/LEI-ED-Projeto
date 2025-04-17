@@ -48,11 +48,60 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
     }
     time_t inicio = time(NULL);
     fprintf(logs, "#ÍNICIO DA LEITURA DOS DADOS#\t\t%s\n\n", ctime(&inicio));
-
-    if (!carregarDonosTxt(bd, fDonos, logs) || !carregarCarrosTxt(bd, fCarros, logs) || !carregarSensoresTxt(bd, fSensores, logs) || 
-        !carregarDistanciasTxt(bd, fDistancias, logs) || !carregarPassagensTxt(bd, fPassagem, logs)) {
+    while (erro == '0') {
+        if (!carregarDonosTxt(bd, fDonos, logs)) {
             erro = '1';
+            break;
         }
+    
+        if (!carregarCarrosTxt(bd, fCarros, logs)) {
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+            freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            erro = '1';
+            break;
+        }
+    
+        if (!carregarSensoresTxt(bd, fSensores, logs)) {
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+            freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
+            freeDict(bd->carrosCod, freeChaveCarroMarca, NULL);
+            erro = '1';
+            break;
+        }   
+    
+        if (!carregarDistanciasTxt(bd, fDistancias, logs)) {
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+            freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
+            freeDict(bd->carrosCod, freeChaveCarroMarca, NULL);
+            freeLista(bd->sensores, freeSensor);
+            erro = '1';
+            break;
+        }
+    
+        if (!carregarPassagensTxt(bd, fPassagem, logs)) {
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+            freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
+            freeDict(bd->carrosCod, freeChaveCarroMarca, NULL);
+            freeLista(bd->sensores, freeSensor);
+            freeMatrizDistancias(bd->distancias);
+            erro = '1';
+            break;
+        }
+        break;
+    }
+    if (erro == '0') {
+        for (char i = 'a'; i <= 'z'; i++) {
+            void *letra = (void *)&i;
+            Lista *p = obterListaDoDict(bd->donosAlfabeticamente, letra, compChaveDonoAlfabeticamente, hashChaveDonoAlfabeticamente);
+            if (p) {
+                mergeSortLista(p, compDonosNome);
+            }
+        }
+    }
+
     time_t fim = time(NULL);
     char *tempoFinal = ctime(&fim); // Não precisa de free
     tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
@@ -62,7 +111,7 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
     if (erro == '1') {
         return 0; //Erro grave
     }
-        
+    
     return 1;
 }
 
@@ -512,7 +561,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                             v->ptrCarro = (Carro *)searchDict(bd->carrosCod, (void *)temp, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
                             if (!v->ptrCarro) {
                                 linhaInvalida(linha, nLinhas, logs);
-                                fprintf(logs, "Razão: Ocorreu um erro a procurar o Carro na memória\n\n");
+                                fprintf(logs, "Razão: BOMBOCLATOcorreu um erro a procurar o Carro na memória\n\n");
                                 erro = '1';
                                 break;
                             }
@@ -731,22 +780,4 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
 
     fclose(file);
     return 1;
-}
-
-int fase_instalacao(const char * flag, const char abrir) {
-    if (!flag) return 1;
-
-    FILE * ficheiro = fopen(flag, "r");
-    //Verificar primeira abertura
-    if (!ficheiro && abrir == '0') return 1;
-    //Abrir o ficheiro quando pedido (na primeira abertura)
-    else if (!ficheiro && abrir == '1') {
-        ficheiro = fopen(flag, "w");
-        fprintf(ficheiro, "NÃO ELIMINAR ESTE FICHEIRO SOB QUALQUER CIRCUNSTÂNCIA!");
-        fclose(ficheiro);
-        return 0; //A partir deste momento já passamos a ter o ficheiro aberto
-    }
-    //Só chega aqui se o ficheiro já existir previamente
-    fclose(ficheiro);
-    return 0;
 }

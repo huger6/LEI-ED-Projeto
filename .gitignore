@@ -5,3 +5,5 @@ main.exe
 dados.db
 import.sql
 dadosBin
+autosave.bin
+config.txt

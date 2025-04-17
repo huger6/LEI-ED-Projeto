@@ -30,6 +30,8 @@ int inicializarBD(Bdados *bd) {
  * @param bd Base de dados
  */
 void freeTudo(Bdados *bd) {
+    if (!bd) return;
+    
     freeDict(bd->carrosMarca, freeChaveCarroMarca, freeCarro);
     freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
     freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);

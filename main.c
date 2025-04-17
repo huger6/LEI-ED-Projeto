@@ -1,3 +1,4 @@
+#include "configs.h"
 #include "uteis.h"
 #include "menus.h"
 #include "structsGenericas.h"
@@ -36,30 +37,42 @@ Para compilar em Linux, usar:
 */
 
 
-//TODO: ordenar donos alf (cada lista)
-// Mudar o regressar nos submenus
+// TODO: ordenar donos alf (cada lista)
 
 int main(void) {
     limpar_terminal();
-    colocar_terminal_utf8();
+    colocarTerminalUTF8();
     data_atual();
     srand(time(NULL));
 
     Bdados *bd = (Bdados *)malloc(sizeof(Bdados));
-    inicializarBD(bd);
-
-    if (fase_instalacao(CONFIG_TXT, '0') == 1) {
-        carregarDadosBin(bd, CONFIG_TXT);
-    }
-    carregarDadosTxt(bd, CONFIG_TXT);
     
-    if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
-        printf("Ocorreu um erro a carregar os dados para memória!\n");
-        return EXIT_FAILURE;
+    // Primeira iteração do programa
+    if (faseInstalacao(CONFIG_TXT, '0') == 1) {
+        inicializarBD(bd);
+        if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
+            // Tentar carregar dos ficheiros de backup
+            // Talvez dar um aviso e dizer para colocar os ficheiros backup no diretório com o nome x
+            // Libertar memória na função de carregar dados de acordo com o que foi alocado
+            exit(EXIT_FAILURE);
+        }
+        // Abrir o ficheiro flag (não é aberto antes para evitar ter de o fechar, em caso de erro)
+		(void) faseInstalacao(CONFIG_TXT, '1');
+		guardarDadosBin(bd, AUTOSAVE_BIN); // Guardar os dados em binário, caso o utilizador decida sair do programa forçadamente
     }
+    else {
+        // Carregar binário
+        // Ler os ficheiros .bin no diretório e mostrar ao user para escolher
+        // Caso não seja possível, usar um simples pedido do nome do ficheiro
+        if (!carregarDadosBin(bd, AUTOSAVE_BIN)) {
+            // Tentar carregar backups
 
+            reset(NULL);
+        }
+    }
+    
     the_architect(bd);
-    guardarDadosBin(bd, "dadosBin");
+    guardarDadosBin(bd, AUTOSAVE_BIN);
 
     freeTudo(bd);
     return EXIT_SUCCESS;

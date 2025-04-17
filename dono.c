@@ -65,22 +65,29 @@ int compDonosNif(void *dono1, void *dono2) {
 }
 
 /**
- * @brief Ordena 
+ * @brief Compara os donos 
  * 
- * @param dono1 
- * @param dono2 
- * @return int 
+ * @param dono1 Dono 1
+ * @param dono2 Dono 2
+ * @return int -1 se dono1 < dono 2, 0 se iguais, 1 se dono1 > dono2
  */
-/* ERRO AQUI
-int compDonosNome(void *dono1, void *dono2){
-    if (!dono1 || !dono2) return 0;
-    Dono *n1 = (Dono*) dono1;
-    Dono *n2 = (Dono*) dono2;
-    normalizar_string(n1->nome);
-    normalizar_string(n2->nome);
-    return strcmp((n1->nome), (n2->nome));
+int compDonosNome(void *dono1, void *dono2) { 
+    if (dono1 == NULL && dono2 == NULL) return 0;
+    if (dono1 == NULL) return -1; //NULL < qualquer coisa
+    if (dono2 == NULL) return 1;
+
+    Dono *x = (Dono *)dono1;
+    Dono *y = (Dono *)dono2;
+    char *xNorm = normString(x->nome);
+    char *yNorm = normString(y->nome);
+
+    int res = strcmp(xNorm, yNorm);
+
+    free(xNorm);
+    free(yNorm);
+    
+    return res;
 }
-    */
 
 /**
  * @brief Compara um dono(Nif) com um código

@@ -376,17 +376,31 @@ int compChaveCarroCod(void *chave, void *chave2) {
     return 1;
 }
 
-
-/* ERRO AQUI no strcmp , tolower apenas funciona com chars
-
-int ordenarAlfMarca (void *carro1, void *carro2){
+/**
+ * @brief Compara os carros pela marca
+ * 
+ * @param carro1 Carro 1
+ * @param carro2 Carro 2
+ * @return int -1 se carro1 < carro2, 0 se iguais, 1 se carro1 > carro2
+ */
+int compCarroMarca (void *carro1, void *carro2) {
     if (!carro1 || !carro2) return 0;
-    Carro *x1 = (Carro*) carro1;
-    Carro *x2 = (Carro*) carro2;
-    if (strcmp(tolower(x1->marca),tolower(x2->marca)) == 1) return 1;
-    return 0;
+    if (!carro1) return -1;
+    if (!carro2) return 1;
+
+    Carro *x = (Carro*)carro1;
+    Carro *y = (Carro*)carro2;
+    char *xNorm = normString(x->marca);
+    char *yNorm = normString(y->marca);
+
+    int res = strcmp(xNorm, yNorm);
+
+    free(xNorm);
+    free(yNorm);
+
+    return res;
 }
-    */
+
 
 void RegistarVeiculo(Bdados *bd){
     do{

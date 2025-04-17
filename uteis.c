@@ -60,27 +60,6 @@ void pressione_enter() {
     while (getchar() != '\n');
 }
 
-/* Coloca terminal para UTF-8
- *
- * @return void
- *         
- * @note Windows: CP_UTF8 + locale pt para números
- * @note Unix: locale para tudo
- * @note Avisa se configuração falhar
- */
-void colocar_terminal_utf8() {
-    #ifdef _WIN32
-        //SetConsoleOutputCP retorna 0 se houver um erro
-        if ((SetConsoleOutputCP(CP_UTF8) == 0)||SetConsoleCP(CP_UTF8) == 0) {
-            printf("Ocorreu um erro ao configurar o terminal do Windows para UTF-8.\n");
-            printf("A aplicação irá continuar. Desformatação será visível. Para resolver, reinicie a aplicação.\n");
-        }
-	    setlocale(LC_NUMERIC, "Portuguese"); //Apenas afeta os números , ou seja, muda a notação de floats de '.' para ','
-    #else
-        setlocale(LC_ALL, "pt_PT.UTF-8");
-    #endif
-}
-
 /* Gera um int aleatório entre min e max
  *
  * @param min   Número mínimo a ser gerado
@@ -113,11 +92,6 @@ void data_atual() {
     DATA_ATUAL.hora = tm_atual->tm_hour;
     DATA_ATUAL.min = tm_atual->tm_min;
     DATA_ATUAL.seg = tm_atual->tm_sec;
-}
-
-//TODO
-void medirTempo(void (*funcao())) {
-    return;
 }
 
 /* Pede confirmação S/N ao utilizador
@@ -519,3 +493,34 @@ int hashString(const char *str) {
     int result = (int)(hash % INT_MAX);
     return result;
 }
+
+/* Elimina um ficheiro especificado
+ *
+ * @param nome     Nome do ficheiro a eliminar
+ * @param modo     Modo de operação ('1' para mostrar erros, '0' para silencioso)
+ *
+ * @return 1 se sucesso, 0 se:
+ *         - Nome inválido
+ *         - Erro ao eliminar ficheiro
+ *         
+ * @note Verifica se o ficheiro existe antes de tentar eliminar
+ * @note Em modo '1' mostra mensagens de erro detalhadas
+ * @note Não verifica se o ficheiro é o próprio programa
+ */
+int deleteFile(const char *nome, const char modo) {
+    if (!nome) return 0;
+    //Por segurança devia ser verificado se o nome do ficheiro a eliminar não é o nosso próprio programa
+    if (remove(nome) == 0) {
+        if (modo == '1') printf("O ficheiro '%s' foi eliminado com sucesso.\n", nome);
+        return 1;
+    }
+    else {
+        if (modo == '1') { 
+            printf("Ocorreu um erro ao eliminar o ficheiro '%s'.\n", nome);
+            printf("Por favor verifique que o nome do ficheiro inclui a extensão e se está no mesmo diretório do programa.\n");
+            printf("Certifique-se ainda que o ficheiro '%s' não está aberto noutro lugar.\n", nome);
+        }
+        return 0;
+    }
+}
+

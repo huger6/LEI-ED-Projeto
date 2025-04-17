@@ -32,6 +32,7 @@ void *criarChaveCarroMarca(void *carro);
 int hashChaveCarroMarca(void *chave);
 void freeChaveCarroMarca(void *chave);
 int compChaveCarroMarca(void *chave, void *chave2);
+int compCarroMarca (void *carro1, void *carro2);
 void guardarChaveCarroCod(void *chave, FILE *file);
 void *readChaveCarroCod(FILE *file);
 void *criarChaveCarroCod(void *carro);
@@ -40,7 +41,6 @@ void freeChaveCarroCod(void *chave);
 int compChaveCarroCod(void *chave, void *chave2);
 
 
-int ordenarAlfMarca (void *carro1, void *carro2);
 int ordenarAlfModelo (void *carro1, void *carro2);
 int ordenarAlfMatricula (void *carro1, void *carro2);
 int compChaveMarca(void *chave, void *carro);

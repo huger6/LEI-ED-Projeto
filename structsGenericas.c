@@ -152,6 +152,89 @@ void inverterLista(Lista *li) {
     li->inicio = ant;
 }
 
+
+/**
+ * @brief 
+ * 
+ * @param a Nó da primeira lista
+ * @param b Nó da segunda lista
+ * @param compObjs Função para comparar elementos (deve retornar < 0 se obj1 < obj2)
+ * @return No* Lista agrupada
+ */
+static No *mergeListas(No *a, No *b, int (*compObjs)(void *obj1, void *obj2)) {
+    if (!a) return b;
+    if (!b) return a;
+    
+    No *result = NULL;
+    
+    if (compObjs(a->info, b->info) <= 0) {
+        result = a;
+        result->prox = mergeListas(a->prox, b, compObjs);
+    } else {
+        result = b;
+        result->prox = mergeListas(a, b->prox, compObjs);
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Separar a lista em duas metades
+ * 
+ * @param head Lista a separar
+ * @param front Ponteiro para a primeira metade
+ * @param back Ponteiro para a segunda metade
+ */
+static void splitLista(No *head, No **front, No **back) {
+    No *rapido = head->prox;
+    No *lento = head;
+    
+    while (rapido != NULL) {
+        rapido = rapido->prox;
+        if (rapido != NULL) {
+            lento = lento->prox;
+            rapido = rapido->prox;
+        }
+    }
+    
+    *front = head;
+    *back = lento->prox;
+    lento->prox = NULL;
+}
+
+/**
+ * @brief MergeSort recursivo para os nós da função
+ * 
+ * @param headRef Head da função
+ * @param compObjs Função para comparar objetos
+ */
+static void mergesortRecursivo(No **headRef, int (*compObjs)(void *obj1, void *obj2)) {
+    No *head = *headRef;
+    if (!head || !head->prox) return;
+    
+    No *a;
+    No *b;
+    
+    splitLista(head, &a, &b);
+    mergesortRecursivo(&a, compObjs);
+    mergesortRecursivo(&b, compObjs);
+    
+    *headRef = mergeListas(a, b, compObjs);
+}
+
+/**
+ * @brief Ordenar lista genérica com merge sort
+ * 
+ * @param li Lista a ordenar
+ * @param compObjs Função para comparar elementos
+ */
+void mergeSortLista(Lista* li, int (*compObjs)(void *obj1, void *obj2)) {
+    if (!li || !li->inicio || !compObjs) return;
+    // Código adaptado de https://www.geeksforgeeks.org/merge-sort-for-linked-list/
+
+    mergesortRecursivo(&li->inicio, compObjs);
+}
+
 /**
  * @brief Ordena a lista
  * 
@@ -308,6 +391,31 @@ NoHashing *posicaoInsercao(Dict *has, int indice, void *chave, int (*compChave)(
                 return p;
             p = p->prox;
         }
+    }
+    return NULL;
+}
+
+/**
+ * @brief Obtém a lista do bucket associado a uma dada chave
+ * 
+ * @param has Dicionário
+ * @param chave Chave
+ * @param compChave Função para comparar chaves (deve retornar 0 se iguais)
+ * @param hashChave Função para obter o hash da chave
+ * @return Lista* Lista ou NULL se erro
+ */
+Lista *obterListaDoDict(Dict *has, void *chave, int (*compChave)(void *chave, void *chave2), int (*hashChave)(void *obj)) {
+    if (!has || !chave || !compChave || !hashChave) return NULL;
+
+    int indice = hashChave(chave);
+    if (indice < 0) return NULL;
+
+    indice %= TAMANHO_TABELA_HASH;
+
+    NoHashing *p = posicaoInsercao(has, indice, chave, compChave);
+
+    if (p) {
+        return p->dados;
     }
     return NULL;
 }

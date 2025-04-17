@@ -312,11 +312,6 @@ void processarMenuDonos(Bdados *bd) {
         opcao = mostrarMenu(menuDonos, '0', '3');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1';
-                    continue;
-                }
                 break;
             case '1':
                 //Registar dono
@@ -352,11 +347,6 @@ void processarMenuVeiculos(Bdados *bd) {
         opcao = mostrarMenu(menuVeiculos, '0', '3');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1'; 
-                    continue;
-                }
                 break;
             case '1':
                 //Registar veículo
@@ -389,11 +379,6 @@ void processarMenuListagemVeiculos(Bdados *bd) {
         opcao = mostrarMenu(menuListagemVeiculos, '0', '4');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1'; 
-                    continue;
-                }
                 break;
             case '1':
                 // Mostrar todos
@@ -431,11 +416,6 @@ void processarMenuPassagens(Bdados *bd) {
         opcao = mostrarMenu(menuPassagens, '0', '2');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1';
-                    continue;
-                }
                 break;
             case '1':
                 // Registar passagem
@@ -463,11 +443,6 @@ void processarMenuEstatisticas(Bdados *bd) {
         opcao = mostrarMenu(menuEstatisticas, '0', '4');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1'; 
-                    continue;
-                }
                 break;
             case '1':
                 // Ranking de circulação
@@ -502,11 +477,6 @@ void processarMenuVelocidades(Bdados *bd) {
         opcao = mostrarMenu(menuVelocidadesMedias, '0', '4');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1'; 
-                    continue;
-                }
                 break;
             case '1':
                 // Geral (cada condutor)
@@ -540,11 +510,6 @@ void processarMenuInfracoes(Bdados *bd) {
         opcao = mostrarMenu(menuInfracoes, '0', '2');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1';
-                    continue;
-                }
                 break;
             case '1':
                 // Veículos com infrações
@@ -572,11 +537,6 @@ void processarMenuAnaliseDados(Bdados *bd) {
         opcao = mostrarMenu(menuAnaliseDados, '0', '2');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1';
-                    continue;
-                }
                 break;
             case '1':
                 // Memória ocupada
@@ -604,11 +564,6 @@ void processarMenuExportacao(Bdados *bd) {
         opcao = mostrarMenu(menuExportacao, '0', '3');
         switch(opcao) {
             case '0':
-                limpar_terminal();
-                if (!sim_nao("Tem a certeza que quer sair do programa?")) {
-                    opcao = '1';
-                    continue;
-                }
                 break;
             case '1':
                 // Exportar dados para CSV
