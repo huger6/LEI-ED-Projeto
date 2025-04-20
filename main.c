@@ -75,7 +75,6 @@ int main(void) {
     (void) guardarDadosBin(bd, AUTOSAVE_BIN);
 
     freeTudo(bd); // Erro em freeViagem!!
-    Sleep(5000);
     printf("Guardei com sucesso!\n\n");
     return EXIT_SUCCESS;
 }

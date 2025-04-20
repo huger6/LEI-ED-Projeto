@@ -41,7 +41,7 @@ void converterPontoVirgulaDecimal(char *str);
 char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
 int converterCodPostal(const char *codPostal, short *zona, short *local);
 int compararDatas(Data data1, Data data2);
-char * converterParaData(const char *strData, Data * data);
+char *converterParaData(const char *strData, Data *data);
 float calcularIntervaloTempo(Data *data1, Data *data2);
 int hashString(const char *str);
 int deleteFile(const char *nome, const char modo);

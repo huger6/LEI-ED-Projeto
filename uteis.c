@@ -445,13 +445,18 @@ int compararDatas(Data data1, Data data2) {
  * @param data Destino (Data)
  * @return char* NULL se sucesso, mensagem de erro caso contrário
  */
-char * converterParaData(const char *strData, Data *data) {
+char *converterParaData(const char *strData, Data *data) {
     if (!strData) return "\nA data fornecida é inválida('')\n";
     if (!data) return "\nO ponteiro para a data é NULL\n";
 
-    if (sscanf(strData, "%hd-%hd-%hd %hd:%hd:%f", &data->dia, &data->mes, &data->ano, &data->hora, &data->min, &data->seg) != 6) {
+    char *temp = strdup(strData);
+    converterPontoVirgulaDecimal(temp);
+
+    if (sscanf(temp, "%hd-%hd-%hd %hd:%hd:%f", &data->dia, &data->mes, &data->ano, &data->hora, &data->min, &data->seg) != 6) {
+        free(temp);
         return "\nA data não contém todos os parâmetros necessários\n";
     }
+    free(temp);
     return NULL;
 }
 

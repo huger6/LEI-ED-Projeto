@@ -45,6 +45,7 @@ int inserirViagemLido(Bdados *bd, Passagem *entrada, Passagem *saida, int codVei
         free(v);
         return 0;
     }
+    v->ptrCarro = ptrCarro;
 
     getStatsViagem(bd, v);
 

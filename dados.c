@@ -55,36 +55,36 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
         }
     
         if (!carregarCarrosTxt(bd, fCarros, logs)) {
-            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
             freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
             erro = '1';
             break;
         }
     
         if (!carregarSensoresTxt(bd, fSensores, logs)) {
-            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
             freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+            freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
             freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
-            freeDict(bd->carrosCod, freeChaveCarroMarca, NULL);
             erro = '1';
             break;
         }   
     
         if (!carregarDistanciasTxt(bd, fDistancias, logs)) {
-            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
             freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+            freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
             freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
-            freeDict(bd->carrosCod, freeChaveCarroMarca, NULL);
             freeLista(bd->sensores, freeSensor);
             erro = '1';
             break;
         }
     
         if (!carregarPassagensTxt(bd, fPassagem, logs)) {
-            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
             freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+            freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+            freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
             freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
-            freeDict(bd->carrosCod, freeChaveCarroMarca, NULL);
             freeLista(bd->sensores, freeSensor);
             freeMatrizDistancias(bd->distancias);
             erro = '1';
@@ -480,7 +480,10 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
             int indice = (nPassagens % 2 == 0) ? 0 : 1; // Índice do array
             if (indice == 1 && !viagem[0]) {
                 // A primeira passagem foi inválida
+                linhaInvalida(linha, nLinhas, logs);
+                fprintf(logs, "Razão: É o par de uma passagem inválida!\n\n");
                 free(linha);
+                nPassagens++;
                 continue; // Passar à frente
             }
 
@@ -489,7 +492,6 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
             char *copiaLinha = strdup(linha);
             separarParametros(copiaLinha, parametros, &numParam, PARAM_PASSAGEM);
             char erro = '0';
-
 
             if (numParam == PARAM_PASSAGEM) {
                 //ID do sensor
@@ -526,6 +528,12 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     fprintf(logs, "Razão: Tipo de registo inválido\n\n");
                     erro = '1';
                 }
+                if (indice == 1 && viagem[0]->tipoRegisto == parametros[3][0]) {
+                    linhaInvalida(linha, nLinhas, logs);
+                    fprintf(logs, "Razão: Tipo de registo inválido no par de passagem\n\n");
+                    erro = '1';
+                }
+
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
                     viagem[indice] = obterPassagem(idSensor, date, parametros[3][0]);
@@ -533,17 +541,19 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                         freePassagem(viagem[0]);
                         viagem[0] = NULL;
                         viagem[1] = NULL;
-                        erro = '1';
                     }
-                    // Inserir viagem apenas se já tivermos 2 passagens
-                    if (erro == '0' && indice == 1) {
-                        if (!inserirViagemLido(bd, viagem[0], viagem[1], codVeiculo)) {
-                            linhaInvalida(linha, nLinhas, logs);
-                            fprintf(logs, "Razão: Ocorreu um erro a carregar a viagem para memória\n\n");
+                    else {
+                        // Inserir viagem apenas se já tivermos 2 passagens
+                        if (indice == 1) {
+                            if (!inserirViagemLido(bd, viagem[0], viagem[1], codVeiculo)) {
+                                linhaInvalida(linha, nLinhas, logs);
+                                fprintf(logs, "Razão: Ocorreu um erro a carregar a viagem para memória\n\n");
+                            }
+                            // Dar set da viagem para o próximo par
+                            viagem[0] = NULL;
+                            viagem[1] = NULL;
                         }
                     }
-                    viagem[0] = NULL;
-                    viagem[1] = NULL;
                 }
                 if (erro == '1' && viagem[0] != NULL) {
                     freePassagem(viagem[0]);
@@ -561,6 +571,14 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
             }
             free(copiaLinha);
             free(linha); 
+            nPassagens++;
+        }
+        // Limpar última passagem caso fique pendente
+        if (viagem[0]) {
+            freePassagem(viagem[0]);
+        }
+        if (viagem[1]) {
+            freePassagem(viagem[1]);
         }
         fclose(passagem);
     }
@@ -796,10 +814,8 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
         }
         p = p->prox;
     }
-    printf("Carreguei tudo até às distâncias!\n");
     // Distâncias
     bd->distancias = readDistanciasBin(file);
-    printf("Carreguei depois das distâncias!\n");
 
 
     fclose(file);
