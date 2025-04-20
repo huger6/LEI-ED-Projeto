@@ -19,7 +19,7 @@ typedef struct {
 typedef struct noHash {
     void *chave;
     Lista *dados;
-    struct noHash *prox;
+    struct noHash *prox; // Não faz nada atualmente
 } NoHashing;
 
 typedef struct {
@@ -63,8 +63,8 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
 void printDict(Dict *has, void (*printObj)(void *obj));
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj));
 void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave), int (*hashChave)(void *chave));
-void guardarDictBin(Dict *has, void (*guardarChave)(void *chave, FILE *fileObj), void (*saveInfo)(void *obj, FILE *fileObj), FILE *file);
-Dict *readDictBin(void *(*readChave)(FILE *fileObj), void *(*readInfo)(FILE *fileObj), FILE *file, void (*freeChave)(void *chave), void (*freeObj)(void *obj), int (*hashChave)(void *chave));
+void guardarDadosDictBin(Dict *has, void (*saveInfo)(void *obj, FILE *fileObj), FILE *file);
+Dict *readToDictBin(int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave), void *(*readInfo)(FILE *fileObj), FILE *file);
 
 // Árvores
 

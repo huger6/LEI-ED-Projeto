@@ -2,13 +2,18 @@
 #define UTEIS_HEADERS
 
 #include <stdio.h>
-#ifdef _WIN32
+#include <stdlib.h>
+#if defined(_WIN32) || defined(_WIN64)
     #include <windows.h>
+    #include <psapi.h>
+#else 
+    #include <sys/resource.h>
 #endif
 #include <locale.h>
 #include <time.h>
 #include <ctype.h>
 #include <limits.h>
+#include <string.h>
 
 #include "constantes.h"
 
@@ -40,6 +45,7 @@ char * converterParaData(const char *strData, Data * data);
 float calcularIntervaloTempo(Data *data1, Data *data2);
 int hashString(const char *str);
 int deleteFile(const char *nome, const char modo);
+double obterUsoMemoria();
 
 
 

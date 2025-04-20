@@ -30,7 +30,7 @@ Para compilar em Windows, usar:
 
 ------Ainda não foi testado em Linux------
 Para compilar em Linux, usar:
-	gcc -std=c2x -Wall -Wextra -o (**FILENAME**) main.c funcoes.c -D_XOPEN_SOURCE=700
+	gcc -std=c2x -Wall -Wextra -o (**FILENAME**) main.c uteis.c validacoes.c sensores.c passagens.c menus.c structsGenericas.c dono.c distancias.c dados.c carro.c bdados.c configs.c -D_XOPEN_SOURCE=700
 
 	Garantir que estamos a usar gcc13 (C23) - Testado na versão 13.1.0
 	Testado em Linux Ubuntu 20.04.6 LTS
@@ -58,7 +58,7 @@ int main(void) {
         }
         // Abrir o ficheiro flag (não é aberto antes para evitar ter de o fechar, em caso de erro)
 		(void) faseInstalacao(CONFIG_TXT, '1');
-		guardarDadosBin(bd, AUTOSAVE_BIN); // Guardar os dados em binário, caso o utilizador decida sair do programa forçadamente
+        (void) guardarDadosBin(bd, AUTOSAVE_BIN); // Guardar os dados em binário, caso o utilizador decida sair do programa forçadamente
     }
     else {
         // Carregar binário
@@ -72,8 +72,10 @@ int main(void) {
     }
     
     the_architect(bd);
-    guardarDadosBin(bd, AUTOSAVE_BIN);
+    (void) guardarDadosBin(bd, AUTOSAVE_BIN);
 
-    freeTudo(bd);
+    freeTudo(bd); // Erro em freeViagem!!
+    Sleep(5000);
+    printf("Guardei com sucesso!\n\n");
     return EXIT_SUCCESS;
 }

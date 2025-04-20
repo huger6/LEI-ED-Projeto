@@ -80,6 +80,7 @@ void guardarDistanciasBin(Distancias *distancia, FILE *file) {
  */
 Distancias *readDistanciasBin(FILE *file) {
     Distancias *d = (Distancias *)malloc(sizeof(Distancias));
+    if (!d) return NULL;
     d->matriz = NULL;
     fread(&d->nColunas, sizeof(int), 1, file);
     if (d->nColunas < 0) {
@@ -87,12 +88,12 @@ Distancias *readDistanciasBin(FILE *file) {
         return NULL;
     }
 
-    float *matriz = (float *)malloc(d->nColunas * d->nColunas);
+    float *matriz = (float *)malloc(d->nColunas * d->nColunas * sizeof(float));
     if (!matriz) {
         free(d);
         return NULL;
     }
-    fread(matriz, d->nColunas, 1, file);
+    fread(matriz, sizeof(float),d->nColunas * d->nColunas, file);
     d->matriz = matriz;
     return d;
 }

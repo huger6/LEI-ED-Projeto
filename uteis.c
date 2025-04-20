@@ -524,3 +524,20 @@ int deleteFile(const char *nome, const char modo) {
     }
 }
 
+double obterUsoMemoria() {
+    #if defined(_WIN32) || defined(_WIN64)
+        PROCESS_MEMORY_COUNTERS_EX pmc;
+        if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
+            return pmc.PrivateUsage / (1024.0 * 1024.0); // bytes para MB
+        }
+        return -1.0;
+
+    #else   
+        struct rusage usage;
+        if (getrusage(RUSAGE_SELF, &usage) == 0) {
+            return usage.ru_maxrss / 1024.0; // KB para MB
+        }
+        return -1.0; // erro
+    
+    #endif
+}

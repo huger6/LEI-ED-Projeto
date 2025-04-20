@@ -23,33 +23,39 @@ Passagem *obterPassagem(int idSensor, Data date, char tipoRegisto) {
     return pas;
 }
 
-/**
- * @brief Insere a viagem com a passagem de entrada e saída
- * 
- * @param v Viagem a colocar na bd
- * @param entrada Ponteiro para a passagem de entrada
- * @param saida Ponteiro para a passagem de saída
- * @return int 0 em caso de erro, -1 se inserido APENAS entrada, 1 se inserido APENAS saida, 2 caso inserido AMBOS
- */
-int inserirViagemLido(Viagem *v, Passagem *entrada, Passagem *saida) {
-    if (!v) return 0;
-    if (!entrada && !saida) {
+
+int inserirViagemLido(Bdados *bd, Passagem *entrada, Passagem *saida, int codVeiculo) {
+    if (!entrada || !saida) return 0;
+
+    Viagem *v = (Viagem *)malloc(sizeof(Viagem));
+    if (!v) {
+        freePassagem(entrada);
+        freePassagem(saida);
         return 0;
     }
 
-    if (entrada && !saida) {
-        v->entrada = entrada;
-        return -1;
+    v->entrada = entrada;
+    v->saida = saida;
+
+    void *temp = (void *)&codVeiculo;
+    Carro *ptrCarro = (Carro *)searchDict(bd->carrosCod, (void *)temp, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
+    if (!ptrCarro) {
+        freePassagem(entrada);
+        freePassagem(saida);
+        free(v);
+        return 0;
     }
-    if (saida && !entrada) {
-        v->saida = saida;
-        return 1;
+
+    getStatsViagem(bd, v);
+
+    if (!addInicioLista(bd->viagens, (void *)v)) {
+        freePassagem(entrada);
+        freePassagem(saida);
+        free(v);
+        return 0;
     }
-    if (entrada && saida) {
-        v->entrada = entrada;
-        v->saida = saida;
-        return 2;
-    }
+
+    return 1;
 }
 
 int compararPassagens(void *passagem1, void *passagem2) {

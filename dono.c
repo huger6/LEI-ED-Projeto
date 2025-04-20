@@ -157,6 +157,8 @@ void *readDonoBin(FILE *file) {
     if (!file) return NULL;
 
     Dono *x = (Dono *)malloc(sizeof(Dono));
+    if (!x) return NULL;
+    
     fread(&x->codigoPostal, sizeof(CodPostal), 1, file);
     fread(&x->nif, sizeof(int), 1, file);
 

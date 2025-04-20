@@ -123,13 +123,13 @@ void printCarro(void *carro) {
     if (!carro) return;
 
     Carro *x = (Carro*)carro;
-    printf("\nCódigo do Veículo: %d", x->codVeiculo);
-    printf("\nMatrícula: %s", x->matricula);
-    printf("\nMarca: %s", x->marca);
-    printf("\nModelo: %s", x->modelo);
-    printf("\nAno do Veículo: %d", x->ano);
-    printf("\nNome do Dono: %s", x->ptrPessoa->nome);
-    printf("\nNIF do Dono: %d", x->ptrPessoa->nif);
+    printf("Código do Veículo: %d\n", x->codVeiculo);
+    printf("Matrícula: %s\n", x->matricula);
+    printf("Marca: %s\n", x->marca);
+    printf("Modelo: %s\n", x->modelo);
+    printf("Ano do Veículo: %d\n", x->ano);
+    printf("Nome do Dono: %s\n", x->ptrPessoa->nome);
+    printf("NIF do Dono: %d\n\n", x->ptrPessoa->nif);
 }
 
 /**
@@ -170,13 +170,14 @@ void *readCarroBin(FILE *file) {
 
     Carro *x = (Carro *)malloc(sizeof(Carro));
     if (!x) return NULL;
-    fread(&x->ano, sizeof(int), 1, file);
+
+    fread(&x->ano, sizeof(short), 1, file);
     fread(&x->codVeiculo, sizeof(int), 1, file);
     fread(x->matricula, sizeof(x->matricula), 1, file);
 
     size_t tamanhoMarca;
     fread(&tamanhoMarca, sizeof(size_t), 1, file);
-    x->marca = (char *)malloc(sizeof(tamanhoMarca));
+    x->marca = (char *)malloc(tamanhoMarca);
     if (!x->marca) {
         free(x);
         return NULL;
@@ -185,7 +186,7 @@ void *readCarroBin(FILE *file) {
 
     size_t tamanhoModelo;
     fread(&tamanhoModelo, sizeof(size_t), 1, file);
-    x->modelo = (char *)malloc(sizeof(tamanhoModelo));
+    x->modelo = (char *)malloc(tamanhoModelo);
     if (!x->modelo) {
         free(x->marca);
         free(x);

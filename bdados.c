@@ -31,16 +31,32 @@ int inicializarBD(Bdados *bd) {
  */
 void freeTudo(Bdados *bd) {
     if (!bd) return;
-    
-    freeDict(bd->carrosMarca, freeChaveCarroMarca, freeCarro);
-    freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+    printf("Memória antes de ser libertada: %.10f\n\n", obterUsoMemoria());
+
+    freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
+    printf("Memória depois de libertar carrosMarca: %.10f\n\n", obterUsoMemoria());
+    freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
+    printf("Memória depois de libertar carrosCod: %.10f\n\n", obterUsoMemoria());
+
     freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
+    printf("Memória depois de libertar donosAlf: %.10f\n\n", obterUsoMemoria());
+    freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
+    printf("Memória depois de libertar donosNif: %.10f\n\n", obterUsoMemoria());
+
     freeMatrizDistancias(bd->distancias);
+    printf("Memória depois de libertar matriz: %.10f\n\n", obterUsoMemoria());
+
     freeLista(bd->viagens, freeViagem);
+    printf("Memória depois de libertar viagens: %.10f\n\n", obterUsoMemoria());
+
     freeLista(bd->sensores, freeSensor);
+    printf("Memória depois de libertar sensores: %.10f\n\n", obterUsoMemoria());
+
     free(bd);
+    printf("Memória depois de libertar tudo: %.10f\n\n", obterUsoMemoria());
 }
 
+/* ERRO AQUI
 void exportarListaCarros(FILE *f, Lista *carros) {
     if (!carros || !carros->inicio) {
         fprintf(f, "  <carros />\n");
@@ -167,3 +183,5 @@ void exportarBDadosXML(FILE *f, Bdados *bd) {
 
     fprintf(f, "</baseDados>\n");
 }
+
+*/

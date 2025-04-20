@@ -38,7 +38,7 @@ int carregarDadosTxt(Bdados *bd, char *fDonos, char *fCarros, char *fSensores, c
     }
     FILE *logs = fopen(logFile, "a");
     if (!logs) {
-        printf("Ocorreu um erro grave ao abrir o ficheiro de logs '%s'.\n", logFile);
+        printf("Ocorreu um erro grave ao abrir o ficheiro de logs '%s'.\n\n", logFile);
         return 0;
     }
 
@@ -236,7 +236,7 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
                 marca = validarMarca(parametros[1]);
                 if (marca) {
                     linhaInvalida(linha, nLinhas, logs);
-                    fprintf(logs, "Razão: %s", marca);
+                    fprintf(logs, "Razão: %s\n\n", marca);
                     erro = '1';
                 }
                 //Modelo
@@ -244,7 +244,7 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
                 modelo = validarModelo(parametros[2]);
                 if (modelo) {
                     linhaInvalida(linha, nLinhas, logs);
-                    fprintf(logs, "Razão: %s", modelo);
+                    fprintf(logs, "Razão: %s\n\n", modelo);
                     erro = '1';
                 }
                 //Ano
@@ -290,7 +290,7 @@ int carregarCarrosTxt(Bdados *bd, char *carrosFilename, FILE *logs) {
         fclose(carros);
     }
     else {
-        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Carros: '%s'.", carrosFile);
+        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Carros: '%s'.\n\n", carrosFile);
         return 0;
     }
     time_t fim = time(NULL);
@@ -355,7 +355,7 @@ int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs) {
         fclose(sens);
     }
     else {
-        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Sensores: '%s'.", sensoresFile);
+        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Sensores: '%s'.\n\n", sensoresFile);
         return 0;
     }
     //Ordenar a lista
@@ -445,7 +445,7 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
         fclose(dists);
     }
     else {
-        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Distancias: '%s'.", distanciasFile);
+        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Distancias: '%s'.\n\n", distanciasFile);
         return 0;
     }
     time_t fim = time(NULL);
@@ -456,12 +456,12 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
 }
 
 /**
- * @brief Carrega os dados relativos às Passagens para memória
+ * @brief Carrega as passagens do ficheiro Txt
  * 
- * @param bd Base de Dados
- * @param passagensFilename Nome do ficheiro das Passagens
- * @param logs Ficheiro de logs
- * @return int 1 se sucesso, 0 se erro
+ * @param bd Base de dados
+ * @param passagensFilename Nome do ficheiro das passagens
+ * @param logs Ficheiro de logs, aberto
+ * @return int 0 se erro, 1 se sucesso
  */
 int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
     const char *passagensFile = (passagensFilename) ? passagensFilename : PASSAGEM_TXT;
@@ -474,34 +474,23 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
         int nLinhas = 0;
         int nPassagens = 0; //Para verificar os pares das viagens
         char *linha = NULL;
+        Passagem *viagem[2] = {NULL, NULL};
 
-        Viagem *v = NULL;
-        char skipPassagem2 = '0';
         while((linha = lerLinhaTxt(passagem, &nLinhas)) != NULL) {
-            //Verificar se houve erro na Passagem1
-            if (skipPassagem2 == '1') {
+            int indice = (nPassagens % 2 == 0) ? 0 : 1; // Índice do array
+            if (indice == 1 && !viagem[0]) {
+                // A primeira passagem foi inválida
                 free(linha);
-                continue;
+                continue; // Passar à frente
             }
+
             char *parametros[PARAM_PASSAGEM];
             int numParam = 0; //Nº real de param lidos
             char *copiaLinha = strdup(linha);
             separarParametros(copiaLinha, parametros, &numParam, PARAM_PASSAGEM);
-
             char erro = '0';
-            char passagem1 = (nPassagens % 2 == 0) ? '1' : '0';
 
-            if (passagem1 == '1') {
-                v = (Viagem *)malloc(sizeof(Viagem));
-                if (!v) {
-                    fprintf(logs, "Erro a alocar memoria para viagem %d.\n\n", bd->viagens->nel + 1);
-                    free(copiaLinha);
-                    free(linha);
-                    skipPassagem2 = '1';
-                    continue;
-                }
-            }
-            
+
             if (numParam == PARAM_PASSAGEM) {
                 //ID do sensor
                 int idSensor;
@@ -539,59 +528,27 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                 }
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
-                    Passagem *p = obterPassagem(idSensor, date, parametros[3][0]);
-                    //Primeira passagem da viagem
-                    if (passagem1 == '1') {
-                        if (inserirViagemLido(v, p, NULL) != -1) {
+                    viagem[indice] = obterPassagem(idSensor, date, parametros[3][0]);
+                    if (!viagem[indice] && indice == 1) {
+                        freePassagem(viagem[0]);
+                        viagem[0] = NULL;
+                        viagem[1] = NULL;
+                        erro = '1';
+                    }
+                    // Inserir viagem apenas se já tivermos 2 passagens
+                    if (erro == '0' && indice == 1) {
+                        if (!inserirViagemLido(bd, viagem[0], viagem[1], codVeiculo)) {
                             linhaInvalida(linha, nLinhas, logs);
-                            fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de entrada da viagem\n\n");
-                            erro = '1';
-                        };
-                    }
-                    //Segunda passagem da viagem
-                    else {
-                        while (erro == '0') {
-                            if (inserirViagemLido(v, NULL, p) != 1) {
-                                linhaInvalida(linha, nLinhas, logs);
-                                fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de saída da viagem\n\n");
-                                erro = '1';
-                                break;
-                            }
-                            void *temp = (void *)&codVeiculo;
-                            v->ptrCarro = (Carro *)searchDict(bd->carrosCod, (void *)temp, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
-                            if (!v->ptrCarro) {
-                                linhaInvalida(linha, nLinhas, logs);
-                                fprintf(logs, "Razão: Ocorreu um erro a procurar o Carro na memória\n\n");
-                                erro = '1';
-                                break;
-                            }
-                            getStatsViagem(bd, v);
-                            if (!addInicioLista(bd->viagens, (void *)v)) {
-                                linhaInvalida(linha, nLinhas, logs);
-                                fprintf(logs, "Razão: Ocorreu um erro a carregar a passagem de saída da viagem para a lista\n\n");
-                                erro = '1';
-                            }
-                            break;
+                            fprintf(logs, "Razão: Ocorreu um erro a carregar a viagem para memória\n\n");
                         }
                     }
-                    if (erro == '0') {
-                        nPassagens++;
-                    }
-                    //Em caso de erro
-                    else {
-                        free(p);
-                        // Segunda passagem errada
-                        if (passagem1 == '0') {
-                            freePassagem((void *)v->entrada);
-                            free(v);
-                            nPassagens--; // De modo a alocar memória para o próximo
-                        }
-                        //Primeira passagem errada 
-                        else {
-                            // Assumimos o v criado como a viagem do próximo, já que não tem nada
-                            skipPassagem2 = '1'; // Passar à frente o respetivo par
-                        }
-                    }
+                    viagem[0] = NULL;
+                    viagem[1] = NULL;
+                }
+                if (erro == '1' && viagem[0] != NULL) {
+                    freePassagem(viagem[0]);
+                    viagem[0] = NULL;
+                    viagem[1] = NULL;
                 }
             }
             else if (numParam < PARAM_PASSAGEM) {
@@ -608,7 +565,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
         fclose(passagem);
     }
     else {
-        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Passagens: '%s'.", passagensFile);
+        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Passagens: '%s'.\n\n", passagensFile);
         return 0;
     }
     time_t fim = time(NULL);
@@ -735,19 +692,23 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
     if (!file) return 0;
 
     // Donos
-    guardarDictBin(bd->donosNif, guardarChaveDonoNif, guardarDonoBin, file);
-
+    guardarDadosDictBin(bd->donosNif, guardarDonoBin, file);
+    printf("Guardei donosNif com sucesso!\n");
     // Carros
-    guardarDictBin(bd->carrosCod, guardarChaveCarroCod, guardarCarroBin, file);
+    guardarDadosDictBin(bd->carrosCod, guardarCarroBin, file);
+    printf("Guardei carrosCod com sucesso!\n");
 
     // Sensores
     guardarListaBin(bd->sensores, guardarSensorBin, file);
+    printf("Guardei sen com sucesso!\n");
 
     // Passagens/Viagens
     guardarListaBin(bd->viagens, guardarViagemBin, file);
+    printf("Guardei viagens com sucesso!\n");
  
     // Distâncias
     guardarDistanciasBin(bd->distancias, file);
+    printf("Guardei distancias com sucesso!\n");
     
     fclose(file);
     return 1;
@@ -760,12 +721,61 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     if (!file) return 0;
 
     // Donos
-    bd->donosNif = readDictBin(readChaveDonoNif, readDonoBin, file, freeChaveDonoNif, freeDono, hashChaveDonoNif);
+    bd->donosNif = readToDictBin(compChaveDonoNif, criarChaveDonoNif, hashChaveDonoNif, freeDono, freeChaveDonoNif, readDonoBin, file);
+    bd->donosAlfabeticamente = criarDict();
     // Iterar o dict dos nifs e introduzir o ponteiro no bd->donosAlfabeticamente
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->donosNif->tabela[i];
+
+        while(p) {
+            if (p->dados) {
+                No *x = p->dados->inicio;
+
+                while(x) {
+                    (void)appendToDict(bd->donosAlfabeticamente, x->info, compChaveDonoAlfabeticamente, criarChaveDonoAlfabeticamente, hashChaveDonoAlfabeticamente, NULL, freeChaveDonoAlfabeticamente);
+                    
+                    x = x->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
+    // Ordenar Donos Alfabeticamente
+    for (char i = 'a'; i <= 'z'; i++) {
+        void *letra = (void *)&i;
+        Lista *p = obterListaDoDict(bd->donosAlfabeticamente, letra, compChaveDonoAlfabeticamente, hashChaveDonoAlfabeticamente);
+        if (p) {
+            mergeSortLista(p, compDonosNome);
+        }
+    }
 
     // Carros
-    bd->carrosCod = readDictBin(readChaveCarroCod, readCarroBin, file, freeChaveCarroCod, freeCarro, hashChaveCarroCod);
-    // Obter ptrPessoa e libertar Dono atual
+    bd->carrosCod = readToDictBin(compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod, readCarroBin, file);
+    bd->carrosMarca = criarDict();
+    // Obter ptrPessoa e libertar Dono atual (e adicionar Carros ao bd->carrosMarca)
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->carrosCod->tabela[i];
+
+        while(p) {
+            if (p->dados) {
+                No *x = p->dados->inicio;
+
+                while(x) {
+                    Carro *carro = (Carro *)x->info;
+                    void *chaveSearch = (void *)&carro->ptrPessoa->nif;
+                    Dono *ptrDono = (Dono *)searchDict(bd->donosNif, chaveSearch, compChaveDonoNif, compDonosNif, hashChaveDonoNif);
+                    free(carro->ptrPessoa);
+                    carro->ptrPessoa = ptrDono;
+
+                    // Adicionar ao bd->carrosMarca
+                    (void)appendToDict(bd->carrosMarca, x->info, compChaveCarroMarca, criarChaveCarroMarca, hashChaveCarroMarca, NULL, freeChaveCarroMarca);
+                    
+                    x = x->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
 
     // Sensores
     bd->sensores = readListaBin(readSensorBin, file);
@@ -773,9 +783,23 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     // Passagens/Viagens
     bd->viagens = readListaBin(readViagemBin, file);
     // Libertar Carro atual e obter o seu ponteiro
+    No *p = bd->viagens->inicio;
 
+    while(p) {
+        if (p->info) {
+            Viagem *v = (Viagem *)p->info;
+            void *chaveSearch = (void *)&v->ptrCarro->codVeiculo;
+            Carro *ptrCarro = (Carro *)searchDict(bd->carrosCod, chaveSearch, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
+            free(v->ptrCarro);
+            v->ptrCarro = ptrCarro;
+
+        }
+        p = p->prox;
+    }
+    printf("Carreguei tudo até às distâncias!\n");
     // Distâncias
     bd->distancias = readDistanciasBin(file);
+    printf("Carreguei depois das distâncias!\n");
 
 
     fclose(file);
