@@ -87,6 +87,36 @@ void printLista(Lista *li, void (*printObj)(void *obj)) {
 }
 
 /**
+ * @brief Exporta uma lista para formato XML
+ * 
+ * @param li Lista a exportar
+ * @param nomeLista Nome da tag principal (pode ser NULL)
+ * @param printObj Função que mostre a tag de cada objeto e a sua informação
+ * @param indentacao Número de "\t" a utilizar
+ * @param file Ficheiro do tipo .xml (ou .txt), aberto
+ */
+void exportarListaXML(Lista *li, char *nomeLista, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file) {
+    if (!li || !li->inicio || !printObj || !file || indentacao < 0) return;
+
+    if (nomeLista) {
+        for (int i = 0; i < indentacao; i++) fprintf(file, "\t");
+        fprintf(file, "<%s>\n", nomeLista);
+    }
+
+    No *p = li->inicio;
+    while(p) {
+        if (nomeLista) printObj(p->info, indentacao + 1, file);
+        else printObj(p->info, indentacao, file);
+        p = p->prox;
+    }
+
+    if (nomeLista) {
+        for (int i = 0; i < indentacao; i++) fprintf(file, "\t");
+        fprintf(file, "</%s>\n", nomeLista);
+    }
+}
+
+/**
  * @brief Liberta a memória alocada para a lista
  * 
  * @param li    Lista
@@ -491,6 +521,38 @@ void printDict(Dict *has, void (*printObj)(void *obj)) {
             printLista(p->dados, printObj);
             p = p->prox;
         }
+    }
+}
+
+/**
+ * @brief Exporta um dicionário para formato XML
+ * 
+ * @param has Dicionário
+ * @param nomeDict Nome do Dict para colocar na tag principal (pode ser NULL)
+ * @param printObj Função para mostrar cada obj em formato XML
+ * @param indentacao Indentação no início
+ * @param file Ficheiro .xml (ou .txt), aberto
+ */
+void exportarDictXML(Dict *has, char *nomeDict, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file) {
+    if (!has || !printObj || indentacao < 0 || !file) return;
+
+    if (nomeDict) {
+        for (int i = 0; i < indentacao; i++) fprintf(file, "\t");
+        fprintf(file, "<%s>\n", nomeDict);
+    }
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = has->tabela[i];
+        while(p) {
+            if (nomeDict) exportarListaXML(p->dados, NULL, printObj, indentacao + 1, file);
+            else exportarListaXML(p->dados, NULL, printObj, indentacao, file);
+            p = p->prox;
+        }
+    }
+
+    if (nomeDict) {
+        for (int i = 0; i < indentacao; i++) fprintf(file, "\t");
+        fprintf(file, "</%s>\n", nomeDict);
     }
 }
 

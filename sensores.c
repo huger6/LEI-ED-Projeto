@@ -188,3 +188,31 @@ void *readSensorBin(FILE *file) {
     return (void *)x;
 }
 
+/**
+ * @brief Mostra um sensor em formato XML
+ * 
+ * @param sensor Sensor a mostrar
+ * @param indentacao Indentanção a mostrar na primeira tag
+ * @param file Ficheiro .xml (ou .txt), aberto
+ */
+void printSensorXML(void *sensor, int indentacao, FILE *file) {
+    if (!sensor || indentacao < 0 || !file) return;
+
+    Sensor *s = (Sensor *)sensor;
+
+    indent(indentacao, file);
+	fprintf(file, "<sensor>\n");
+	
+    indent(indentacao + 1, file);
+    fprintf(file, "<idSensor>%d</idSensor>\n", s->codSensor);
+    indent(indentacao + 1, file);
+    fprintf(file, "<designacao>%s</designacao>\n", s->designacao ? s->designacao : "n/a");
+    indent(indentacao + 1, file);
+    fprintf(file, "<latitude>%s</latitude>\n", s->latitude ? s->latitude : "n/a");
+    indent(indentacao + 1, file);
+    fprintf(file, "<longitude>%s</longitude>\n", s->longitude ? s->longitude : "n/a");
+	
+	indent(indentacao, file);
+	fprintf(file, "</sensor>\n");
+}
+

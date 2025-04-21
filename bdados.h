@@ -22,7 +22,6 @@ int inicializarBD(Bdados *bd);
 void freeTudo(Bdados *bd);
 
 // Exportação fica aqui
-void exportarBDadosXML(FILE *f, Bdados *bd);
-
+void exportarTudoXML(Bdados *bd, const char *filename);
 
 #endif

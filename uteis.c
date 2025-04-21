@@ -289,7 +289,6 @@ int stringToShort(const char * str, short * resultado) {
  * @note Requer string terminada em \0
  */
 int stringToFloat(const char * str, float * resultado) {
-    printf("String original: [%s]\n", str);
     char * ptr_fim;
     float valor = strtof(str, &ptr_fim);
     //Verificar erros de conversão
@@ -546,3 +545,17 @@ double obterUsoMemoria() {
     
     #endif
 }
+
+/**
+ * @brief Cria indentação num ficheiro
+ * 
+ * @param indentacao Número de indentações (\t) a criar
+ * @param file Ficheiro, aberto
+ */
+void indent(int indentacao, FILE *file) {
+    if (indentacao < 0 || !file) return;
+
+    for (int i = 0; i < indentacao; i++) fprintf(file, "\t");
+}
+
+

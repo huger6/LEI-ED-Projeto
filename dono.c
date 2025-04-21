@@ -343,3 +343,29 @@ int hashChaveDonoAlfabeticamente(void *chave) {
     return tolower(*letra) - 'a';
 }
 
+/**
+ * @brief Mostra um dono em formato XML
+ * 
+ * @param dono Dono a mostrar
+ * @param indentacao Indentação no início
+ * @param file Ficheiro .xml (ou .txt), aberto
+ */
+void printDonoXML(void *dono, int indentacao, FILE *file) {
+    if (!dono || indentacao < 0 || !file) return;
+
+    Dono *d = (Dono *)dono;
+
+    indent(indentacao, file);
+	fprintf(file, "<dono>\n");
+	
+    indent(indentacao + 1, file);
+    fprintf(file, "<nif>%d</nif>\n", d->nif);
+    indent(indentacao + 1, file);
+    fprintf(file, "<codPostal>%hd-%hd</codPostal>\n", d->codigoPostal.zona, d->codigoPostal.local);
+    indent(indentacao + 1, file);
+    fprintf(file, "<nome>%s</nome>\n", d->nome);
+	
+	indent(indentacao, file);
+	fprintf(file, "</dono>\n");
+}
+

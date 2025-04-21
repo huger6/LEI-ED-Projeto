@@ -21,7 +21,7 @@ typedef struct {
     Passagem *entrada;
     Passagem *saida;
     float kms;
-    float tempo; //Em horas
+    float tempo; //Em minutos
 } Viagem;
 
 
@@ -35,6 +35,8 @@ void guardarViagemBin(void *viagem, FILE *file);
 void *readViagemBin(FILE *file);
 void guardarPassagemBin(void *passagem, FILE *file);
 void *readPassagemBin(FILE *file);
+void getStatsViagem(struct Bdados *bd, Viagem *v);
+void printViagemXML(void *viagem, int indentacao, FILE *file);
 void mostrarPassagem(void *passagem);
 
 

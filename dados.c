@@ -142,7 +142,7 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
 
             if (numParam == PARAM_DONOS) {
                 //nif
-                int nif;
+                int nif = 0;
                 if (!stringToInt(parametros[0], &nif) || !validarNif(nif)) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: Número de contribuinte inválido\n\n");
@@ -157,7 +157,7 @@ int carregarDonosTxt(Bdados *bd, char *donosFilename, FILE *logs) {
                     erro = '1';
                 }
                 //codPostal
-                short zona, local;
+                short zona = 0, local = 0;
                 if (!converterCodPostal(parametros[2], &zona, &local) || !validarCodPostal(zona, local)) {
                     linhaInvalida(linha, nLinhas, logs);
                     fprintf(logs, "Razão: O código postal é inválido\n\n");
@@ -380,12 +380,7 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
 
     time_t inicio = time(NULL);   
     fprintf(logs, "#FICHEIRO DISTANCIAS#\t\t%s\n", ctime(&inicio));
-    int tamMatriz = contarLinhas(distanciasFile);
-    if (tamMatriz < 0) {
-        fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Distancias: '%s'.", distanciasFile);
-        return 0;
-    }
-    if (!realocarMatrizDistancias(bd, tamMatriz)) {
+    if (!realocarMatrizDistancias(bd, bd->sensores->nel)) {
         fprintf(logs, "Ocorreu um erro a realocar a matriz das distâncias\n\n");
         return 0;
     }
@@ -448,6 +443,7 @@ int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs) {
         fprintf(logs, "Ocorreu um erro ao abrir o ficheiro de Distancias: '%s'.\n\n", distanciasFile);
         return 0;
     }
+
     time_t fim = time(NULL);
     char *tempoFinal = ctime(&fim); // Não precisa de free
     tempoFinal[strcspn(tempoFinal, "\n")] = '\0';
@@ -821,3 +817,4 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     fclose(file);
     return 1;
 }
+

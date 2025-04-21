@@ -43,8 +43,6 @@ Nas notas das funções estão os limites de cada menu
 /**
  * @brief Mostra o menu principal
  * 
- * @return void
- * 
  * @note Opções: 0-8
  */
 void menuPrincipal() {
@@ -66,8 +64,6 @@ void menuPrincipal() {
 /**
  * @brief Mostra o menu dos donos
  * 
- * @return void
- * 
  * @note Opções: 0-3
  */
 void menuDonos() {
@@ -84,8 +80,6 @@ void menuDonos() {
 /**
  * @brief Mostra o menu dos veículos
  * 
- * @return void
- * 
  * @note Opções: 0-3
  */
 void menuVeiculos() {
@@ -101,8 +95,6 @@ void menuVeiculos() {
 
 /**
  * @brief Mostra o submenu da listagem de veículos
- * 
- * @return void
  * 
  * @note Submenu de menuVeiculos (menu dos veículos)
  * @note Opções: 0-4
@@ -122,8 +114,6 @@ void menuListagemVeiculos() {
 /**
  * @brief Mostra o menu das passagens
  * 
- * @return void
- * 
  * @note Opções: 0-2
  */
 void menuPassagens() {
@@ -138,8 +128,6 @@ void menuPassagens() {
 
 /**
  * @brief Mostra o menu das estatísticas e rankings
- * 
- * @return void
  * 
  * @note Opções: 0-4
  */
@@ -158,8 +146,6 @@ void menuEstatisticas() {
 /**
  * @brief Mostra o submenu das velocidades médias
  * 
- * @return void
- * 
  * @note Submenu de menuEstatisticas (menu das estatísticas)
  * @note Opções: 0-4
  */
@@ -177,8 +163,6 @@ void menuVelocidadesMedias() {
 
 /**
  * @brief Mostra o menu das infrações
- * 
- * @return void
  * 
  * @note Opções: 0-2
  */
@@ -212,8 +196,6 @@ void menuAnaliseDados() {
 /**
  * @brief Mostra o menu de exportação
  * 
- * @return void
- * 
  * @note Opções: 0-3
  */
 void menuExportacao() {
@@ -229,8 +211,6 @@ void menuExportacao() {
 
 /**
  * @brief Escreve o menu das opções
- * 
- * @return void
  * 
  * @note Opções: 0-3
  */

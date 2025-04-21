@@ -402,6 +402,39 @@ int compCarroMarca (void *carro1, void *carro2) {
     return res;
 }
 
+/**
+ * @brief Mostra um carro em formato XML
+ * 
+ * @param carro Carro a mostrar
+ * @param indentacao Indentação a usar no início
+ * @param file Ficheiro to tipo .xml (ou .txt), aberto
+ */
+void printCarroXML(void *carro, int indentacao, FILE *file) {
+    if (!carro || indentacao < 0 || !file) return;
+
+    Carro *c = (Carro *)carro;
+    
+    indent(indentacao, file);
+	fprintf(file, "<carro>\n");
+	
+    indent(indentacao + 1, file);
+    fprintf(file, "<codVeiculo>%d</codVeiculo>\n", c->codVeiculo);
+    indent(indentacao + 1, file);
+    fprintf(file, "<matricula>%s</matricula>\n", c->matricula);
+    indent(indentacao + 1, file);
+    fprintf(file, "<ano>%d</ano>\n", c->ano);
+    indent(indentacao + 1, file);
+    fprintf(file, "<marca>%s</marca>\n", c->marca ? c->marca : "n/a");
+    indent(indentacao + 1, file);
+    fprintf(file, "<modelo>%s</modelo>\n", c->modelo ? c->modelo : "n/a");
+    indent(indentacao + 1, file);
+    if (c->ptrPessoa) fprintf(file, "<nifDono>%d</nifDono>\n", c->ptrPessoa->nif);
+    else fprintf(file, "<nifDono>%s</nifDono>\n", "n/a");
+	
+	indent(indentacao, file);
+	fprintf(file, "</carro>\n");
+}
+
 
 void RegistarVeiculo(Bdados *bd){
     do{

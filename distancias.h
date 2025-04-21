@@ -15,11 +15,11 @@ typedef struct {
 
 int inserirDistanciaLido(struct Bdados *bd, int codSensor1, int codSensor2, float distancia);
 void inicializarMatrizDistancias(struct Bdados *bd);
-int realocarMatrizDistancias(struct Bdados *bd, int tamanho);
+int realocarMatrizDistancias(struct Bdados *bd, int nColunas);
 void freeMatrizDistancias(Distancias *distancia);
 void guardarDistanciasBin(Distancias *distancia, FILE *file);
 Distancias *readDistanciasBin(FILE *file);
-void getStatsViagem(struct Bdados *bd, Viagem *v);
+void exportarDistanciasXML(Distancias *d, int indentacao, FILE *file);
 
 
 #endif

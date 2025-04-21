@@ -39,6 +39,7 @@ void *criarChaveCarroCod(void *carro);
 int hashChaveCarroCod(void *carro);
 void freeChaveCarroCod(void *chave);
 int compChaveCarroCod(void *chave, void *chave2);
+void printCarroXML(void *carro, int indentacao, FILE *file);
 
 
 int ordenarAlfModelo (void *carro1, void *carro2);

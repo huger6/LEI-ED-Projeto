@@ -44,6 +44,7 @@ typedef struct {
 Lista *criarLista();
 int addInicioLista(Lista *li, void *elemento);
 void printLista(Lista *li, void (*printObj)(void *obj));
+void exportarListaXML(Lista *li, char *nomeLista, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file);
 void freeLista(Lista *li, void (*freeObj)(void *obj));
 int pesquisarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2), void *obj);
 
@@ -61,6 +62,7 @@ NoHashing *posicaoInsercao(Dict *has, int indice, void *chave, int (*compChave)(
 Lista *obterListaDoDict(Dict *has, void *chave, int (*compChave)(void *chave, void *chave2), int (*hashChave)(void *obj));
 int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave));
 void printDict(Dict *has, void (*printObj)(void *obj));
+void exportarDictXML(Dict *has, char *nomeDict, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file);
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj));
 void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave), int (*hashChave)(void *chave));
 void guardarDadosDictBin(Dict *has, void (*saveInfo)(void *obj, FILE *fileObj), FILE *file);

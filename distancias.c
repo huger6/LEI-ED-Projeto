@@ -13,7 +13,9 @@
 int inserirDistanciaLido(Bdados *bd, int codSensor1, int codSensor2, float distancia) {
     if (!bd || !bd->distancias) return 0;
 
-    bd->distancias->matriz[codSensor1 * bd->distancias->nColunas + codSensor2] = distancia;
+    //-1 para ter em conta o índice
+    bd->distancias->matriz[(codSensor1-1) * bd->distancias->nColunas + codSensor2-1] = distancia;
+    bd->distancias->matriz[(codSensor2-1) * bd->distancias->nColunas + codSensor1-1] = distancia;
     return 1;
 }
 
@@ -40,12 +42,12 @@ void inicializarMatrizDistancias(Bdados *bd) {
  * 
  * @note O tamanho anterior não é tido em conta
  */
-int realocarMatrizDistancias(Bdados *bd, int tamanho) {
-    float *matriz = (float *)realloc(bd->distancias->matriz, tamanho*tamanho);
+int realocarMatrizDistancias(Bdados *bd, int nColunas) {
+    float *matriz = (float *)realloc(bd->distancias->matriz, nColunas * nColunas * sizeof(float));
     if (!matriz) return 0;
 
     bd->distancias->matriz = matriz;
-    bd->distancias->nColunas = tamanho;
+    bd->distancias->nColunas = nColunas;
     return 1;
 }
 
@@ -99,12 +101,37 @@ Distancias *readDistanciasBin(FILE *file) {
 }
 
 /**
- * @brief Obter e colocar na estrutura de Viagem os dados estatísticos da mesma
+ * @brief Exporta os dados das distâncias para um ficheiro XML
  * 
- * @param bd Base de dados
- * @param v Viagem 
+ * @param d Distâncias
+ * @param indentacao Indentação no início
+ * @param file Ficheiro .xml (ou .txt) aberto
  */
-void getStatsViagem(Bdados *bd, Viagem *v) {
-    v->kms = bd->distancias->matriz[v->entrada->idSensor * bd->distancias->nColunas + v->saida->idSensor];
-    v->tempo = calcularIntervaloTempo(&v->entrada->data, &v->saida->data); //min
+void exportarDistanciasXML(Distancias *d, int indentacao, FILE *file) {
+    if (!d || !d->matriz || indentacao < 0 || !file) return;
+
+    indent(indentacao, file);
+    fprintf(file, "<distancias>\n");
+
+    for (int i = 0; i < d->nColunas; i++) {
+        for (int j = i; j < d->nColunas; j++) {
+            if (i == j) continue;
+
+            indent(indentacao + 1, file);
+            fprintf(file, "<parSensores>\n");
+
+            indent(indentacao + 2, file);
+            fprintf(file, "<sensor1>%d</sensor1>\n", i + 1);
+            indent(indentacao + 2, file);
+            fprintf(file, "<sensor2>%d</sensor2>\n", j + 1);
+            indent(indentacao + 2, file);
+            fprintf(file, "<distancia>%.1f</distancia>\n", d->matriz[(i+1) * d->nColunas + j+1]);
+
+            indent(indentacao + 1, file);
+            fprintf(file, "</parSensores>\n");
+        }
+    }
+
+    indent(indentacao, file);
+    fprintf(file, "</distancias>\n");
 }

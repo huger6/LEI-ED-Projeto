@@ -46,6 +46,7 @@ float calcularIntervaloTempo(Data *data1, Data *data2);
 int hashString(const char *str);
 int deleteFile(const char *nome, const char modo);
 double obterUsoMemoria();
+void indent(int indentacao, FILE *file);
 
 
 
