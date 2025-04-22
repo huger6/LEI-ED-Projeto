@@ -135,3 +135,26 @@ void exportarDistanciasXML(Distancias *d, int indentacao, FILE *file) {
     indent(indentacao, file);
     fprintf(file, "</distancias>\n");
 }
+
+/**
+ * @brief Exporta as distâncias para formato CSV
+ * 
+ * @param d Distância
+ * @param file Ficheiro .csv, aberto
+ */
+void exportarDistanciasCSV(Distancias *d, FILE *file) {
+    if (!d || !file) return;
+
+    fprintf(file, "Sensor1, Sensor2, Distância\n");
+
+    for (int i = 0; i < d->nColunas; i++) {
+        for (int j = i; j < d->nColunas; j++) {
+            if (i == j) continue;
+
+            char *distanciaStr = floatToStringPontoDecimal(d->matriz[(i+1) * d->nColunas + j+1], 1);
+            fprintf(file, "%d, %d, %s\n", i + 1, j + 1, distanciaStr);
+            free(distanciaStr);
+        }
+    }
+}
+

@@ -126,7 +126,7 @@ void exportarListaXML(Lista *li, char *nomeLista, void (*printObj)(void *obj, in
 void exportarListaCSV(Lista *li, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file) {
     if (!li || !li->inicio || !printObj || !file) return;
 
-    printHeader(file);
+    if (printHeader) printHeader(file);
 
     No *p = li->inicio;
     while(p) {
@@ -590,7 +590,7 @@ void exportarDictCSV(Dict *has, void (*printHeader)(FILE *file), void (*printObj
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = has->tabela[i];
         while(p) {
-            exportarListaCSV(p->dados, printObj, file);
+            exportarListaCSV(p->dados, NULL, printObj, file);
             p = p->prox;
         }
     }

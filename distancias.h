@@ -20,6 +20,7 @@ void freeMatrizDistancias(Distancias *distancia);
 void guardarDistanciasBin(Distancias *distancia, FILE *file);
 Distancias *readDistanciasBin(FILE *file);
 void exportarDistanciasXML(Distancias *d, int indentacao, FILE *file);
+void exportarDistanciasCSV(Distancias *d, FILE *file);
 
 
 #endif

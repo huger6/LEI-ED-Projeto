@@ -443,9 +443,15 @@ void printCarroXML(void *carro, int indentacao, FILE *file) {
 void printHeaderCarrosCSV(FILE *file) {
     if (!file) return;
 
-    fprintf(file, "Código do veículo, Ano, Matrícula, Marca, Modelo, Nif Dono");
+    fprintf(file, "Código do veículo, Ano, Matrícula, Marca, Modelo, Nif Dono\n");
 }
 
+/**
+ * @brief Mostra um carro em formato CSV
+ * 
+ * @param carro Carro a mostrar
+ * @param file Ficheiro .csv, aberto
+ */
 void printCarroCSV(void *carro, FILE *file) {
     if (!carro || !file) return;
 

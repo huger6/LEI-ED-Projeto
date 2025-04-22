@@ -8,3 +8,8 @@ dadosBin
 autosave.bin
 config.txt
 database.xml
+carros.csv
+distancias.csv
+donos.csv
+sensores.csv
+viagens.csv

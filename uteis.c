@@ -312,6 +312,22 @@ void converterPontoVirgulaDecimal(char *str) {
     }
 }
 
+/**
+ * @brief Substitui um caracter de uma string por outro
+ * 
+ * @param str String
+ * @param out Caracter a substituir
+ * @param in Substituto
+ */
+void replaceStrObj(char *str, const char out, const char in) {
+    if (!str) return;
+    
+    char *pos = strchr(str, out);
+    if (pos) {
+        *pos = in;
+    }
+}
+
 /* Lê uma linha completa de um ficheiro, qualquer que seja o tamanho
  *
  * @param ficheiro    Ponteiro para o ficheiro a ler (pode ser stdin)
@@ -558,4 +574,33 @@ void indent(int indentacao, FILE *file) {
     for (int i = 0; i < indentacao; i++) fprintf(file, "\t");
 }
 
+/**
+ * @brief Cria uma string com o valor do float em notação de ponto (em vez de vírgula)
+ * 
+ * @param valor Float a transformar
+ * @param casasDecimais Número de casas decimais a ter em conta
+ * @return char* Resultado (free necessário) ou NULL se erro 
+ */
+char *floatToStringPontoDecimal(float valor, int casasDecimais) {
+    int tamanhoBuffer = 20;
+    char buffer[tamanhoBuffer];
+
+    char formato[10];
+    snprintf(formato, sizeof(formato), "%%.%df", casasDecimais);
+    snprintf(buffer, tamanhoBuffer, formato, valor);
+
+    // Substituir vírgula por ponto
+    for (int i = 0; buffer[i]; i++) {
+        if (buffer[i] == ',') {
+            buffer[i] = '.';
+        }
+    }
+
+    // Alocar memória para string final
+    char *resultado = malloc(strlen(buffer) + 1);
+    if (!resultado) return NULL;
+
+    strcpy(resultado, buffer);
+    return resultado;
+}
 

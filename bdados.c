@@ -91,24 +91,46 @@ void exportarTudoXML(Bdados *bd, const char *filename) {
     printf("Os dados foram exportados para o ficheiro XML (%s) com sucesso!\n\n", filename);
 }
 
-void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *viagensFilename) {
+/**
+ * @brief Exporta a base de dados para formato CSV
+ * 
+ * @param bd Base de dados
+ * @param donosFilename Nome do ficheiro dos donos (.csv)
+ * @param carrosFilename Nome do ficheiro dos carros (.csv)
+ * @param sensoresFilename Nome do ficheiro dos sensores (.csv)
+ * @param distanciasFilename Nome do ficheiro das distâncias (.csv)
+ * @param viagensFilename Nome do ficheiro das viagens (.csv)
+ */
+void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename) {
     if (!bd || !donosFilename || !carrosFilename || !sensoresFilename || !viagensFilename) return;
 
     FILE *donos = fopen(donosFilename, "w");
-    if (!donos) return;
-
-    exportarDictCSV(bd->donosNif, printHeaderDonosCSV, printDonoCSV, donos);
-    fclose(donos);
+    if (donos) {
+        exportarDictCSV(bd->donosNif, printHeaderDonosCSV, printDonoCSV, donos);
+        fclose(donos);
+    }
 
     FILE *carros = fopen(carrosFilename, "w");
-    if (!carros) return;
-
-    exportarDictCSV(bd->carrosCod, printHeaderCarrosCSV, printCarroCSV, carros);
-    fclose(carros);
+    if (carros) {
+        exportarDictCSV(bd->carrosCod, printHeaderCarrosCSV, printCarroCSV, carros);
+        fclose(carros);
+    }
 
     FILE *sensores = fopen(sensoresFilename, "w");
-    if (!sensores) return;
+    if (sensores) {
+        exportarListaCSV(bd->sensores, printHeaderSensoresCSV, printSensorCSV, sensores);
+        fclose(sensores);
+    }
 
-    exportarListaCSV(bd->sensores, printHeaderSensoresCSV, printSensorCSV, sensores);
-    fclose(sensores);
+    FILE *distancias = fopen(distanciasFilename, "w");
+    if (distancias) {
+        exportarDistanciasCSV(bd->distancias, distancias);
+        fclose(distancias);
+    }
+
+    FILE *viagens = fopen(viagensFilename, "w");
+    if (viagens) {
+        exportarListaCSV(bd->viagens, printHeaderViagensCSV, printViagemCSV, viagens);
+        fclose(viagens);
+    }
 }

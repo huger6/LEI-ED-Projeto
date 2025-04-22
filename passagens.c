@@ -189,6 +189,13 @@ void getStatsViagem(Bdados *bd, Viagem *v) {
     v->tempo = calcularIntervaloTempo(&v->entrada->data, &v->saida->data); //min
 }
 
+/**
+ * @brief Mostra uma viagem em formato CSV
+ * 
+ * @param viagem Viagem a mostrar
+ * @param indentacao Indentanção no início
+ * @param file Ficheiro .csv, aberto
+ */
 void printViagemXML(void *viagem, int indentacao, FILE *file) {
 	if (!viagem || indentacao < 0 || !file) return;
 
@@ -205,7 +212,7 @@ void printViagemXML(void *viagem, int indentacao, FILE *file) {
     indent(indentacao + 2, file);
     fprintf(file, "<idSensor>%d</idSensor>\n", v->entrada->idSensor);
     indent(indentacao + 2, file);
-    fprintf(file, "<data>%hd-%hd-%hdT%hd:%hd:%f</data>\n", v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.dia,
+    fprintf(file, "<data>%hd-%hd-%hdT%hd:%hd:%f</data>\n", v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
                 v->entrada->data.hora, v->entrada->data.min, v->entrada->data.seg);
     indent(indentacao + 2, file);
     fprintf(file, "<tipoRegisto>%c</tipoRegisto>\n", v->entrada->tipoRegisto);
@@ -217,7 +224,7 @@ void printViagemXML(void *viagem, int indentacao, FILE *file) {
     indent(indentacao + 2, file);
     fprintf(file, "<idSensor>%d</idSensor>\n", v->saida->idSensor);
     indent(indentacao + 2, file);
-    fprintf(file, "<data>%hd-%hd-%hdT%hd-%hd-%.3f</data>\n", v->saida->data.dia, v->saida->data.mes, v->saida->data.dia,
+    fprintf(file, "<data>%hd-%hd-%hdT%hd:%hd:%.3f</data>\n", v->saida->data.dia, v->saida->data.mes, v->saida->data.ano,
                 v->saida->data.hora, v->saida->data.min, v->saida->data.seg);
     indent(indentacao + 2, file);
     fprintf(file, "<tipoRegisto>%c</tipoRegisto>\n", v->saida->tipoRegisto);
@@ -250,16 +257,43 @@ void mostrarPassagem(void *passagem){
 	}
 }
 */
-void printHeaderViagemCSV(FILE *file){
+
+/**
+ * @brief Escreve os headers das viagens em formato CSV
+ * 
+ * @param file Ficheiro .csv, aberto
+ */
+void printHeaderViagensCSV(FILE *file) {
 	if (!file) return;
 
-	fprintf (file, "codVeiculo, Entrada, idSensor1, Saida, idSensor2, Data, Tipo de Registo, Tempo, Distancia");
+	fprintf (file, "Código do Veículo, Entrada-sensor, Entrada-data, Entrada-tipo, Saída-sensor, Saída-data, Saída-tipo, Tempo, Distancia\n");
 }
 
-void printViagemCSV(FILE *file, void *viagem){
-	if (!file || !viagem) return;
-	Passagem *p = (Passagem*) viagem;
+/**
+ * @brief Mostra uma viagem em formato CSV
+ * 
+ * @param viagem Viagem a mostrar
+ * @param file Ficheiro .csv, aberto
+ */
+void printViagemCSV(void *viagem, FILE *file) {
+	if ( !viagem || !file) return;
 
-	fprintf(file,"%d, %d, %hd-%hd-%hdT%hd-%hd-%.3f, %c, %d, %hd-%hd-%hdT%hd-%hd-%.3f, %c, %.3f, %.2f",
-	);
+	Viagem *v = (Viagem *)viagem;
+
+	char *segEntrada = floatToStringPontoDecimal(v->entrada->data.seg, 3);
+	char *segSaida = floatToStringPontoDecimal(v->saida->data.seg, 3);
+	char *tempoStr = floatToStringPontoDecimal(v->tempo, 3);
+	char *kmsStr = floatToStringPontoDecimal(v->kms, 2);
+
+	fprintf(file,"%d, %d, %hd-%hd-%hdT%hd:%hd:%s, %c, %d, %hd-%hd-%hdT%hd:%hd:%s, %c, %s, %s\n",
+		v->ptrCarro ? v->ptrCarro->codVeiculo : -1, v->entrada->idSensor, v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
+		v->entrada->data.hora, v->entrada->data.min, segEntrada ? segEntrada : "n/a", v->entrada->tipoRegisto, 
+		v->saida->idSensor, v->saida->data.dia, v->saida->data.mes, v->saida->data.ano, v->saida->data.hora, v->saida->data.min, 
+		segSaida ? segSaida : "n/a", v->saida->tipoRegisto, tempoStr ? tempoStr : "n/a", kmsStr ? kmsStr : "n/a");
+
+	if (segEntrada) free(segEntrada);
+	if (segSaida) free(segSaida);
+	if (tempoStr) free(tempoStr);
+	if (kmsStr) free(kmsStr);
 }
+

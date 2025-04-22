@@ -238,5 +238,6 @@ void printSensorCSV(void *sensor, FILE *file) {
 
     Sensor *s = (Sensor *)sensor;
 
-    fprintf(file, "%d, %s, %s, %s\n", s->codSensor, s->designacao, s->latitude, s->longitude); 
+    // Aspas para escapar as virgulas
+    fprintf(file, "%d, %s, \"%s\", \"%s\"\n", s->codSensor, s->designacao, s->latitude, s->longitude); 
 }
