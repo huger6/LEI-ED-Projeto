@@ -117,6 +117,25 @@ void exportarListaXML(Lista *li, char *nomeLista, void (*printObj)(void *obj, in
 }
 
 /**
+ * @brief Exporta uma lista para formato CSV
+ * 
+ * @param li Lista a exportar
+ * @param printObj Função para mostrar o objeto
+ * @param file Ficheiro .csv, aberto
+ */
+void exportarListaCSV(Lista *li, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file) {
+    if (!li || !li->inicio || !printObj || !file) return;
+
+    printHeader(file);
+
+    No *p = li->inicio;
+    while(p) {
+        printObj(p->info, file);
+        p = p->prox;
+    }
+}
+
+/**
  * @brief Liberta a memória alocada para a lista
  * 
  * @param li    Lista
@@ -553,6 +572,27 @@ void exportarDictXML(Dict *has, char *nomeDict, void (*printObj)(void *obj, int 
     if (nomeDict) {
         for (int i = 0; i < indentacao; i++) fprintf(file, "\t");
         fprintf(file, "</%s>\n", nomeDict);
+    }
+}
+
+/**
+ * @brief Exporta um dicionário para formato CSV
+ * 
+ * @param has Dicionário a exportar
+ * @param printObj Função para mostrar um elemento
+ * @param file Ficheiro .csv, aberto
+ */
+void exportarDictCSV(Dict *has, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file) {
+    if (!has || !printObj || !file) return;
+
+    printHeader(file);
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = has->tabela[i];
+        while(p) {
+            exportarListaCSV(p->dados, printObj, file);
+            p = p->prox;
+        }
     }
 }
 

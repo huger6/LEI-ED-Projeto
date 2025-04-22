@@ -22,5 +22,8 @@ void printSensor(void *sensor);
 void guardarSensorBin(void *sensor, FILE *file);
 void *readSensorBin(FILE *file);
 void printSensorXML(void *sensor, int indentacao, FILE *file);
+void printHeaderSensoresCSV(FILE *file);
+void printSensorCSV(void *sensor, FILE *file);
+
 
 #endif

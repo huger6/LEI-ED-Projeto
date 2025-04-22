@@ -90,3 +90,25 @@ void exportarTudoXML(Bdados *bd, const char *filename) {
 
     printf("Os dados foram exportados para o ficheiro XML (%s) com sucesso!\n\n", filename);
 }
+
+void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *viagensFilename) {
+    if (!bd || !donosFilename || !carrosFilename || !sensoresFilename || !viagensFilename) return;
+
+    FILE *donos = fopen(donosFilename, "w");
+    if (!donos) return;
+
+    exportarDictCSV(bd->donosNif, printHeaderDonosCSV, printDonoCSV, donos);
+    fclose(donos);
+
+    FILE *carros = fopen(carrosFilename, "w");
+    if (!carros) return;
+
+    exportarDictCSV(bd->carrosCod, printHeaderCarrosCSV, printCarroCSV, carros);
+    fclose(carros);
+
+    FILE *sensores = fopen(sensoresFilename, "w");
+    if (!sensores) return;
+
+    exportarListaCSV(bd->sensores, printHeaderSensoresCSV, printSensorCSV, sensores);
+    fclose(sensores);
+}

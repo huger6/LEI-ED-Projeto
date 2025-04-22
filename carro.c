@@ -435,6 +435,29 @@ void printCarroXML(void *carro, int indentacao, FILE *file) {
 	fprintf(file, "</carro>\n");
 }
 
+/**
+ * @brief Escreve os headers dos carros em formato CSV
+ * 
+ * @param file Ficheiro .csv, aberto
+ */
+void printHeaderCarrosCSV(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "Código do veículo, Ano, Matrícula, Marca, Modelo, Nif Dono");
+}
+
+void printCarroCSV(void *carro, FILE *file) {
+    if (!carro || !file) return;
+
+    Carro *c = (Carro *)carro;
+
+    fprintf(file, "%d, %hd, %s, %s, %s, %d\n", c->codVeiculo, c->ano, c->matricula, c->marca ? c->marca : "n/a", 
+        c->modelo ? c->modelo : "n/a", c->ptrPessoa ? c->ptrPessoa->nif : -1);
+}
+
+
+
+
 
 void RegistarVeiculo(Bdados *bd){
     do{

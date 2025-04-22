@@ -39,6 +39,9 @@ int compChaveDonoAlfabeticamente(void *chave, void *chave2);
 void guardarChaveDonoAlfabeticamente(void *chave, FILE *file);
 int hashChaveDonoAlfabeticamente(void *chave);
 void printDonoXML(void *dono, int indentacao, FILE *file);
+void printHeaderDonosCSV(FILE *file);
+void printDonoCSV(void *dono, FILE *file);
+
 
 
 

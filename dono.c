@@ -369,3 +369,28 @@ void printDonoXML(void *dono, int indentacao, FILE *file) {
 	fprintf(file, "</dono>\n");
 }
 
+/**
+ * @brief Escreve os headers em formato CSV para o Dono
+ * 
+ * @param file Ficheiro .csv onde escrever, aberto
+ */
+void printHeaderDonosCSV(FILE *file) {
+    if (!file) return;
+    
+    fprintf(file, "Nif, Nome, Código Postal\n");
+}
+
+/**
+ * @brief Mostra o dono em formato CSV
+ * 
+ * @param dono Dono a mostrar
+ * @param file Ficheiro .csv, aberto
+ */
+void printDonoCSV(void *dono, FILE *file) {
+    if (!dono || !file) return;
+
+    Dono *d = (Dono *)dono;
+
+    fprintf(file, "%d, %s, %hd-%hd\n", d->nif, d->nome ? d->nome : "n/a", d->codigoPostal.zona, d->codigoPostal.local);
+}
+
