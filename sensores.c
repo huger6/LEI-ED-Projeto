@@ -216,3 +216,27 @@ void printSensorXML(void *sensor, int indentacao, FILE *file) {
 	fprintf(file, "</sensor>\n");
 }
 
+/**
+ * @brief Mostra o header dos sensores
+ * 
+ * @param file Ficheiro .csv, aberto
+ */
+void printHeaderSensoresCSV(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "Código Sensor, Designação, Latitude, Longitude\n");
+}
+
+/**
+ * @brief Mostra o sensor em formato CSV
+ * 
+ * @param sensor Sensor a mostrar
+ * @param file Ficheiro .csv, aberto
+ */
+void printSensorCSV(void *sensor, FILE *file) {
+    if (!sensor || !file) return;
+
+    Sensor *s = (Sensor *)sensor;
+
+    fprintf(file, "%d, %s, %s, %s\n", s->codSensor, s->designacao, s->latitude, s->longitude); 
+}
