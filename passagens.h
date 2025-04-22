@@ -38,6 +38,8 @@ void *readPassagemBin(FILE *file);
 void getStatsViagem(struct Bdados *bd, Viagem *v);
 void printViagemXML(void *viagem, int indentacao, FILE *file);
 void mostrarPassagem(void *passagem);
+void printHeaderViagemCSV(FILE *file);
+void printViagemCSV(FILE *file, void *viagem);
 
 
 #endif

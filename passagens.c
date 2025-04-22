@@ -249,5 +249,17 @@ void mostrarPassagem(void *passagem){
 		printf("\nTipo de Registo: Entrada");
 	}
 }
-
 */
+void printHeaderViagemCSV(FILE *file){
+	if (!file) return;
+
+	fprintf (file, "codVeiculo, Entrada, idSensor1, Saida, idSensor2, Data, Tipo de Registo, Tempo, Distancia");
+}
+
+void printViagemCSV(FILE *file, void *viagem){
+	if (!file || !viagem) return;
+	Passagem *p = (Passagem*) viagem;
+
+	fprintf(file,"%d, %d, %hd-%hd-%hdT%hd-%hd-%.3f, %c, %d, %hd-%hd-%hdT%hd-%hd-%.3f, %c, %.3f, %.2f",
+	);
+}
