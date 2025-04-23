@@ -225,6 +225,21 @@ void menuOpcoes() {
     printf("╚══════════════════════════════════╝\n\n");
 }
 
+/**
+ * @brief Escreve o menu das opções de listagem disponíveis
+ * 
+ * @note Opções: 0-2
+ */
+void menuFormatosListagem() {
+    printf("╔══════════════════════════╗\n");
+    printf("║   FORMATOS DISPONÍVEIS   ║\n");
+    printf("╠══════════════════════════╣\n");
+    printf("║  1. .txt                 ║\n");
+    printf("║  2. .csv                 ║\n");
+    printf("║  0. Sair                 ║\n");
+    printf("╚══════════════════════════╝\n\n");
+}
+
 
 //Processar os menus
 
@@ -299,12 +314,12 @@ void processarMenuDonos(Bdados *bd) {
             case '2':
                 //Listar donos (alfabeticamente)
                 printDict(bd->donosAlfabeticamente, printDono);
-                pressione_enter();
+                pressEnter();
                 break;
             case '3':
                 //Listar donos (por NIF)
                 printDict(bd->donosNif, printDono);
-                pressione_enter();
+                pressEnter();
                 break;
             default:
                 opcao = '0';
@@ -363,7 +378,7 @@ void processarMenuListagemVeiculos(Bdados *bd) {
             case '1':
                 // Mostrar todos
                 printDict(bd->carrosCod, printCarro);
-                pressione_enter();
+                pressEnter();
                 break;
             case '2':
                 // Mostrar por matrícula
@@ -371,7 +386,7 @@ void processarMenuListagemVeiculos(Bdados *bd) {
             case '3':
                 // Mostrar por marca
                 printDict(bd->carrosMarca, printCarro);
-                pressione_enter();
+                pressEnter();
                 break;
             case '4':
                 // Mostrar por modelo
@@ -522,7 +537,12 @@ void processarMenuAnaliseDados(Bdados *bd) {
                 // Memória ocupada
                 break;
             case '2':
-                // Marca mais comum
+                char *marcaMaisComum = obterMarcaMaisComum(bd->carrosMarca);
+
+                if (marcaMaisComum) printf("A marca mais comum de automóveis é a \"%s\".\n\n", );
+                else printf("Ainda não há dados sobre nenhum carro!\n\n");
+
+                pressEnter();
                 break;
             default:
                 opcao = '0';
@@ -546,10 +566,10 @@ void processarMenuExportacao(Bdados *bd) {
             case '0':
                 break;
             case '1':
-                // Exportar dados para CSV
+                exportarTudoCSV(bd, "donos.csv", "carros.csv", "sensores.csv", "distancias.csv", "viagens.csv");
                 break;
             case '2':
-                // Exportar dados para XML
+                exportarTudoXML(bd, "database.xml");
                 break;
             case '3':
                 // Exportar dados para HTML
@@ -585,7 +605,7 @@ void processarMenuOpcoes(Bdados *bd) {
                     autosaveON = '0';
                     printf("O autosave foi desativado.\n");
                 }
-                pressione_enter();
+                pressEnter();
                 */
                 break;
             case '2':
@@ -608,12 +628,12 @@ void processarMenuOpcoes(Bdados *bd) {
 void validacaoMenus(short *valido, const char opcao, const char limInf, const char limSup) { 
     if (*valido != 1) {
         printf("Entrada inválida! Introduza um número do menu (%c a %c)\n", limInf, limSup); 
-        pressione_enter();
+        pressEnter();
     }
     else if (opcao < limInf || opcao > limSup) { 
         *valido = 0; 
         printf("Por favor, escolha um número do menu (%c a %c).\n", limInf, limSup);
-        pressione_enter();
+        pressEnter();
     }
     //Verificar entradas com mais de um char
     char lixo = getchar();
@@ -621,6 +641,6 @@ void validacaoMenus(short *valido, const char opcao, const char limInf, const ch
         *valido = 0;
         limpar_buffer(); //\n
         printf("Por favor, escolha um número do menu (%c a %c).\n", limInf, limSup);
-        pressione_enter();
+        pressEnter();
     }
 }

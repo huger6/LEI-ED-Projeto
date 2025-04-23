@@ -73,8 +73,6 @@ int main(void) {
     
     the_architect(bd);
     (void) guardarDadosBin(bd, AUTOSAVE_BIN);
-    //exportarTudoXML(bd, "database.xml");
-    //exportarTudoCSV(bd, "donos.csv", "carros.csv", "sensores.csv", "distancias.csv", "viagens.csv");
     freeTudo(bd); // Erro em freeViagem!!
     printf("Guardei com sucesso!\n\n");
     return EXIT_SUCCESS;

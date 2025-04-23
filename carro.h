@@ -42,11 +42,11 @@ int compChaveCarroCod(void *chave, void *chave2);
 void printCarroXML(void *carro, int indentacao, FILE *file);
 void printHeaderCarrosCSV(FILE *file);
 void printCarroCSV(void *carro, FILE *file);
+char *obterMarcaMaisComum(Dict *carrosMarca);
 
 
 int ordenarAlfModelo (void *carro1, void *carro2);
 int ordenarAlfMatricula (void *carro1, void *carro2);
-int compChaveMarca(void *chave, void *carro);
 
 void RegistarVeiculo(struct Bdados *bd);
 

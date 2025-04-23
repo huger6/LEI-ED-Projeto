@@ -2,6 +2,7 @@
 #include "validacoes.h"
 #include "bdados.h"
 #include "uteis.h"
+#include "structsGenericas.h"
 
 /**
  * @brief Inserir um carro na base de dados
@@ -461,7 +462,35 @@ void printCarroCSV(void *carro, FILE *file) {
         c->modelo ? c->modelo : "n/a", c->ptrPessoa ? c->ptrPessoa->nif : -1);
 }
 
+/**
+ * @brief Obtém a marca mais comum de um dicionário de carros ordenados em listas de marcas
+ * 
+ * @param carrosMarca Dicionário
+ * @return char* Marca mais comum ou NULL se erro
+ */
+char *obterMarcaMaisComum(Dict *carrosMarca) {
+    if (!carrosMarca || !carrosMarca->tabela) return NULL;
 
+    Lista *maisElementos = NULL;
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = carrosMarca->tabela[i];
+        if (p && p->dados) {
+            if (!maisElementos) {
+                maisElementos = p->dados;
+            }
+            else if (p->dados->nel > maisElementos->nel) {
+                maisElementos = p->dados;
+            }   
+        }
+    }
+
+    if (!maisElementos || !maisElementos->inicio) return NULL;
+
+    Carro *c = (Carro *)maisElementos->inicio->info;
+    if (!c) return NULL;
+
+    return c->marca;
+}
 
 
 

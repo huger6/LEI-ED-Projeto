@@ -55,7 +55,7 @@ void limpar_terminal() {
  * @note Limpa buffer se necessário
  * @note Bloqueia até receber \n
  */
-void pressione_enter() {
+void pressEnter() {
     printf("Pressione Enter para continuar.\n");
     while (getchar() != '\n');
 }
@@ -104,7 +104,7 @@ void data_atual() {
  * @note Limpa buffer
  * @note Só retorna se obter resposta
  */
-int sim_nao(char * mensagem) {
+int sim_nao(char *mensagem) {
     char opcao;
     do {
         printf("%s (S/N): ", mensagem);
@@ -544,6 +544,7 @@ int deleteFile(const char *nome, const char modo) {
     }
 }
 
+// Parece não funcionar em linux
 double obterUsoMemoria() {
     #if defined(_WIN32) || defined(_WIN64)
         PROCESS_MEMORY_COUNTERS_EX pmc;
@@ -603,4 +604,3 @@ char *floatToStringPontoDecimal(float valor, int casasDecimais) {
     strcpy(resultado, buffer);
     return resultado;
 }
-
