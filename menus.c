@@ -253,7 +253,7 @@ void the_architect(Bdados *bd) {
     char opcao;
     do {
         //autosave(bd); //Guarda automaticamente caso autosaveON ativo
-        opcao = mostrarMenu(menuPrincipal, '0', '6');
+        opcao = mostrarMenu(menuPrincipal, '0', '8');
         switch(opcao) {
             case '0':
                 limpar_terminal();
@@ -539,7 +539,7 @@ void processarMenuAnaliseDados(Bdados *bd) {
             case '2':
                 char *marcaMaisComum = obterMarcaMaisComum(bd->carrosMarca);
 
-                if (marcaMaisComum) printf("A marca mais comum de automóveis é a \"%s\".\n\n", );
+                if (marcaMaisComum) printf("A marca mais comum de automóveis é a \"%s\".\n\n", marcaMaisComum);
                 else printf("Ainda não há dados sobre nenhum carro!\n\n");
 
                 pressEnter();
@@ -624,7 +624,14 @@ void processarMenuOpcoes(Bdados *bd) {
 
 //Validações
 
-
+/**
+ * @brief Valida a opçção escolhida num menu
+ * 
+ * @param valido flag
+ * @param opcao Opção
+ * @param limInf Limite inferior do menu
+ * @param limSup Limite superior do menu
+ */
 void validacaoMenus(short *valido, const char opcao, const char limInf, const char limSup) { 
     if (*valido != 1) {
         printf("Entrada inválida! Introduza um número do menu (%c a %c)\n", limInf, limSup); 
@@ -644,3 +651,4 @@ void validacaoMenus(short *valido, const char opcao, const char limInf, const ch
         pressEnter();
     }
 }
+

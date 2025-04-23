@@ -130,8 +130,9 @@ void reset(Bdados *bd) {
     }
     
     printf("\nPara concluir a reposição do programa, a aplicação será fechada.\n");
-    pressione_enter();
+    pressEnter();
 
     freeTudo(bd);
     exit(EXIT_SUCCESS);
 }
+

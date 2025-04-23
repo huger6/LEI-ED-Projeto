@@ -46,11 +46,6 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //NIF (ptrPessoa)
     void *temp = (void *)&nif;
     aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, temp, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
-    static int count = 0;
-    if (!aut->ptrPessoa) {
-        count++;
-        printf("Count: %d\n", count);
-    }
     //Código Veículo
     aut->codVeiculo = codVeiculo;
 
@@ -469,7 +464,7 @@ void printCarroCSV(void *carro, FILE *file) {
  * @return char* Marca mais comum ou NULL se erro
  */
 char *obterMarcaMaisComum(Dict *carrosMarca) {
-    if (!carrosMarca || !carrosMarca->tabela) return NULL;
+    if (!carrosMarca) return NULL;
 
     Lista *maisElementos = NULL;
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
@@ -554,7 +549,7 @@ int ordenarAlfModelo (void *carro1, void *carro2){
 }
     */
 
-int ordenarAlfMatricula (void *carro1, void *carro2){
+int ordenarAlfMatricula (void *carro1, void *carro2) {
     if (!carro1 || !carro2) return 0;
     Carro *x1 = (Carro*) carro1;
     Carro *x2 = (Carro*) carro2;
@@ -562,6 +557,6 @@ int ordenarAlfMatricula (void *carro1, void *carro2){
     return 0;
 }
 
-void listarVeiculos(Bdados *bd){
+void listarVeiculos(Bdados *bd) {
     return;
 }

@@ -7,6 +7,7 @@
 
 #include "dono.h"
 #include "constantes.h"
+#include "structsGenericas.h"
 
 struct Bdados;
 
