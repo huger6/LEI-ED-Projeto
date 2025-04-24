@@ -39,7 +39,7 @@ int stringToShort(const char * str, short * resultado);
 int stringToFloat(const char * str, float * resultado);
 void converterPontoVirgulaDecimal(char *str);
 void replaceStrObj(char *str, const char out, const char in);
-char * lerLinhaTxt(FILE * ficheiro, int * n_linhas);
+char *lerLinhaTxt(FILE *ficheiro, int *n_linhas);
 int converterCodPostal(const char *codPostal, short *zona, short *local);
 int compararDatas(Data data1, Data data2);
 char *converterParaData(const char *strData, Data *data);

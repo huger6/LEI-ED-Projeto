@@ -345,15 +345,15 @@ void replaceStrObj(char *str, const char out, const char in) {
  * @note n_linhas não é inicializado
  * @note ficheiro deve estar aberto; não é fechado
  */
-char * lerLinhaTxt(FILE * ficheiro, int * n_linhas) {
+char *lerLinhaTxt(FILE *ficheiro, int *n_linhas) {
     if(!ficheiro) return NULL;
     char buffer[TAMANHO_INICIAL_BUFFER]; //Buffer para armazenar parte da linha
     size_t tamanho_total = 0; //Comprimento da linha; size_t pois é sempre >0 e evita conversões que podem levar a erros com outras funções
-    char * linha = NULL;
+    char *linha = NULL;
 
     while (fgets(buffer, sizeof(buffer), ficheiro)) { //fgets le ate buffer -1 caracteres ou '\n' ou EOF
         size_t tamanho = strlen(buffer); //Calcula o tamanho do texto lido
-        char * temp = realloc(linha, tamanho_total + tamanho + 1); //+1 para o nul char
+        char *temp = realloc(linha, tamanho_total + tamanho + 1); //+1 para o nul char
 
         //Verificar erros na realocação/alocação
         if (!temp) {
@@ -401,6 +401,37 @@ char * lerLinhaTxt(FILE * ficheiro, int * n_linhas) {
     //Se chegarmos aqui é porque aconteceu algum erro ou o ficheiro está vazio
     free(linha);
     return NULL;
+}
+
+int lerInt(char *mensagem, int (*validarInput)(int input)) {
+    if (!mensagem) return 0;
+    int valor = 0;
+    do {
+        printf("%s", mensagem);
+        scanf("%d", &valor);
+    } while(1);
+}
+
+int pedirInt(int *num, char *mensagem, int (*validarInput)(int input)) {
+    if (!num) return 0;
+    *num = 0;
+    char *input = NULL;
+    do {
+        printf("%s: ", mensagem ? mensagem : "Inteiro");
+        input = lerLinhaTxt(stdin, NULL);
+        if (!input) continue;
+
+        if (!stringToInt(input, num)) {
+            printf("Entrada inválida!\n\n");
+            pressEnter();
+            free(input);
+            continue;
+        }
+        free(input);
+        
+        if (!validarInput(input)) continue;
+        break;
+    } while(1);
 }
 
 /**

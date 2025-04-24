@@ -394,3 +394,6 @@ void printDonoCSV(void *dono, FILE *file) {
     fprintf(file, "%d, %s, %hd-%hd\n", d->nif, d->nome ? d->nome : "n/a", d->codigoPostal.zona, d->codigoPostal.local);
 }
 
+void registarDono(Bdados *bd) {
+    
+}

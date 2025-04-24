@@ -134,3 +134,7 @@ void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFi
         fclose(viagens);
     }
 }
+
+size_t memUsageTudo(Bdados *bd) {
+    
+}

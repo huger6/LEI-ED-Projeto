@@ -37,7 +37,7 @@ Para compilar em Linux, usar:
 */
 
 
-// TODO: ordenar donos alf (cada lista)
+// TODO: validar data da segunda passagem (concluído, falta verificar)
 
 int main(void) {
     limpar_terminal();

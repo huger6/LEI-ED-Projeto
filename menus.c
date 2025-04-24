@@ -537,6 +537,7 @@ void processarMenuAnaliseDados(Bdados *bd) {
                 // Memória ocupada
                 break;
             case '2':
+                limpar_terminal();
                 char *marcaMaisComum = obterMarcaMaisComum(bd->carrosMarca);
 
                 if (marcaMaisComum) printf("A marca mais comum de automóveis é a \"%s\".\n\n", marcaMaisComum);

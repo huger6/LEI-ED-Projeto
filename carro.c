@@ -489,7 +489,7 @@ char *obterMarcaMaisComum(Dict *carrosMarca) {
 
 
 
-void RegistarVeiculo(Bdados *bd){
+void registarCarro(Bdados *bd){
     do{
         int codVeiculo, nif;
         char *matricula;

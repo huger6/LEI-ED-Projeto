@@ -529,6 +529,11 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                     fprintf(logs, "Razão: Tipo de registo inválido no par de passagem\n\n");
                     erro = '1';
                 }
+                if (indice == 1 && compararDatas(viagem[0]->data, date) == 1) {
+                    linhaInvalida(linha, nLinhas, logs);
+                    fprintf(logs, "Razão: Data da passagem de saída inválida\n\n");
+                    erro = '1';
+                }
 
                 //Caso não haja erro passar os dados para as estruturas
                 if (erro == '0') {
