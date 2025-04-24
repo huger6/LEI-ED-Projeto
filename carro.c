@@ -564,4 +564,8 @@ void listarVeiculos(Bdados *bd) {
 size_t memoriaOcupadaCarros(void *carro){
     if (!carro) return 0;
     Carro *aux = (Carro*) carro; 
+    size_t total = sizeof (Carro);
+    total += strlen (aux->marca) + 1;
+    total += strlen (aux->modelo) + 1;
+    return total;
 }
