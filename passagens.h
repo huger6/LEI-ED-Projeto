@@ -40,6 +40,7 @@ void printViagemXML(void *viagem, int indentacao, FILE *file);
 void mostrarPassagem(void *passagem);
 void printHeaderViagensCSV(FILE *file);
 void printViagemCSV(void *viagem, FILE *file);
+size_t memoriaOcupadaViagem(void *viagem);
 
 
 #endif

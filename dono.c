@@ -394,6 +394,10 @@ void printDonoCSV(void *dono, FILE *file) {
     fprintf(file, "%d, %s, %hd-%hd\n", d->nif, d->nome ? d->nome : "n/a", d->codigoPostal.zona, d->codigoPostal.local);
 }
 
-void registarDono(Bdados *bd) {
+
+size_t memoriaOcupadaDono(void *dono){
+    if (!dono) return 0;
+    Dono *dono = (Dono*) dono;
+}void registarDono(Bdados *bd) {
     
 }

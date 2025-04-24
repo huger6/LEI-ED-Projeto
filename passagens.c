@@ -297,3 +297,7 @@ void printViagemCSV(void *viagem, FILE *file) {
 	if (kmsStr) free(kmsStr);
 }
 
+size_t memoriaOcupadaViagem(void *viagem){
+	if (!viagem) return 0;
+	Viagem *aux = (Viagem*) viagem;
+}

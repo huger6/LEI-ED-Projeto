@@ -51,4 +51,7 @@ int ordenarAlfMatricula (void *carro1, void *carro2);
 
 void RegistarVeiculo(struct Bdados *bd);
 
+
+size_t memoriaOcupadaCarros(void *carro);
+
 #endif

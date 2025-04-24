@@ -42,6 +42,8 @@ void printDonoXML(void *dono, int indentacao, FILE *file);
 void printHeaderDonosCSV(FILE *file);
 void printDonoCSV(void *dono, FILE *file);
 
+size_t memoriaOcupadaDono(void *dono);
+
 
 
 
