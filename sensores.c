@@ -241,3 +241,8 @@ void printSensorCSV(void *sensor, FILE *file) {
     // Aspas para escapar as virgulas
     fprintf(file, "%d, %s, \"%s\", \"%s\"\n", s->codSensor, s->designacao, s->latitude, s->longitude); 
 }
+
+size_t memoriaOcupadaSensores(void *sensor){
+    if (!sensor) return 0;
+    Sensor *aux = (Sensor*) sensor;
+}
