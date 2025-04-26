@@ -6,6 +6,8 @@
 
 #define TAMANHO_TABELA_HASH 16007 // load factor 0,62; Nºprimo para não haver tantas colisões
 
+extern void pressEnter();
+
 typedef struct no {
    void *info;
    struct no *prox;
@@ -43,7 +45,7 @@ typedef struct {
 
 Lista *criarLista();
 int addInicioLista(Lista *li, void *elemento);
-void printLista(Lista *li, void (*printObj)(void *obj));
+void printLista(Lista *li, void (*printObj)(void *obj), int pausa);
 void exportarListaXML(Lista *li, char *nomeLista, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file);
 void exportarListaCSV(Lista *li, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file);
 void freeLista(Lista *li, void (*freeObj)(void *obj));
@@ -61,14 +63,15 @@ Dict *criarDict();
 NoHashing *posicaoInsercao(Dict *has, int indice, void *chave, int (*compChave)(void *chave, void *chave2));
 Lista *obterListaDoDict(Dict *has, void *chave, int (*compChave)(void *chave, void *chave2), int (*hashChave)(void *obj));
 int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave));
-void printDict(Dict *has, void (*printObj)(void *obj));
+void printDict(Dict *has, void (*printObj)(void *obj), int pausa);
 void exportarDictXML(Dict *has, char *nomeDict, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file);
 void exportarDictCSV(Dict *has, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file);
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj));
 void *searchDict(Dict *has, void *chave, int (*compChave)(void *chave, void *obj), int (*compCod)(void *codObj, void *chave), int (*hashChave)(void *chave));
 void guardarDadosDictBin(Dict *has, void (*saveInfo)(void *obj, FILE *fileObj), FILE *file);
-Dict *readToDictBin(int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave), void *(*readInfo)(FILE *fileObj), FILE *file);
+Dict *readToDictBin(void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave), void *(*readInfo)(FILE *fileObj), FILE *file);
 size_t dictMemUsage(Dict *has, size_t (*objMemUsage)(void *obj), size_t (*chaveMemUsage)(void *chave));
+Lista *dictToLista(Dict *has);
 
 // Árvores
 

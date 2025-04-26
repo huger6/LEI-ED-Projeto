@@ -23,7 +23,15 @@ Passagem *obterPassagem(int idSensor, Data date, char tipoRegisto) {
 	return pas;
 }
 
-
+/**
+ * @brief Insere uma viagem lida na base de dados
+ * 
+ * @param bd Base de dados
+ * @param entrada Passagem de entrada
+ * @param saida Passagem de saída
+ * @param codVeiculo Código do veículo
+ * @return int 1 se sucesso, 0 se erro
+ */
 int inserirViagemLido(Bdados *bd, Passagem *entrada, Passagem *saida, int codVeiculo) {
 	if (!entrada || !saida) return 0;
 
@@ -80,11 +88,21 @@ int compCodPassagem(void *passagem, void *codigo) {
 	return 0;
 }
 
+/**
+ * @brief Liberta a memória associada a uma passagem
+ * 
+ * @param passagem Passagem
+ */
 void freePassagem(void *passagem) {
 	Passagem *obj = (Passagem *)passagem;
 	free(obj);
 }
 
+/**
+ * @brief Liberta a memória ocupada por uma viagem
+ * 
+ * @param viagem Viagem
+ */
 void freeViagem(void *viagem) {
 	Viagem *obj = (Viagem *)viagem;
 	freePassagem((void *)obj->entrada);
@@ -148,6 +166,12 @@ void *readViagemBin(FILE *file) {
 	return (void *)x;
 }
 
+/**
+ * @brief Guarda a passagem em ficheiro binário
+ * 
+ * @param passagem Passagem
+ * @param file Ficheiro binário, aberto
+ */
 void guardarPassagemBin(void *passagem, FILE *file) {
 	if (!passagem || !file) return;
 
@@ -297,7 +321,35 @@ void printViagemCSV(void *viagem, FILE *file) {
 	if (kmsStr) free(kmsStr);
 }
 
-size_t memoriaOcupadaViagem(void *viagem){
-	if (!viagem) return 0;
-	Viagem *aux = (Viagem*) viagem;
+/**
+ * @brief Memória ocupada por uma passagem
+ * 
+ * @param passagem Passagem
+ * @return size_t Memória ocupada ou 0 se erro
+ */
+size_t memUsagePassagem(void *passagem) {
+	if (!passagem) return 0;
+
+	size_t mem = sizeof(Passagem);
+	return mem;
 }
+
+/**
+ * @brief Memória ocupada por uma viagem
+ * 
+ * @param viagem Viagem
+ * @return size_t Memória ocupada ou 0 se erro
+ */
+size_t memUsageViagem(void *viagem) {
+	if (!viagem) return 0;
+
+	Viagem *v = (Viagem *)viagem;
+
+	size_t mem = sizeof(Viagem);
+
+	mem += memUsagePassagem((void *)v->entrada);
+	mem += memUsagePassagem((void *)v->saida);
+
+	return mem;
+}
+

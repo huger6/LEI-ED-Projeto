@@ -21,6 +21,6 @@ void guardarDistanciasBin(Distancias *distancia, FILE *file);
 Distancias *readDistanciasBin(FILE *file);
 void exportarDistanciasXML(Distancias *d, int indentacao, FILE *file);
 void exportarDistanciasCSV(Distancias *d, FILE *file);
-size_t memoriaOcupadaDistancias(void *distancia);
+size_t memUsageDistancias(Distancias *d);
 
 #endif

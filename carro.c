@@ -12,7 +12,7 @@
  * @param marca Marca
  * @param modelo Modelo
  * @param ano Ano
- * @param nif Nif
+ * @param nif Nif (0 caso não haja dono)
  * @param codVeiculo Código do veículo
  * @return int 0 se erro, 1 se sucesso
  * 
@@ -44,8 +44,13 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     //Ano
     aut->ano = ano;
     //NIF (ptrPessoa)
-    void *temp = (void *)&nif;
-    aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, temp, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
+    if (nif != 0) {
+        void *temp = (void *)&nif;
+        aut->ptrPessoa = (Dono *)searchDict(bd->donosNif, temp, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
+    }
+    else {
+        aut->ptrPessoa = NULL;
+    }
     //Código Veículo
     aut->codVeiculo = codVeiculo;
 
@@ -114,18 +119,29 @@ void freeCarro(void *carro) {
     free(obj);
 }
 
-
+/**
+ * @brief Mostra um carro
+ * 
+ * @param carro Carro a mostrar
+ */
 void printCarro(void *carro) {
     if (!carro) return;
 
-    Carro *x = (Carro*)carro;
-    printf("Código do Veículo: %d\n", x->codVeiculo);
-    printf("Matrícula: %s\n", x->matricula);
-    printf("Marca: %s\n", x->marca);
-    printf("Modelo: %s\n", x->modelo);
-    printf("Ano do Veículo: %d\n", x->ano);
-    printf("Nome do Dono: %s\n", x->ptrPessoa->nome);
-    printf("NIF do Dono: %d\n\n", x->ptrPessoa->nif);
+    Carro *c = (Carro *)carro;
+
+    printf("Código do Veículo: %d\n", c->codVeiculo);
+    printf("Matrícula: %s\n", c->matricula);
+    printf("Marca: %s\n", c->marca ? c->marca : "n/a");
+    printf("Modelo: %s\n", c->modelo ? c->modelo : "n/a");
+    printf("Ano do Veículo: %d\n", c->ano);
+    if (c->ptrPessoa) {
+        printf("NIF do Dono: %d\n", c->ptrPessoa);
+        printf("Nome do Dono: %s\n", c->ptrPessoa->nome);
+    }
+    else {
+        printf("NIF do Dono: n/a\n");
+        printf("Nome do Dono: n/a\n");
+    }
 }
 
 /**
@@ -385,8 +401,8 @@ int compCarroMarca (void *carro1, void *carro2) {
     if (!carro1) return -1;
     if (!carro2) return 1;
 
-    Carro *x = (Carro*)carro1;
-    Carro *y = (Carro*)carro2;
+    Carro *x = (Carro *)carro1;
+    Carro *y = (Carro *)carro2;
     char *xNorm = normString(x->marca);
     char *yNorm = normString(y->marca);
 
@@ -396,6 +412,24 @@ int compCarroMarca (void *carro1, void *carro2) {
     free(yNorm);
 
     return res;
+}
+
+/**
+ * @brief Compara os carros pela matrícula
+ * 
+ * @param carro1 Carro 1
+ * @param carro2 Carro 2
+ * @return int -1 se carro1 < carro2, 0 se iguais, 1 se carro1 > carro2
+ */
+int compCarroMatricula(void *carro1, void *carro2) {
+    if (!carro1 || !carro2) return 0;
+    if (!carro1) return -1;
+    if (!carro2) return 1;
+
+    Carro *x = (Carro *)carro1;
+    Carro *y = (Carro *)carro2;
+
+    return stricmp(x->matricula, y->matricula);
 }
 
 /**
@@ -487,57 +521,189 @@ char *obterMarcaMaisComum(Dict *carrosMarca) {
     return c->marca;
 }
 
+/**
+ * @brief Memória ocupada por um carro
+ * 
+ * @param carro Carro
+ * @return size_t Memória utilizada ou 0 se erro
+ */
+size_t memUsageCarro(void *carro) {
+    if (!carro) return 0;
 
+    Carro *c = (Carro *)carro;
 
-void registarCarro(Bdados *bd){
-    do{
-        int codVeiculo, nif;
-        char *matricula;
-        char *marca;
-        char *modelo;
-        short ano;
-    
-        printf ("\n\tIntroduza as Informações:\n");
-        do{
-            printf ("\nCódigo do Veículo: ");
-            scanf("%d", &codVeiculo);
-        }while (validarCodVeiculo(codVeiculo) == 0);
-        
-        do{
-            printf ("\nMatrícula:");
-            matricula = lerLinhaTxt (stdin, NULL);
-        }while (validarMatricula (matricula) == 0);
-        
-        do{
-            printf ("\nMarca:");
-            marca = lerLinhaTxt (stdin, NULL);
-        }while (!validarMarca (marca));
-    
+    size_t mem = sizeof(Carro);
+    mem += strlen(c->marca) + 1;
+    mem += strlen(c->modelo) + 1;
+
+    return mem;
+}
+
+/**
+ * @brief Memória ocupada pela chave dos carros por código
+ * 
+ * @param chave Chave
+ * @return size_t Memória ocupada ou 0 se erro
+ */
+size_t memUsageChaveCarroCod(void *chave) {
+    if (!chave) return 0;
+
+    int *key = (int *)chave;
+    return sizeof(*key);
+}
+
+/**
+ * @brief Memória ocupada pela chave dos carros por marca
+ * 
+ * @param chave Chave
+ * @return size_t Memória ocupada ou 0 se erro
+ */
+size_t memUsageChaveCarroMarca(void *chave) {
+    if (!chave) return 0;
+
+    char *key = (char *)chave;
+
+    size_t mem = strlen(key) + 1;
+    return mem;
+}
+
+/**
+ * @brief Obtém um código do veículo novo pronto a atribuir
+ * 
+ * @param carrosCod Dicionário dos carros por código
+ * @return int Código ou -1 se erro
+ * 
+ * @note Verifica por gaps entre todos os códigos
+ */
+int obterCodVeiculoNovo(Dict *carrosCod) {
+    if (!carrosCod) return -1;
+
+    int codTentativa = 1;
+    void *chave;
+
+    while (1) {
+        chave = (void *)&codTentativa;
+        if (!searchDict(carrosCod, chave, compChaveCarroCod, compCodCarro, hashChaveCarroCod)) {
+            return codTentativa;
+        }
+        codTentativa++;
+    }
+
+    return -1;
+}
+
+/**
+ * @brief Pedir as informações sobre o carro e inserir na base de dados
+ * 
+ * @param bd 
+ */
+void registarCarro(Bdados *bd) {
+    //char matricula[MAX_MATRICULA + 1];
+    // char *marca;
+    // char *modelo;
+    // short ano;
+    // int codVeiculo; //PRIMARY KEY
+    do {
+        limpar_terminal();
+        int codVeiculo = 0;
+        char *marca = NULL;
+        char *modelo = NULL;
+        char *matricula = NULL;
+        short ano = 0;
+        int nif = 0;
+        // Código do veículo
+        codVeiculo = obterCodVeiculoNovo(bd->carrosCod);
+        if (codVeiculo == -1) continue;
+        // Matrícula
+        do {    
+            printf("Insira a matrícula do veículo: ");
+            matricula = lerLinhaTxt(stdin, NULL);
+            if (!matricula) {
+                printf("Erro a ler a matrícula!\n\n");
+                pressEnter();
+                continue;
+            }
+            if (validarMatricula(matricula) != NULL) {
+                free(matricula);
+                printf("A matrícula é inválida!\n\n");
+                pressEnter();
+                continue;
+            }
+            break;
+        } while(1);
+        printf("\n");
+        // Marca
+        do {    
+            printf("Insira a marca do veículo: ");
+            marca = lerLinhaTxt(stdin, NULL);
+            if (!marca) {
+                printf("Erro a ler a marca!\n\n");
+                pressEnter();
+                continue;
+            }
+            char *mensagemErro = validarMarca(marca);
+            if (mensagemErro) {
+                printf("%s\n\n", mensagemErro);
+                pressEnter();
+                free(marca);
+                continue;
+            }
+            break;
+        } while(1);
+        printf("\n");
+        // Modelo
+        do {    
+            printf("Insira o modelo do veículo: ");
+            modelo = lerLinhaTxt(stdin, NULL);
+            if (!modelo) {
+                printf("Erro a ler o modelo!\n\n");
+                pressEnter();
+                continue;
+            }
+            char *mensagemErro = validarModelo(modelo);
+            if (mensagemErro) {
+                printf("%s\n\n", mensagemErro);
+                pressEnter();
+                free(modelo);
+                continue;
+            }
+            break;
+        } while(1);
+        printf("\n");
+        // Ano
+        pedirShort(&ano, "Insira o ano do veículo: ", validarAnoCarro);
+        printf("\n");
+        // Dono (NIF)
         do {
-            printf ("\nModelo:");
-            modelo = lerLinhaTxt (stdin, NULL);
-        }while (!validarMarca (modelo));
-    
-        do{
-            printf ("\nAno do Veículo:");
-            scanf ("%hd", &ano);
-        }while (validarAnoCarro(ano) == 0);
+            pedirInt(&nif, "Insira o NIF do dono do veículo (ou 0 caso não tenha): ", NULL);
+            if (nif != 0) {
+                if (!validarNif(nif)) {
+                    printf("O NIF é inválido!\n\n");
+                    pressEnter();
+                    continue;
+                }
+            }
+            break;
+        } while(1);
+        printf("\n");
         
-        do{
-            printf ("\nNIF do Dono:");
-            scanf ("%d", &nif);
-        }while (validarNif(nif) == 0);
-    
-        inserirCarroLido(bd, matricula, marca, modelo, ano, nif, codVeiculo);  
-        
-        free (matricula);
-        free (marca);
-        free (modelo);
-        
-        if (sim_nao("\nQuer introduzir outro elemento?") == 0) return;
+        // Inserir na bd
+        if (!inserirCarroLido(bd, matricula, marca, modelo, ano, nif, codVeiculo)) {
+            free(matricula);
+            free(marca);
+            free(modelo);
+            printf("Ocorreu um erro a registar o dono em memória. Por favor tente novamente!\n\n");
+            pressEnter();
+            continue;
+        }
+        free(matricula);
+        free(marca);
+        free(modelo);
 
+        if (!sim_nao("Quer inserir mais algum dono?")) break;
     } while(1);
 }
+
 
 /* ERRO tolower
 int ordenarAlfModelo (void *carro1, void *carro2){
@@ -557,15 +723,3 @@ int ordenarAlfMatricula (void *carro1, void *carro2) {
     return 0;
 }
 
-void listarVeiculos(Bdados *bd) {
-    return;
-}
-
-size_t memoriaOcupadaCarros(void *carro){
-    if (!carro) return 0;
-    Carro *aux = (Carro*) carro; 
-    size_t total = sizeof (Carro);
-    total += strlen (aux->marca) + 1;
-    total += strlen (aux->modelo) + 1;
-    return total;
-}

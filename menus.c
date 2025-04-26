@@ -309,16 +309,18 @@ void processarMenuDonos(Bdados *bd) {
             case '0':
                 break;
             case '1':
-                //Registar dono
+                registarDono(bd);
                 break;
             case '2':
                 //Listar donos (alfabeticamente)
-                printDict(bd->donosAlfabeticamente, printDono);
+                printDict(bd->donosAlfabeticamente, printDono, 1000);
+                printf("Listagem terminada!\n");
                 pressEnter();
                 break;
             case '3':
                 //Listar donos (por NIF)
-                printDict(bd->donosNif, printDono);
+                printDict(bd->donosNif, printDono, 1000);
+                printf("Listagem terminada!\n");
                 pressEnter();
                 break;
             default:
@@ -344,7 +346,7 @@ void processarMenuVeiculos(Bdados *bd) {
             case '0':
                 break;
             case '1':
-                //Registar veículo
+                registarCarro(bd);
                 break;
             case '2':
                 processarMenuListagemVeiculos(bd);
@@ -377,15 +379,19 @@ void processarMenuListagemVeiculos(Bdados *bd) {
                 break;
             case '1':
                 // Mostrar todos
-                printDict(bd->carrosCod, printCarro);
+                printDict(bd->carrosCod, printCarro, 1000);
                 pressEnter();
                 break;
             case '2':
-                // Mostrar por matrícula
+                Lista *li = dictToLista(bd->carrosCod);
+                ordenarLista(li, compCarroMatricula);
+                printLista(li, printCarro, 1000);
+                
+                pressEnter();
                 break;
             case '3':
                 // Mostrar por marca
-                printDict(bd->carrosMarca, printCarro);
+                printDict(bd->carrosMarca, printCarro, 1000);
                 pressEnter();
                 break;
             case '4':
@@ -534,7 +540,18 @@ void processarMenuAnaliseDados(Bdados *bd) {
             case '0':
                 break;
             case '1':
-                // Memória ocupada
+                limpar_terminal();
+                size_t mem = memUsageTudo(bd);
+                printf("Memória ocupada pela base de dados:\n\n");
+                printf("Unidade           | Valor\n");
+                printf("------------------|-----------------\n");
+                printf("Bytes (B)         | %zu\n", mem);
+                printf("Kilobytes (kB)    | %.2f\n", mem / 1000.0);
+                printf("Megabytes (MB)    | %.2f\n", mem / 1000000.0);
+                printf("Kibibytes (KiB)   | %.2f\n", mem / 1024.0);
+                printf("Mebibytes (MiB)   | %.2f\n\n", mem / (1024.0 * 1024.0));
+
+                pressEnter();
                 break;
             case '2':
                 limpar_terminal();

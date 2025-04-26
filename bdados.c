@@ -135,6 +135,28 @@ void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFi
     }
 }
 
+/**
+ * @brief Calcula a memória ocupada por toda a base de dados
+ * 
+ * @param bd Base de dados
+ * @return size_t Memória ocupada ou 0 se erro
+ */
 size_t memUsageTudo(Bdados *bd) {
-    
+    if (!bd) return 0;
+
+    size_t memTotal = sizeof(Bdados);
+
+    memTotal += dictMemUsage(bd->carrosCod, memUsageCarro, memUsageChaveCarroCod);
+    memTotal += dictMemUsage(bd->carrosCod, NULL, memUsageChaveCarroMarca);
+
+    memTotal += dictMemUsage(bd->donosNif, memUsageDono, memUsageChaveDonoCod);
+    memTotal += dictMemUsage(bd->donosAlfabeticamente, NULL, memUsageChaveDonoAlfabeticamente);
+
+    memTotal += listaMemUsage(bd->sensores, memUsageSensor);
+
+    memTotal += listaMemUsage(bd->viagens, memUsageViagem);
+
+    memTotal += memUsageDistancias(bd->distancias);
+
+    return memTotal;
 }

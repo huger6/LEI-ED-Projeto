@@ -140,26 +140,26 @@ int sim_nao(char *mensagem) {
 char *normString(const char *str) {
     if (!str) return NULL;
     
-    const char * acentos[] = {"á","à","ã","â","ä","é","è","ê","ë","í","ì","î","ï",
+    const char *acentos[] = {"á","à","ã","â","ä","é","è","ê","ë","í","ì","î","ï",
                             "ó","ò","õ","ô","ö","ú","ù","û","ü","ý","ÿ","ñ","ç",
                             "Á","À","Ã","Â","Ä","É","È","Ê","Ë","Í","Ì","Î","Ï",
                             "Ó","Ò","Õ","Ô","Ö","Ú","Ù","Û","Ü","Ý","Ÿ","Ñ","Ç"};
-    const char * sem_acentos[] = {"a","a","a","a","a","e","e","e","e","i","i","i","i",
+    const char *sem_acentos[] = {"a","a","a","a","a","e","e","e","e","i","i","i","i",
                                 "o","o","o","o","o","u","u","u","u","y","y","n","c",
                                 "A","A","A","A","A","E","E","E","E","I","I","I","I",
                                 "O","O","O","O","O","U","U","U","U","Y","Y","N","C"};
     const int n_chars = sizeof(acentos)/sizeof(acentos[0]);
 
     //Duplicar string original
-    char * resultado = strdup(str);
+    char *resultado = strdup(str);
     if (!resultado) return NULL;
 
     //Para cada caracter acentuado possível
     for (int i = 0; i < n_chars; i++) {
         //Alocar string temporária
-        char * temp = NULL;
+        char *temp = NULL;
         //Enquanto encontrar ocorrências do acento atual
-        const char * pos = strstr(resultado, acentos[i]);
+        const char *pos = strstr(resultado, acentos[i]);
         while (pos != NULL) {
             int indice = pos - resultado;
             //Realocar string com espaço para substituição
@@ -228,8 +228,8 @@ char *strlwrSafe(const char *str) {
  * @note Valida conteúdo externo ao short
  * @note Requer string terminada em \0
  */
-int stringToInt(const char * str, int * resultado) {
-    char * ptr_fim;
+int stringToInt(const char *str, int *resultado) {
+    char *ptr_fim;
     long valor = strtol(str, &ptr_fim, 10);
     //strtol trunca em caso de overflow, daí o <= abaixo
 
@@ -259,8 +259,8 @@ int stringToInt(const char * str, int * resultado) {
  * @note Valida conteúdo externo ao int
  * @note Requer string terminada em \0
  */
-int stringToShort(const char * str, short * resultado) {
-    char * ptr_fim;
+int stringToShort(const char *str, short *resultado) {
+    char *ptr_fim;
     long valor = strtol(str, &ptr_fim, 10);
     
     //Verificar erros de conversão
@@ -288,8 +288,8 @@ int stringToShort(const char * str, short * resultado) {
  * @note Valida conteúdo externo ao float
  * @note Requer string terminada em \0
  */
-int stringToFloat(const char * str, float * resultado) {
-    char * ptr_fim;
+int stringToFloat(const char *str, float *resultado) {
+    char *ptr_fim;
     float valor = strtof(str, &ptr_fim);
     //Verificar erros de conversão
     if (ptr_fim == str || *ptr_fim != '\0') {
@@ -403,21 +403,20 @@ char *lerLinhaTxt(FILE *ficheiro, int *n_linhas) {
     return NULL;
 }
 
-int lerInt(char *mensagem, int (*validarInput)(int input)) {
-    if (!mensagem) return 0;
-    int valor = 0;
-    do {
-        printf("%s", mensagem);
-        scanf("%d", &valor);
-    } while(1);
-}
+/**
+ * @brief Pede um int ao utilizador e guarda em num
+ * 
+ * @param num Número onde guardar o resultado
+ * @param mensagem Mensagem/pedido (deve incluir ": " ou "? ")
+ * @param validarInput Função para validar o int obtido, caso necessário
+ */
+void pedirInt(int *num, char *mensagem, int (*validarInput)(int input)) {
+    if (!num) return;
 
-int pedirInt(int *num, char *mensagem, int (*validarInput)(int input)) {
-    if (!num) return 0;
     *num = 0;
     char *input = NULL;
     do {
-        printf("%s: ", mensagem ? mensagem : "Inteiro");
+        printf("%s", mensagem ? mensagem : "Inteiro: ");
         input = lerLinhaTxt(stdin, NULL);
         if (!input) continue;
 
@@ -429,7 +428,37 @@ int pedirInt(int *num, char *mensagem, int (*validarInput)(int input)) {
         }
         free(input);
         
-        if (!validarInput(input)) continue;
+        if (!validarInput(*num)) continue;
+        break;
+    } while(1);
+}
+
+/**
+ * @brief Pede um short ao utilizador e guarda em num
+ * 
+ * @param num Número onde guardar o resultado
+ * @param mensagem Mensagem/pedido (deve incluir ": " ou "? ")
+ * @param validarInput Função para validar o short obtido, caso necessário
+ */
+void pedirShort(int *num, char *mensagem, int (*validarInput)(int input)) {
+    if (!num) return;
+
+    *num = 0;
+    char *input = NULL;
+    do {
+        printf("%s", mensagem ? mensagem : "Short: ");
+        input = lerLinhaTxt(stdin, NULL);
+        if (!input) continue;
+
+        if (!stringToShort(input, num)) {
+            printf("Entrada inválida!\n\n");
+            pressEnter();
+            free(input);
+            continue;
+        }
+        free(input);
+        
+        if (!validarInput(*num)) continue;
         break;
     } while(1);
 }
@@ -516,16 +545,37 @@ char *converterParaData(const char *strData, Data *data) {
 float calcularIntervaloTempo(Data *data1, Data *data2) {
     if (!data1 || !data2) return 0;
 
-    float minutos = 0;
-    
-    minutos += (data2->ano - data1->ano) * 525600;    // 365 dias * 24 h * 60 min
-    minutos += (data2->mes - data1->mes) * 43200;     // 30 dias * 24 h * 60 min
-    minutos += (data2->dia - data1->dia) * 1440;      // 24 h * 60 min
-    minutos += (data2->hora - data1->hora) * 60;      // h p/ min
-    minutos += (data2->min - data1->min);             // min
-    minutos += (data2->seg - data1->seg) / 60.0f;     // seconds to minutes
-    
-    return minutos;
+    struct tm tm1 = {0}, tm2 = {0};
+
+    // Preencher estrutura tm (nota: meses em tm são [0-11], anos desde 1900)
+    tm1.tm_year = data1->ano - 1900;
+    tm1.tm_mon  = data1->mes - 1;
+    tm1.tm_mday = data1->dia;
+    tm1.tm_hour = data1->hora;
+    tm1.tm_min  = data1->min;
+    tm1.tm_sec  = (int)data1->seg;
+
+    tm2.tm_year = data2->ano - 1900;
+    tm2.tm_mon  = data2->mes - 1;
+    tm2.tm_mday = data2->dia;
+    tm2.tm_hour = data2->hora;
+    tm2.tm_min  = data2->min;
+    tm2.tm_sec  = (int)data2->seg;
+
+    time_t t1 = mktime(&tm1);
+    time_t t2 = mktime(&tm2);
+
+    // Verificar validade das datas
+    if (t1 == (time_t)-1 || t2 == (time_t)-1) return 0;
+
+    // Diferença total em segundos
+    double diff_secs = difftime(t2, t1);
+
+    // Adicionar segundos
+    diff_secs += (data2->seg - (int)data2->seg) - (data1->seg - (int)data1->seg);
+
+    // Converter para minutos
+    return (float)(diff_secs / 60.0);
 }
 
 /**

@@ -73,16 +73,30 @@ int addFimLista(Lista *li, void *elemento) {
 /**
  * @brief Mostra todos os elementos da lista
  * 
- * @param li    Lista
+ * @param li Lista
  * @param printObj  Função para mostrar o elemento
+ * @param pausa Número de elementos a mostrar antes de pedir pausa (pressionar enter), 0 para ignorar
+ * 
+ * @note Adiciona um espaço entre cada elemento
  */
-void printLista(Lista *li, void (*printObj)(void *obj)) {
-    if (!li || !printObj) return;
+void printLista(Lista *li, void (*printObj)(void *obj), int pausa) {
+    if (!li || !printObj || pausa < 0) return;
+
+    int count = 0;
 
     No *p = li->inicio;
     while(p) {
         (*printObj)(p->info);
         p = p->prox;
+
+        if (pausa) {
+            count++;
+            if (count % pausa == 0) {
+                pressEnter();
+            }
+        }
+
+        printf("\n"); // Para distinguir cada elemento
     }
 }
 
@@ -200,7 +214,6 @@ void inverterLista(Lista *li) {
     }
     li->inicio = ant;
 }
-
 
 /**
  * @brief 
@@ -419,7 +432,7 @@ size_t listaMemUsage(Lista *li, size_t (*objMemUsage)(void *obj)) {
     No *p = li->inicio;
     while(p) {
         mem += sizeof(*p);
-        mem += objMemUsage(p->info);
+        if (objMemUsage) mem += objMemUsage(p->info);
 
         p = p->prox;
     }
@@ -554,15 +567,28 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
  * 
  * @param has Dicionário
  * @param printObj Função para mostrar cada elemento
+ * 
+ * @note Adiciona um espaço entre cada elemento
  */
-void printDict(Dict *has, void (*printObj)(void *obj)) {
-    if (!has || !printObj) return;
+void printDict(Dict *has, void (*printObj)(void *obj), int pausa) {
+    if (!has || !printObj || pausa < 0) return;
+
+    int count = 0;
 
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = has->tabela[i];
         while (p) {
-            printLista(p->dados, printObj);
+            printLista(p->dados, printObj, pausa), ;
             p = p->prox;
+
+            if (pausa) {
+                count++;
+                if (count % pausa == 0) {
+                    pressEnter();
+                }
+            }
+
+            printf("\n");
         }
     }
 }
@@ -695,10 +721,21 @@ void guardarDadosDictBin(Dict *has, void (*saveInfo)(void *obj, FILE *fileObj), 
     }
 }
 
-
-Dict *readToDictBin(int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj),
-                void (*freeObj)(void *obj), void (*freeChave)(void *chave), void *(*readInfo)(FILE *fileObj), FILE *file) {
-    if (!file || !readInfo || !freeChave || !freeObj || !hashChave || !compChave || !criarChave) return NULL;
+/**
+ * @brief Lê os dados de um ficheiro binário para um dicionário
+ * 
+ * @param compChave Função para comparar a chave (deve retornar 0 se igual)
+ * @param criarChave Função para criar a chave
+ * @param hashChave Função para obter o hash da chave
+ * @param freeObj Função para libertar a memória ocupada por um objeto
+ * @param freeChave Função para libertar a memória ocupada por uma chave
+ * @param readInfo Função para ler um elemento do ficheiro binário
+ * @param file Ficheiro binário, aberto
+ * @return Dict* Dicionário com os dados ou NULL se erro
+ */
+Dict *readToDictBin(void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj),
+                        void (*freeChave)(void *chave), void *(*readInfo)(FILE *fileObj), FILE *file) {
+    if (!file || !readInfo || !freeChave || !freeObj || !hashChave || !criarChave) return NULL;
 
     Dict *has = criarDict();
     if (!has) return NULL;
@@ -780,7 +817,35 @@ size_t dictMemUsage(Dict *has, size_t (*objMemUsage)(void *obj), size_t (*chaveM
     return mem;
 }
 
+/**
+ * @brief Adiciona todos os elementos de um dicionário a uma lista
+ * 
+ * @param has Dicionário
+ * @return Lista* Lista ou NULL se erro
+ */
+Lista *dictToLista(Dict *has) {
+    if (!has || !has->tabela) return NULL;
 
+    Lista *li = criarLista();
+    if (!li) return NULL;
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = has->tabela[i];
+
+        while(p) {
+            No *x = p->dados->inicio;
+
+            while(x) {
+                addInicioLista(li, x->info);
+
+                x = x->prox;
+            }
+            p = p->prox;
+        }
+    }
+
+    return li;
+}
 
 // Árvores
 

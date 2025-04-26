@@ -158,7 +158,18 @@ void exportarDistanciasCSV(Distancias *d, FILE *file) {
     }
 }
 
-size_t memoriaOcupadaDistancias(void *distancia){
-    if (!distancia) return 0;
-    Distancias *aux = (Distancias*) distancia;
+/**
+ * @brief Memória ocupada pelas distâncias
+ * 
+ * @param d Distâncias
+ * @return size_t Memória ocupada ou 0 se erro
+ */
+size_t memUsageDistancias(Distancias *d) {
+    if (!d) return 0;
+
+    size_t mem = sizeof(Distancias);
+    mem += (d->nColunas * d->nColunas * sizeof(float));
+
+    return mem;
 }
+

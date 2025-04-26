@@ -242,7 +242,22 @@ void printSensorCSV(void *sensor, FILE *file) {
     fprintf(file, "%d, %s, \"%s\", \"%s\"\n", s->codSensor, s->designacao, s->latitude, s->longitude); 
 }
 
-size_t memoriaOcupadaSensores(void *sensor){
+/**
+ * @brief Memória usada por um sensor
+ * 
+ * @param sensor Sensor
+ * @return size_t Memória usada ou 0 se erro
+ */
+size_t memUsageSensor(void *sensor) {
     if (!sensor) return 0;
-    Sensor *aux = (Sensor*) sensor;
+
+    Sensor *s = (Sensor *)sensor;
+
+    size_t mem = sizeof(Sensor);
+    mem += strlen(s->designacao) + 1;
+    mem += strlen(s->latitude) + 1;
+    mem += strlen(s->longitude) + 1;
+
+    return mem;
 }
+

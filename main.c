@@ -38,6 +38,10 @@ Para compilar em Linux, usar:
 
 
 // TODO: validar data da segunda passagem (concluído, falta verificar)
+// Criar uma opção chamada "Atualizar os dados do condutor", que serviria para o efeito do Carro ser introduzido antes do dono, nesse caso, após o
+// dono ser inserido, seria chamada e ela iria procurar pelo dono e encontrar o seu ponteiro, ou então pedir os dados nessa vez
+// Listagens pode ter espaço ou enter para avançar para o fim(espaço)
+// TODO: dictToList
 
 int main(void) {
     limpar_terminal();

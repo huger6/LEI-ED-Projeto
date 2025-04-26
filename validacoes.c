@@ -1,13 +1,20 @@
 #include "validacoes.h"
 
-
+/**
+ * @brief Valida um NIF
+ * 
+ * @param nif Nif
+ * @return int 1 se válido, 0 se inválido
+ */
 int validarNif(const int nif) 
 {
+    if (nif < 0) return 0;
+
     return 1;
 }
 
 /**
- * @brief Validar nome
+ * @brief Valida um nome
  * 
  * @param nome Nome
  * @return NULL se válido; retorna uma mensagem de erro se for inválido;

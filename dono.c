@@ -2,6 +2,7 @@
 #include "structsGenericas.h"
 #include "constantes.h"
 #include "bdados.h"
+#include "validacoes.h"
 
 /**
  * @brief Introduz o dono na base de dados
@@ -123,10 +124,12 @@ void freeDono(void *dono) {
  */
 void printDono(void *dono){
     if (!dono) return;
-    Dono  *x = (Dono*) dono;
-    printf ("\nNome: %s\n", x->nome);
-    printf ("NIF: %d\n", x->nif);
-    printf ("Código Postal: %hd-%hd\n", x->codigoPostal.local, x->codigoPostal.zona);
+
+    Dono  *d = (Dono *)dono;
+
+    printf ("NIF: %d\n", d->nif);
+    printf ("Nome: %s\n", d->nome ? d->nome : "n/a");
+    printf ("Código Postal: %hd-%hd\n", d->codigoPostal.zona, d->codigoPostal.local);
 }
 
 /**
@@ -169,15 +172,6 @@ void *readDonoBin(FILE *file) {
     fread(x->nome, tamanho, 1, file);
     return (void *)x;
 }
-
-/*
-void guardarDonoDupBin(void *obj, FILE *file) {
-    if (!obj || !file) return;
-
-    Dono *x = (Dono *)obj;
-    fwrite(&x->nif, sizeof(int), 1, file);
-}
-*/
 
 /**
  * @brief Guarda a chave do dono por Nif em ficheiro binário
@@ -394,10 +388,115 @@ void printDonoCSV(void *dono, FILE *file) {
     fprintf(file, "%d, %s, %hd-%hd\n", d->nif, d->nome ? d->nome : "n/a", d->codigoPostal.zona, d->codigoPostal.local);
 }
 
-
-size_t memoriaOcupadaDono(void *dono){
+/**
+ * @brief Memória usada por um dono
+ * 
+ * @param dono Dono
+ * @return size_t Memória usada pelo dono ou 0 se erro
+ */
+size_t memUsageDono(void *dono) {
     if (!dono) return 0;
-    Dono *dono = (Dono*) dono;
-}void registarDono(Bdados *bd) {
-    
+
+    Dono *d = (Dono *)dono;
+
+    size_t mem = sizeof(Dono);
+    mem += strlen(d->nome) + 1;
+
+    return mem;
 }
+
+/**
+ * @brief Memória utilizada pela chave dos donos por código
+ * 
+ * @param chave Chave
+ * @return size_t Memória utilizada ou 0 se erro
+ */
+size_t memUsageChaveDonoCod(void *chave) {
+    if (!chave) return 0;
+
+    int *key = (int *)chave;
+    return sizeof(*key);
+}
+
+/**
+ * @brief Memória utilizada pela chave dos donos alfabeticamente
+ * 
+ * @param chave Chave
+ * @return size_t Memória utilizada ou 0 se erro
+ */
+size_t memUsageChaveDonoAlfabeticamente(void *chave) {
+    if (!chave) return 0;
+
+    char *key = (char *)chave;
+    size_t mem = strlen(key) + 1;
+
+    return mem;
+}
+
+/**
+ * @brief Pede os dados sobre o dono e insere na base de dados
+ * 
+ * @param bd Base de dados
+ */
+void registarDono(Bdados *bd) {
+    do {
+        limpar_terminal();
+        int nif = 0;
+        char *nome = NULL;
+        CodPostal cod = {0,0};
+        // NIF
+        pedirInt(&nif, "Insira o NIF do dono: ", validarNif);
+        printf("\n");
+
+        // Nome
+        do {    
+            printf("Insira o nome do dono: ");
+            nome = lerLinhaTxt(stdin, NULL);
+            if (!nome) {
+                printf("Erro a ler o nome!\n\n");
+                pressEnter();
+                continue;
+            }
+            char *mensagemErro = validarNome(nome);
+            if (mensagemErro) {
+                printf("%s\n\n", mensagemErro);
+                pressEnter();
+                free(nome);
+                continue;
+            }
+            break;
+        } while(1);
+        printf("\n");
+        // Codigo Postal
+        do {
+            printf("Insira o código postal no formato XXXX-XXX: ");
+            char *codPostal = lerLinhaTxt(stdin, NULL);
+            if (!codPostal) {
+                printf("Erro a ler o código postal!\n\n");
+                pressEnter();
+                continue;
+            }
+            converterCodPostal(codPostal, &cod.zona, &cod.local);
+            free(codPostal);
+
+            if (!validarCodPostal(cod.zona, cod.local)) {
+                printf("Código postal inválido\n\n");
+                pressEnter();
+                continue;
+            }
+            break;
+        } while(1);
+        printf("\n");
+
+        if (!inserirDonoLido(bd, nome, nif, cod)) {
+            free(nome);
+            printf("Ocorreu um erro a registar o dono em memória. Por favor tente novamente!\n\n");
+            pressEnter();
+            continue;
+        }
+        free(nome);
+        
+        if (!sim_nao("Quer inserir mais algum dono?")) break;
+    } while(1);
+}
+

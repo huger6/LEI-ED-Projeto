@@ -41,8 +41,11 @@ int hashChaveDonoAlfabeticamente(void *chave);
 void printDonoXML(void *dono, int indentacao, FILE *file);
 void printHeaderDonosCSV(FILE *file);
 void printDonoCSV(void *dono, FILE *file);
+size_t memUsageDono(void *dono);
+size_t memUsageChaveDonoCod(void *chave);
+size_t memUsageChaveDonoAlfabeticamente(void *chave);
+void registarDono(struct Bdados *bd);
 
-size_t memoriaOcupadaDono(void *dono);
 
 
 

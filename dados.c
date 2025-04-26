@@ -531,7 +531,7 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
                 }
                 if (indice == 1 && compararDatas(viagem[0]->data, date) == 1) {
                     linhaInvalida(linha, nLinhas, logs);
-                    fprintf(logs, "Razão: Data da passagem de saída inválida\n\n");
+                    fprintf(logs, "Razão: Data da passagem de saída inválida (entrada também foi invalidada - linha %d)\n\n", nLinhas - 1);
                     erro = '1';
                 }
 
@@ -594,13 +594,10 @@ int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs) {
     return 1;
 }
 
-
-/* Remove espaços extra de uma string
- *
+/** 
+ * @brief Remove espaços extra de uma string
  * @param str    String a modificar (se necessário)
  *
- * @return void
- *         
  * @note Remove espaços:
  *       - No início
  *       - No fim  
@@ -631,18 +628,16 @@ void removerEspacos(char *str) {
     *(fim + 1) = '\0';
 }
 
-/* Separa linha em parâmetros usando SEPARADOR
+/**
+ * @brief Separa linha em parâmetros usando SEPARADOR
  *
  * @param linha            String com linha completa a separar
  * @param parametros       Array de ponteiros para armazenar os parâmetros extraídos
  * @param numParametros   Ponteiro para contar os parâmetros
  * @param paramEsperados  Número de parâmetros esperados para separar
  *
- * @return void
- *         
  * @note Remove espaços extra via remover_espacos()
- * @note Em caso de erro:
- *       - Define num_parametros = 0
+ * @note Em caso de erro define num_parametros = 0
  */
 void separarParametros(char *linha, char **parametros, int *numParametros, const int paramEsperados) { // char ** parametros serve para armazenar os ponteiros dos parametros, de modo a que não sejam perdidos
     if (!linha || !parametros || !numParametros) return;
@@ -733,6 +728,13 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
     return 1;
 }
 
+/**
+ * @brief Carrega os dados de ficheiro binário para memória
+ * 
+ * @param bd Base de dados
+ * @param nome Nome do ficheiro a ler
+ * @return int 1 se sucesso, 0 se erro
+ */
 int carregarDadosBin(Bdados *bd, const char *nome) {
     if (!bd || !nome) return 0;
 
@@ -740,7 +742,7 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     if (!file) return 0;
 
     // Donos
-    bd->donosNif = readToDictBin(compChaveDonoNif, criarChaveDonoNif, hashChaveDonoNif, freeDono, freeChaveDonoNif, readDonoBin, file);
+    bd->donosNif = readToDictBin(criarChaveDonoNif, hashChaveDonoNif, freeDono, freeChaveDonoNif, readDonoBin, file);
     bd->donosAlfabeticamente = criarDict();
     // Iterar o dict dos nifs e introduzir o ponteiro no bd->donosAlfabeticamente
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
@@ -769,7 +771,7 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     }
 
     // Carros
-    bd->carrosCod = readToDictBin(compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod, readCarroBin, file);
+    bd->carrosCod = readToDictBin(criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod, readCarroBin, file);
     bd->carrosMarca = criarDict();
     // Obter ptrPessoa e libertar Dono atual (e adicionar Carros ao bd->carrosMarca)
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
