@@ -41,7 +41,7 @@ void converterPontoVirgulaDecimal(char *str);
 void replaceStrObj(char *str, const char out, const char in);
 char *lerLinhaTxt(FILE *ficheiro, int *n_linhas);
 void pedirInt(int *num, char *mensagem, int (*validarInput)(int input));
-void pedirShort(int *num, char *mensagem, int (*validarInput)(int input));
+void pedirShort(short *num, char *mensagem, int (*validarInput)(short input));
 int converterCodPostal(const char *codPostal, short *zona, short *local);
 int compararDatas(Data data1, Data data2);
 char *converterParaData(const char *strData, Data *data);

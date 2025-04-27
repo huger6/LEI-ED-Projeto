@@ -1,5 +1,6 @@
 #include "passagens.h"
 #include "bdados.h"
+#include "validacoes.h"
 
 /**
  * @brief Aloca memória para a passagem 
@@ -211,6 +212,35 @@ void *readPassagemBin(FILE *file) {
 void getStatsViagem(Bdados *bd, Viagem *v) {
     v->kms = bd->distancias->matriz[v->entrada->idSensor * bd->distancias->nColunas + v->saida->idSensor];
     v->tempo = calcularIntervaloTempo(&v->entrada->data, &v->saida->data); //min
+	v->velocidadeMedia = v->kms / (v->tempo * 60.0f);
+}
+
+/**
+ * @brief Mostra uma viagem
+ * 
+ * @param viagem Viagem a mostrar
+ */
+void printViagem(void *viagem) {
+	if (!viagem) return;
+
+	Viagem *v = (Viagem *)viagem;
+
+	printf("Código do veículo: %d\n", v->ptrCarro ? v->ptrCarro->codVeiculo : 0);
+	printf("Matrícula do veículo: %s\n", v->ptrCarro ? v->ptrCarro->matricula : "n/a");
+
+	// Entrada
+	printf("Passagem de entrada:\n");
+	printf("\tSensor: %d\n", v->entrada->idSensor);
+	printf("\tData: %hd-%hd-%hdT%hd:%hd:%f\n", v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
+		v->entrada->data.hora, v->entrada->data.min, v->entrada->data.seg);
+	// Saída
+	printf("Passagem de saída:\n");
+	printf("\tSensor: %d\n", v->saida->idSensor);
+	printf("\tData: %hd-%hd-%hdT%hd:%hd:%f\n", v->saida->data.dia, v->saida->data.mes, v->saida->data.ano,
+		v->saida->data.hora, v->saida->data.min, v->saida->data.seg);
+
+	printf("Tempo decorrido: %.3f", v->tempo);
+	printf("Distância percorrida: %.2f", v->tempo);
 }
 
 /**
@@ -259,28 +289,12 @@ void printViagemXML(void *viagem, int indentacao, FILE *file) {
 	fprintf(file, "<tempo>%.3fmin</tempo>\n", v->tempo);
 	indent(indentacao + 1, file);
 	fprintf(file, "<distancia>%.2fkm</distancia>\n", v->kms);
+	indent(indentacao + 1, file);
+	fprintf(file, "<velMedia>%.2fkm</velMedia>\n", v->kms);
 	
 	indent(indentacao, file);
 	fprintf(file, "</viagem>\n");
 }
-
-/*
-void mostrarPassagem(void *passagem){
-	if (!passagem) return;
-
-	Passagem *x = (Passagem*) passagem;
-	printf("\nID de Passagem: %d", x->idSensor);
-	printf("\nMatricula do veículo registado pelo sensor: %s", x->veiculo->matricula);
-	printf("\nData: %d/%d/%d", x->data.dia, x->data.mes, x->data.ano);
-	printf("\nHora: %d:%d e %d seg", x->data.hora, x->data.min, x->data.seg);
-	if (strcmp(x->tipoRegisto, '1') == 0){
-		printf("\nTipo de Registo: Saída");
-	}
-	if (strcmp(x->tipoRegisto, '0') == 0){
-		printf("\nTipo de Registo: Entrada");
-	}
-}
-*/
 
 /**
  * @brief Escreve os headers das viagens em formato CSV
@@ -290,7 +304,7 @@ void mostrarPassagem(void *passagem){
 void printHeaderViagensCSV(FILE *file) {
 	if (!file) return;
 
-	fprintf (file, "Código do Veículo, Entrada-sensor, Entrada-data, Entrada-tipo, Saída-sensor, Saída-data, Saída-tipo, Tempo, Distancia\n");
+	fprintf (file, "Código do Veículo, Entrada-sensor, Entrada-data, Entrada-tipo, Saída-sensor, Saída-data, Saída-tipo, Tempo, Distancia, Velocidade Média\n");
 }
 
 /**
@@ -308,17 +322,19 @@ void printViagemCSV(void *viagem, FILE *file) {
 	char *segSaida = floatToStringPontoDecimal(v->saida->data.seg, 3);
 	char *tempoStr = floatToStringPontoDecimal(v->tempo, 3);
 	char *kmsStr = floatToStringPontoDecimal(v->kms, 2);
+	char *velMediaStr = floatToStringPontoDecimal(v->velocidadeMedia, 2);
 
-	fprintf(file,"%d, %d, %hd-%hd-%hdT%hd:%hd:%s, %c, %d, %hd-%hd-%hdT%hd:%hd:%s, %c, %s, %s\n",
+	fprintf(file,"%d, %d, %hd-%hd-%hdT%hd:%hd:%s, %c, %d, %hd-%hd-%hdT%hd:%hd:%s, %c, %s, %s, %s\n",
 		v->ptrCarro ? v->ptrCarro->codVeiculo : -1, v->entrada->idSensor, v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
 		v->entrada->data.hora, v->entrada->data.min, segEntrada ? segEntrada : "n/a", v->entrada->tipoRegisto, 
 		v->saida->idSensor, v->saida->data.dia, v->saida->data.mes, v->saida->data.ano, v->saida->data.hora, v->saida->data.min, 
-		segSaida ? segSaida : "n/a", v->saida->tipoRegisto, tempoStr ? tempoStr : "n/a", kmsStr ? kmsStr : "n/a");
+		segSaida ? segSaida : "n/a", v->saida->tipoRegisto, tempoStr ? tempoStr : "n/a", kmsStr ? kmsStr : "n/a", velMediaStr ? velMediaStr : "n/a");
 
 	if (segEntrada) free(segEntrada);
 	if (segSaida) free(segSaida);
 	if (tempoStr) free(tempoStr);
 	if (kmsStr) free(kmsStr);
+	if (velMediaStr) free(velMediaStr);
 }
 
 /**
@@ -351,5 +367,114 @@ size_t memUsageViagem(void *viagem) {
 	mem += memUsagePassagem((void *)v->saida);
 
 	return mem;
+}
+
+/**
+ * @brief Pede os dados e regista na base de dados
+ * 
+ * @param bd Base de dados
+ */
+void registarViagem(Bdados *bd) {
+	if (!bd) return NULL;
+
+	do {
+		limpar_terminal();
+		int codVeiculo = 0;
+		Passagem *entrada = NULL;
+		Passagem *saida = NULL;
+		// Código do veículo
+		pedirInt(&codVeiculo, "Insira o código do veículo: ", validarCodVeiculo);
+		
+		void *codTemp = (void *)&codVeiculo;
+		Carro *carro = searchDict(bd->carrosCod, codTemp, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
+		if (!carro) {
+			printf("Não existe nenhum veículo com o código %d!\n", codVeiculo);
+			pressEnter();
+			continue;
+		}
+		printf("\n");
+
+		// Entrada
+		do {
+			printf("Por favor insira a passagem de entrada: \n");
+			entrada = pedirPassagem();
+			if (!entrada) {
+				printf("Ocorreu um erro a processar a passagem!\n");
+				pressEnter();
+				continue;
+			}
+			break;
+		} while(1);
+		printf("\n");
+
+		// Saida
+		do {
+			printf("Por favor insira a passagem de saída: \n");
+			saida = pedirPassagem();
+			if (!saida) {
+				printf("Ocorreu um erro a processar a passagem!\n");
+				pressEnter();
+				continue;
+			}
+			break;
+		} while(1);
+		
+		// Inserir na bd
+		if (!inserirViagemLido(bd, entrada, saida, codVeiculo)) {
+			printf("Ocorreu um erro a registar a viagem em memória. Por favor tente novamente!\n\n");
+			pressEnter();
+			continue;
+		}
+
+		if (!sim_nao("Quer inserir mais alguma viagem?")) break;
+	} while(1);
+}
+
+/**
+ * @brief Pede uma passagem ao utilizador
+ * 
+ * @return Passagem* Passagem ou NULL se erro
+ */
+Passagem *pedirPassagem() {
+	Passagem *p = (Passagem *)malloc(sizeof(Passagem));
+	if (!p) return NULL;
+
+	int idSensor = 0;
+	Data date = {0,0,0,0,0,0.0f};
+	char tipoRegisto = '0';
+
+	pedirInt(&idSensor, "Insira o ID do sensor: ", validarCodSensor);
+
+	do {
+		char *data = lerLinhaTxt(stdin, NULL);
+		if (!data) {
+			printf("Ocorreu um erro ao ler a data!\n");
+			pressEnter();
+			continue;
+		}
+		converterPontoVirgulaDecimal(data);
+
+		char *mensagemErro = converterParaData(data, &date);
+		free(data);
+		if (!mensagemErro) {
+			printf("%s\n", mensagemErro);
+			pressEnter();
+			continue;
+		}
+		if (!validarData(date, '1')) {
+			continue;
+		}
+		break;
+	} while(1);
+	
+	do {
+		printf("Insira o tipo de registo (0 - entrada, 1 - saída): ");
+		scanf(" %c", &tipoRegisto);
+	} while(!validarTipoRegisto(tipoRegisto));
+	p->idSensor = idSensor;
+	p->data = date;
+	p->tipoRegisto = tipoRegisto;
+
+	return p;
 }
 

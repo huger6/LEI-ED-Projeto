@@ -35,6 +35,7 @@ void freeChaveCarroMarca(void *chave);
 int compChaveCarroMarca(void *chave, void *chave2);
 int compCarroMarca (void *carro1, void *carro2);
 int compCarroMatricula(void *carro1, void *carro2);
+int compCarroModelo(void *carro1, void *carro2);
 void guardarChaveCarroCod(void *chave, FILE *file);
 void *readChaveCarroCod(FILE *file);
 void *criarChaveCarroCod(void *carro);
@@ -51,9 +52,6 @@ size_t memUsageChaveCarroMarca(void *chave);
 int obterCodVeiculoNovo(Dict *carrosCod);
 void registarCarro(struct Bdados *bd);
 
-
-int ordenarAlfModelo (void *carro1, void *carro2);
-int ordenarAlfMatricula (void *carro1, void *carro2);
 
 
 #endif

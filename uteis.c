@@ -440,7 +440,7 @@ void pedirInt(int *num, char *mensagem, int (*validarInput)(int input)) {
  * @param mensagem Mensagem/pedido (deve incluir ": " ou "? ")
  * @param validarInput Função para validar o short obtido, caso necessário
  */
-void pedirShort(int *num, char *mensagem, int (*validarInput)(int input)) {
+void pedirShort(short *num, char *mensagem, int (*validarInput)(short input)) {
     if (!num) return;
 
     *num = 0;

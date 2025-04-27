@@ -439,6 +439,8 @@ size_t memUsageChaveDonoAlfabeticamente(void *chave) {
  * @param bd Base de dados
  */
 void registarDono(Bdados *bd) {
+    if (!bd) return NULL;
+    
     do {
         limpar_terminal();
         int nif = 0;

@@ -92,6 +92,7 @@ void printLista(Lista *li, void (*printObj)(void *obj), int pausa) {
         if (pausa) {
             count++;
             if (count % pausa == 0) {
+                printf("\n");
                 pressEnter();
             }
         }
@@ -578,12 +579,13 @@ void printDict(Dict *has, void (*printObj)(void *obj), int pausa) {
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = has->tabela[i];
         while (p) {
-            printLista(p->dados, printObj, pausa), ;
+            printLista(p->dados, printObj, pausa);
             p = p->prox;
 
             if (pausa) {
                 count++;
                 if (count % pausa == 0) {
+                    printf("\n");
                     pressEnter();
                 }
             }
@@ -824,7 +826,7 @@ size_t dictMemUsage(Dict *has, size_t (*objMemUsage)(void *obj), size_t (*chaveM
  * @return Lista* Lista ou NULL se erro
  */
 Lista *dictToLista(Dict *has) {
-    if (!has || !has->tabela) return NULL;
+    if (!has) return NULL;
 
     Lista *li = criarLista();
     if (!li) return NULL;

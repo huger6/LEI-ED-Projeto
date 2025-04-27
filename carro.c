@@ -135,7 +135,7 @@ void printCarro(void *carro) {
     printf("Modelo: %s\n", c->modelo ? c->modelo : "n/a");
     printf("Ano do Veículo: %d\n", c->ano);
     if (c->ptrPessoa) {
-        printf("NIF do Dono: %d\n", c->ptrPessoa);
+        printf("NIF do Dono: %d\n", c->ptrPessoa->nif);
         printf("Nome do Dono: %s\n", c->ptrPessoa->nome);
     }
     else {
@@ -433,6 +433,24 @@ int compCarroMatricula(void *carro1, void *carro2) {
 }
 
 /**
+ * @brief Compara os carros pelo modelo
+ * 
+ * @param carro1 Carro 1
+ * @param carro2 Carro 2
+ * @return int -1 se carro1 < carro2, 0 se iguais, 1 se carro1 > carro2
+ */
+int compCarroModelo(void *carro1, void *carro2) {
+    if (!carro1 || !carro2) return 0;
+    if (!carro1) return -1;
+    if (!carro2) return 1;
+
+    Carro *x = (Carro *)carro1;
+    Carro *y = (Carro *)carro2;
+
+    return stricmp(x->modelo, y->modelo);
+}
+
+/**
  * @brief Mostra um carro em formato XML
  * 
  * @param carro Carro a mostrar
@@ -598,11 +616,8 @@ int obterCodVeiculoNovo(Dict *carrosCod) {
  * @param bd 
  */
 void registarCarro(Bdados *bd) {
-    //char matricula[MAX_MATRICULA + 1];
-    // char *marca;
-    // char *modelo;
-    // short ano;
-    // int codVeiculo; //PRIMARY KEY
+    if (!bd) return NULL;
+    
     do {
         limpar_terminal();
         int codVeiculo = 0;
@@ -623,7 +638,7 @@ void registarCarro(Bdados *bd) {
                 pressEnter();
                 continue;
             }
-            if (validarMatricula(matricula) != NULL) {
+            if (!validarMatricula(matricula)) {
                 free(matricula);
                 printf("A matrícula é inválida!\n\n");
                 pressEnter();
@@ -702,24 +717,5 @@ void registarCarro(Bdados *bd) {
 
         if (!sim_nao("Quer inserir mais algum dono?")) break;
     } while(1);
-}
-
-
-/* ERRO tolower
-int ordenarAlfModelo (void *carro1, void *carro2){
-    if (!carro1 || !carro2) return 0;
-    Carro *x1 = (Carro*) carro1;
-    Carro *x2 = (Carro*) carro2;
-    if (strcmp(tolower(x1->modelo),tolower(x2->modelo)) == 1) return 1;
-    return 0;
-}
-    */
-
-int ordenarAlfMatricula (void *carro1, void *carro2) {
-    if (!carro1 || !carro2) return 0;
-    Carro *x1 = (Carro*) carro1;
-    Carro *x2 = (Carro*) carro2;
-    if (strcmp(x1->matricula, x2->matricula) == 1) return 1;
-    return 0;
 }
 

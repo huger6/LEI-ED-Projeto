@@ -146,11 +146,11 @@ size_t memUsageTudo(Bdados *bd) {
 
     size_t memTotal = sizeof(Bdados);
 
-    memTotal += dictMemUsage(bd->carrosCod, memUsageCarro, memUsageChaveCarroCod);
-    memTotal += dictMemUsage(bd->carrosCod, NULL, memUsageChaveCarroMarca);
-
     memTotal += dictMemUsage(bd->donosNif, memUsageDono, memUsageChaveDonoCod);
     memTotal += dictMemUsage(bd->donosAlfabeticamente, NULL, memUsageChaveDonoAlfabeticamente);
+
+    memTotal += dictMemUsage(bd->carrosCod, memUsageCarro, memUsageChaveCarroCod);
+    memTotal += dictMemUsage(bd->carrosMarca, NULL, memUsageChaveCarroMarca);
 
     memTotal += listaMemUsage(bd->sensores, memUsageSensor);
 

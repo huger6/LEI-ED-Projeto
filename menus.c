@@ -3,6 +3,7 @@
 #include "menus.h"
 #include "uteis.h"
 #include "dono.h"
+#include "passagens.h"
 
 /* Mostra menu e processa entrada do utilizador
  *
@@ -380,6 +381,7 @@ void processarMenuListagemVeiculos(Bdados *bd) {
             case '1':
                 // Mostrar todos
                 printDict(bd->carrosCod, printCarro, 1000);
+                printf("----FIM DE LISTAGEM----\n");
                 pressEnter();
                 break;
             case '2':
@@ -387,15 +389,22 @@ void processarMenuListagemVeiculos(Bdados *bd) {
                 ordenarLista(li, compCarroMatricula);
                 printLista(li, printCarro, 1000);
                 
+                printf("----FIM DE LISTAGEM----\n");
                 pressEnter();
                 break;
             case '3':
                 // Mostrar por marca
                 printDict(bd->carrosMarca, printCarro, 1000);
+                printf("----FIM DE LISTAGEM----\n");
                 pressEnter();
                 break;
             case '4':
-                // Mostrar por modelo
+                Lista *li = dictToLista(bd->carrosCod);
+                ordenarLista(li, compCarroModelo);
+                printLista(li, printCarro, 1000);
+
+                printf("----FIM DE LISTAGEM----\n");
+                pressEnter();
                 break;
             default:
                 opcao = '0';
@@ -419,7 +428,7 @@ void processarMenuPassagens(Bdados *bd) {
             case '0':
                 break;
             case '1':
-                // Registar passagem
+                registarViagem(bd);
                 break;
             case '2':
                 // Ver todas as passagens
@@ -468,7 +477,6 @@ void processarMenuEstatisticas(Bdados *bd) {
  * @brief Chama as funcionalidades relativas às velocidades médias
  * @param bd Ponteiro para a base de dados
  * 
- * @return void
  * @note Submenu do menu de estatísticas
  */
 void processarMenuVelocidades(Bdados *bd) {

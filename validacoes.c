@@ -114,6 +114,7 @@ char * validarModelo(char *modelo) {
     validarNome(modelo);
     return NULL;
 }
+
 /**
  * @brief Validar código de veículo
  * 
@@ -124,6 +125,7 @@ int validarCodVeiculo(const int codigo) {
     if (codigo < 1) return 0;
     return 1;
 }
+
 /**
  * @brief Validar código de sensor
  * 

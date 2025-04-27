@@ -37,11 +37,11 @@ Para compilar em Linux, usar:
 */
 
 
-// TODO: validar data da segunda passagem (concluído, falta verificar)
 // Criar uma opção chamada "Atualizar os dados do condutor", que serviria para o efeito do Carro ser introduzido antes do dono, nesse caso, após o
 // dono ser inserido, seria chamada e ela iria procurar pelo dono e encontrar o seu ponteiro, ou então pedir os dados nessa vez
 // Listagens pode ter espaço ou enter para avançar para o fim(espaço)
-// TODO: dictToList
+// Listagens (modificar funcao printLista e dict de modo a aceitar um arg funcao printar em ficheiro e file, de modo a que se esses existam, seja também printado em ficheiro)
+// testar mem usage e registar
 
 int main(void) {
     limpar_terminal();
@@ -77,7 +77,7 @@ int main(void) {
     
     the_architect(bd);
     (void) guardarDadosBin(bd, AUTOSAVE_BIN);
-    freeTudo(bd); // Erro em freeViagem!!
+    freeTudo(bd); 
     printf("Guardei com sucesso!\n\n");
     return EXIT_SUCCESS;
 }
