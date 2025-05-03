@@ -9,6 +9,7 @@
 #include "distancias.h"
 #include "passagens.h"
 #include "constantes.h"
+#include "configs.h"
 
 
 /**
@@ -705,24 +706,19 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
     FILE *file = fopen(nome, "wb");
     if (!file) return 0;
 
+    // Configs
+    fwrite(&autosaveON, sizeof(int), 1, file);
+
     // Donos
     guardarDadosDictBin(bd->donosNif, guardarDonoBin, file);
-    printf("Guardei donosNif com sucesso!\n");
     // Carros
     guardarDadosDictBin(bd->carrosCod, guardarCarroBin, file);
-    printf("Guardei carrosCod com sucesso!\n");
-
     // Sensores
     guardarListaBin(bd->sensores, guardarSensorBin, file);
-    printf("Guardei sen com sucesso!\n");
-
     // Passagens/Viagens
     guardarListaBin(bd->viagens, guardarViagemBin, file);
-    printf("Guardei viagens com sucesso!\n");
- 
     // Distâncias
     guardarDistanciasBin(bd->distancias, file);
-    printf("Guardei distancias com sucesso!\n");
     
     fclose(file);
     return 1;
@@ -740,6 +736,9 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
 
     FILE *file = fopen(nome, "rb");
     if (!file) return 0;
+
+    // Configs
+    fread(&autosaveON, sizeof(int), 1, file);
 
     // Donos
     bd->donosNif = readToDictBin(criarChaveDonoNif, hashChaveDonoNif, freeDono, freeChaveDonoNif, readDonoBin, file);

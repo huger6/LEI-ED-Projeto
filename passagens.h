@@ -37,15 +37,17 @@ void *readViagemBin(FILE *file);
 void guardarPassagemBin(void *passagem, FILE *file);
 void *readPassagemBin(FILE *file);
 void getStatsViagem(struct Bdados *bd, Viagem *v);
-void printViagem(void *viagem);
+void printViagem(void *viagem, FILE *file);
 void printViagemXML(void *viagem, int indentacao, FILE *file);
-void mostrarPassagem(void *passagem);
 void printHeaderViagensCSV(FILE *file);
 void printViagemCSV(void *viagem, FILE *file);
+void printHeaderViagensTXT(FILE *file);
+void printViagemTXT(void *viagem, FILE *file);
 size_t memUsagePassagem(void *passagem);
 size_t memUsageViagem(void *viagem);
 void registarViagem(struct Bdados *bd);
-Passagem *pedirPassagem();
+Passagem *pedirPassagem(struct Bdados *bd);
+void listarViagensTodas(struct Bdados *bd);
 
 
 

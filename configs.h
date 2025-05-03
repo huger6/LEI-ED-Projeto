@@ -10,10 +10,20 @@
 
 struct Bdados;
 
+extern int autosaveON;
+
+extern char *donosFilename;
+extern char *carrosFilename;
+extern char *sensoresFilename;
+extern char *distanciasFilename;
+extern char *passagensFilename;
+
 void colocarTerminalUTF8();
 int faseInstalacao(const char *flag, const char abrir);
 void reset(struct Bdados *bd);
-
+void setFilenames();
+void freeFilenames();
+size_t memUsageVarGlobais();
 
 
 #endif

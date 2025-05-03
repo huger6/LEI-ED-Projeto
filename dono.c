@@ -122,14 +122,14 @@ void freeDono(void *dono) {
  * 
  * @param dono Dono
  */
-void printDono(void *dono){
-    if (!dono) return;
+void printDono(void *dono, FILE *file) {
+    if (!dono || !file) return;
 
     Dono  *d = (Dono *)dono;
-
-    printf ("NIF: %d\n", d->nif);
-    printf ("Nome: %s\n", d->nome ? d->nome : "n/a");
-    printf ("Código Postal: %hd-%hd\n", d->codigoPostal.zona, d->codigoPostal.local);
+    
+    fprintf(file, "NIF: %d\n", d->nif);
+    fprintf(file, "Nome: %s\n", d->nome ? d->nome : "n/a");
+    fprintf(file, "Código Postal: %hd-%hd\n", d->codigoPostal.zona, d->codigoPostal.local);
 }
 
 /**
@@ -389,6 +389,31 @@ void printDonoCSV(void *dono, FILE *file) {
 }
 
 /**
+ * @brief Escreve os headers em formato TXT para o Dono
+ * 
+ * @param file Ficheiro .txt onde escrever, aberto
+ */
+void printHeaderDonosTXT(FILE *file) {
+    if (!file) return;
+    
+    fprintf(file, "Nif\tNome\tCódigo Postal\n");
+}
+
+/**
+ * @brief Mostra o dono em formato TXT
+ * 
+ * @param dono Dono a mostrar
+ * @param file Ficheiro .txt, aberto
+ */
+void printDonoTXT(void *dono, FILE *file) {
+    if (!dono || !file) return;
+
+    Dono *d = (Dono *)dono;
+
+    fprintf(file, "%d\t%s\t%hd-%hd\n", d->nif, d->nome ? d->nome : "n/a", d->codigoPostal.zona, d->codigoPostal.local);
+}
+
+/**
  * @brief Memória usada por um dono
  * 
  * @param dono Dono
@@ -439,7 +464,7 @@ size_t memUsageChaveDonoAlfabeticamente(void *chave) {
  * @param bd Base de dados
  */
 void registarDono(Bdados *bd) {
-    if (!bd) return NULL;
+    if (!bd) return;
     
     do {
         limpar_terminal();
@@ -500,5 +525,64 @@ void registarDono(Bdados *bd) {
         
         if (!sim_nao("Quer inserir mais algum dono?")) break;
     } while(1);
+}
+
+/**
+ * @brief Lista todos os donos ordenados pelo NIF
+ * 
+ * @param bd Base de dados
+ */
+void listarDonosNIF(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM];
+    
+    Lista *donosNifOrd = dictToLista(bd->donosNif);
+    mergeSortLista(donosNifOrd, compDonosNif);
+    printLista(donosNifOrd, printDono, stdout, PAUSA_LISTAGEM);
+    printf("\n----FIM DE LISTAGEM----\n");
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderDonosTXT(file);
+            printLista(donosNifOrd, printDonoTXT, file, 0);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderDonosCSV(file);
+            printLista(donosNifOrd, printDonoCSV, file, 0);
+        }
+        fclose(file);
+    }
+    freeLista(donosNifOrd, NULL);
+    pressEnter();
+}
+
+/**
+ * @brief Lista todos os donos ordenados por ordem alfabética
+ * 
+ * @param bd Base de dados
+ */
+void listarDonosAlfabeticamente(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM];
+    
+    printDict(bd->donosAlfabeticamente, printDono, stdout, PAUSA_LISTAGEM);
+    printf("\n----FIM DE LISTAGEM----\n");
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderDonosTXT(file);
+            printDict(bd->donosAlfabeticamente, printDonoTXT, file, 0);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderDonosCSV(file);
+            printDict(bd->donosAlfabeticamente, printDonoCSV, file, 0);
+        }
+        fclose(file);
+    }
+    pressEnter();
 }
 

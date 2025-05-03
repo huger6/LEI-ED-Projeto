@@ -125,7 +125,7 @@ void exportarDistanciasXML(Distancias *d, int indentacao, FILE *file) {
             indent(indentacao + 2, file);
             fprintf(file, "<sensor2>%d</sensor2>\n", j + 1);
             indent(indentacao + 2, file);
-            fprintf(file, "<distancia>%.1f</distancia>\n", d->matriz[(i+1) * d->nColunas + j+1]);
+            fprintf(file, "<distancia>%.1f</distancia>\n", d->matriz[i * d->nColunas + j]);
 
             indent(indentacao + 1, file);
             fprintf(file, "</parSensores>\n");
@@ -151,7 +151,7 @@ void exportarDistanciasCSV(Distancias *d, FILE *file) {
         for (int j = i; j < d->nColunas; j++) {
             if (i == j) continue;
 
-            char *distanciaStr = floatToStringPontoDecimal(d->matriz[(i+1) * d->nColunas + j+1], 1);
+            char *distanciaStr = floatToStringPontoDecimal(d->matriz[(i) * d->nColunas + j], 1);
             fprintf(file, "%d, %d, %s\n", i + 1, j + 1, distanciaStr);
             free(distanciaStr);
         }

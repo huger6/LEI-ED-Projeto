@@ -5,8 +5,9 @@
 #define SEPARADOR_STR "\t" //Para usar no strtok
 #define MAX_MATRICULA 8
 #define TAMANHO_INICIAL_BUFFER 128
-#define HASH_DONOS_NIF 100
-#define HASH_CARROS_CODIGO 100
+#define TAMANHO_BUFFER_LISTAGEM 150
+#define TAMANHO_FORMATO_LISTAGEM 12
+#define PAUSA_LISTAGEM 1000
 
 //Nomes default para os ficheiros
 #define LOGS_TXT "logs.txt"
@@ -18,15 +19,13 @@
 #define CONFIG_TXT "config.txt"
 #define AUTOSAVE_BIN "autosave.bin"
 
-//Número de paraâmetros por cada ficheiro
+//Número de parâmetros por cada ficheiro
 #define PARAM_DONOS 3
 #define PARAM_CARROS 6
 #define PARAM_SENSORES 4
 #define PARAM_DISTANCIAS 3
 #define PARAM_PASSAGEM 4
 
-
-//extern char autosaveON;
 
 
 

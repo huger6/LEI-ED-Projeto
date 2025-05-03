@@ -25,7 +25,7 @@ int compararCarros(void *carro1, void *carro2);
 int inserirCarroLido(struct Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo);
 int compCodCarro(void *carro, void *codigo);
 void freeCarro(void *carro);
-void printCarro(void *carro);
+void printCarro(void *carro, FILE *file);
 void guardarCarroBin(void *carro, FILE *file);
 void *readCarroBin(FILE *file);
 void guardarChaveCarroMarca(void *chaveMarca, FILE *file);
@@ -45,13 +45,19 @@ int compChaveCarroCod(void *chave, void *chave2);
 void printCarroXML(void *carro, int indentacao, FILE *file);
 void printHeaderCarrosCSV(FILE *file);
 void printCarroCSV(void *carro, FILE *file);
+void printHeaderCarrosTXT(FILE *file);
+void printCarroTXT(void *carro, FILE *file);
 char *obterMarcaMaisComum(Dict *carrosMarca);
 size_t memUsageCarro(void *carro);
 size_t memUsageChaveCarroCod(void *chave);
 size_t memUsageChaveCarroMarca(void *chave);
 int obterCodVeiculoNovo(Dict *carrosCod);
 void registarCarro(struct Bdados *bd);
-
+void listarCarrosTodos(struct Bdados *bd);
+void listarCarrosPorMatricula(struct Bdados *bd);
+void listarCarrosPorMarca(struct Bdados *bd);
+void listarCarrosPorModelo(struct Bdados *bd);
+void listarCarrosPorPeriodoTempo(struct Bdados *bd);
 
 
 #endif

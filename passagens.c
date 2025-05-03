@@ -68,6 +68,7 @@ int inserirViagemLido(Bdados *bd, Passagem *entrada, Passagem *saida, int codVei
 	return 1;
 }
 
+// INUTILIZADA
 int compararPassagens(void *passagem1, void *passagem2) {
 	if (passagem1 == NULL && passagem2 == NULL) return 0;
 	if (passagem1 == NULL) return -1; //NULL < qualquer coisa
@@ -79,6 +80,7 @@ int compararPassagens(void *passagem1, void *passagem2) {
 	return (compararDatas(x->data, y->data));
 }
 
+// INUTILIZADA
 int compCodPassagem(void *passagem, void *codigo) {
 	if (!passagem || !codigo) return 0;
 
@@ -210,9 +212,9 @@ void *readPassagemBin(FILE *file) {
  * @param v Viagem 
  */
 void getStatsViagem(Bdados *bd, Viagem *v) {
-    v->kms = bd->distancias->matriz[v->entrada->idSensor * bd->distancias->nColunas + v->saida->idSensor];
+    v->kms = bd->distancias->matriz[(v->entrada->idSensor-1) * bd->distancias->nColunas + v->saida->idSensor-1];
     v->tempo = calcularIntervaloTempo(&v->entrada->data, &v->saida->data); //min
-	v->velocidadeMedia = v->kms / (v->tempo * 60.0f);
+	v->velocidadeMedia = v->kms / (v->tempo / 60.0f);
 }
 
 /**
@@ -220,27 +222,28 @@ void getStatsViagem(Bdados *bd, Viagem *v) {
  * 
  * @param viagem Viagem a mostrar
  */
-void printViagem(void *viagem) {
+void printViagem(void *viagem, FILE *file) {
 	if (!viagem) return;
 
 	Viagem *v = (Viagem *)viagem;
 
-	printf("Código do veículo: %d\n", v->ptrCarro ? v->ptrCarro->codVeiculo : 0);
-	printf("Matrícula do veículo: %s\n", v->ptrCarro ? v->ptrCarro->matricula : "n/a");
+	fprintf(file, "Código do veículo: %d\n", v->ptrCarro ? v->ptrCarro->codVeiculo : 0);
+	fprintf(file, "Matrícula do veículo: %s\n", v->ptrCarro ? v->ptrCarro->matricula : "n/a");
 
 	// Entrada
-	printf("Passagem de entrada:\n");
-	printf("\tSensor: %d\n", v->entrada->idSensor);
-	printf("\tData: %hd-%hd-%hdT%hd:%hd:%f\n", v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
+	fprintf(file, "Passagem de entrada:\n");
+	fprintf(file, "\tSensor: %d\n", v->entrada->idSensor);
+	fprintf(file, "\tData: %hd-%hd-%hdT%hd:%hd:%f\n", v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
 		v->entrada->data.hora, v->entrada->data.min, v->entrada->data.seg);
 	// Saída
-	printf("Passagem de saída:\n");
-	printf("\tSensor: %d\n", v->saida->idSensor);
-	printf("\tData: %hd-%hd-%hdT%hd:%hd:%f\n", v->saida->data.dia, v->saida->data.mes, v->saida->data.ano,
+	fprintf(file, "Passagem de saída:\n");
+	fprintf(file, "\tSensor: %d\n", v->saida->idSensor);
+	fprintf(file, "\tData: %hd-%hd-%hdT%hd:%hd:%.3f\n", v->saida->data.dia, v->saida->data.mes, v->saida->data.ano,
 		v->saida->data.hora, v->saida->data.min, v->saida->data.seg);
 
-	printf("Tempo decorrido: %.3f", v->tempo);
-	printf("Distância percorrida: %.2f", v->tempo);
+	fprintf(file, "Tempo decorrido: %.3f\n", v->tempo);
+	fprintf(file, "Distância percorrida: %.2f\n", v->kms);
+	fprintf(file, "Velocidade Média: %.2f\n", v->velocidadeMedia);
 }
 
 /**
@@ -338,6 +341,35 @@ void printViagemCSV(void *viagem, FILE *file) {
 }
 
 /**
+ * @brief Escreve os headers das viagens em formato CSV
+ * 
+ * @param file Ficheiro .csv, aberto
+ */
+void printHeaderViagensTXT(FILE *file) {
+	if (!file) return;
+
+	fprintf (file, "Código do Veículo\tEntrada-sensor\tEntrada-data\tEntrada-tipo\tSaída-sensor\tSaída-data\tSaída-tipo\tTempo\tDistancia\tVelocidade Média\n");
+}
+
+/**
+ * @brief Mostra uma viagem em formato CSV
+ * 
+ * @param viagem Viagem a mostrar
+ * @param file Ficheiro .csv, aberto
+ */
+void printViagemTXT(void *viagem, FILE *file) {
+	if ( !viagem || !file) return;
+
+	Viagem *v = (Viagem *)viagem;
+
+	fprintf(file,"%d\t%d\t%hd-%hd-%hdT%hd:%hd:%.3f\t%c\t%d\t%hd-%hd-%hdT%hd:%hd:%.3f\t%c\t%.3f\t%.2f\t%.2f\n",
+		v->ptrCarro ? v->ptrCarro->codVeiculo : -1, v->entrada->idSensor, v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
+		v->entrada->data.hora, v->entrada->data.min, v->entrada->data.seg, v->entrada->tipoRegisto, 
+		v->saida->idSensor, v->saida->data.dia, v->saida->data.mes, v->saida->data.ano, v->saida->data.hora, v->saida->data.min, 
+		v->saida->data.seg, v->saida->tipoRegisto, v->tempo, v->kms, v->velocidadeMedia);
+}
+
+/**
  * @brief Memória ocupada por uma passagem
  * 
  * @param passagem Passagem
@@ -375,7 +407,7 @@ size_t memUsageViagem(void *viagem) {
  * @param bd Base de dados
  */
 void registarViagem(Bdados *bd) {
-	if (!bd) return NULL;
+	if (!bd) return;
 
 	do {
 		limpar_terminal();
@@ -397,12 +429,13 @@ void registarViagem(Bdados *bd) {
 		// Entrada
 		do {
 			printf("Por favor insira a passagem de entrada: \n");
-			entrada = pedirPassagem();
+			entrada = pedirPassagem(bd);
 			if (!entrada) {
 				printf("Ocorreu um erro a processar a passagem!\n");
 				pressEnter();
 				continue;
 			}
+			entrada->tipoRegisto = '0';
 			break;
 		} while(1);
 		printf("\n");
@@ -410,21 +443,45 @@ void registarViagem(Bdados *bd) {
 		// Saida
 		do {
 			printf("Por favor insira a passagem de saída: \n");
-			saida = pedirPassagem();
+			saida = pedirPassagem(bd);
 			if (!saida) {
 				printf("Ocorreu um erro a processar a passagem!\n");
 				pressEnter();
 				continue;
 			}
+			entrada->tipoRegisto = '1';
 			break;
 		} while(1);
+		printf("\n");
+
+		// Validar mesmo ID Sensor
+		if (entrada->idSensor == saida->idSensor) {
+			printf("Os códigos dos sensores são iguais!\n");
+			pressEnter();
+			freePassagem((void *)entrada);
+			freePassagem((void *)saida);
+			continue;
+		}
+
+		// Validar as duas passagens em conjunto
+		if (compararDatas(entrada->data, saida->data) == 1) {
+			printf("A data da passagem de saída é inválida!\n");
+			pressEnter();
+			freePassagem((void *)entrada);
+			freePassagem((void *)saida);
+			continue;
+		}
 		
 		// Inserir na bd
 		if (!inserirViagemLido(bd, entrada, saida, codVeiculo)) {
 			printf("Ocorreu um erro a registar a viagem em memória. Por favor tente novamente!\n\n");
 			pressEnter();
+			freePassagem((void *)entrada);
+			freePassagem((void *)saida);
 			continue;
 		}
+		freePassagem((void *)entrada);
+		freePassagem((void *)saida);
 
 		if (!sim_nao("Quer inserir mais alguma viagem?")) break;
 	} while(1);
@@ -435,46 +492,53 @@ void registarViagem(Bdados *bd) {
  * 
  * @return Passagem* Passagem ou NULL se erro
  */
-Passagem *pedirPassagem() {
+Passagem *pedirPassagem(Bdados *bd) {
 	Passagem *p = (Passagem *)malloc(sizeof(Passagem));
 	if (!p) return NULL;
 
 	int idSensor = 0;
 	Data date = {0,0,0,0,0,0.0f};
-	char tipoRegisto = '0';
-
-	pedirInt(&idSensor, "Insira o ID do sensor: ", validarCodSensor);
-
 	do {
-		char *data = lerLinhaTxt(stdin, NULL);
-		if (!data) {
-			printf("Ocorreu um erro ao ler a data!\n");
+		pedirInt(&idSensor, "Insira o ID do sensor: ", validarCodSensor);
+		void *chave = (void *)&idSensor;
+		if (!searchLista(bd->sensores, compIdSensor, chave)) {
+			printf("O código do sensor não existe!");
 			pressEnter();
-			continue;
 		}
-		converterPontoVirgulaDecimal(data);
-
-		char *mensagemErro = converterParaData(data, &date);
-		free(data);
-		if (!mensagemErro) {
-			printf("%s\n", mensagemErro);
-			pressEnter();
-			continue;
-		}
-		if (!validarData(date, '1')) {
-			continue;
-		}
-		break;
 	} while(1);
+
+	pedirData(&date, NULL);
 	
-	do {
-		printf("Insira o tipo de registo (0 - entrada, 1 - saída): ");
-		scanf(" %c", &tipoRegisto);
-	} while(!validarTipoRegisto(tipoRegisto));
 	p->idSensor = idSensor;
 	p->data = date;
-	p->tipoRegisto = tipoRegisto;
 
 	return p;
 }
 
+/**
+ * @brief Lista todas as viagens
+ * 
+ * @param bd 
+ */
+void listarViagensTodas(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM];
+    
+    printLista(bd->viagens, printViagem, stdout, PAUSA_LISTAGEM);
+    printf("\n----FIM DE LISTAGEM----\n");
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderViagensTXT(file);
+            printLista(bd->viagens, printViagemTXT, file, 0);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderViagensCSV(file);
+            printLista(bd->viagens, printViagemCSV, file, 0);
+        }
+		fclose(file);
+    }
+    pressEnter();
+}

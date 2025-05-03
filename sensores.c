@@ -81,7 +81,7 @@ int compararSensores(void *sensor1, void *sensor2) {
  * @param idSensor ID
  * @return int 0 se iguais, 1 se diferentes ou erro
  */
-int compIdSensor(void *sensor, void *idSensor) { //FUNCAO NAO USADA
+int compIdSensor(void *sensor, void *idSensor) { 
     if (!sensor || !idSensor) return 1;
 
     Sensor *x = (Sensor *)sensor;

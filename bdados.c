@@ -4,6 +4,7 @@
 #include "dono.h"
 #include "passagens.h"
 #include "sensores.h"
+#include "configs.h"
 
 /**
  * @brief Inicializa a base de dados criando as estruturas necessárias
@@ -31,29 +32,21 @@ int inicializarBD(Bdados *bd) {
  */
 void freeTudo(Bdados *bd) {
     if (!bd) return;
-    printf("Memória antes de ser libertada: %.10f\n\n", obterUsoMemoria());
+    freeFilenames();
 
     freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
-    printf("Memória depois de libertar carrosMarca: %.10f\n\n", obterUsoMemoria());
     freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
-    printf("Memória depois de libertar carrosCod: %.10f\n\n", obterUsoMemoria());
 
     freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
-    printf("Memória depois de libertar donosAlf: %.10f\n\n", obterUsoMemoria());
     freeDict(bd->donosNif, freeChaveDonoNif, freeDono);
-    printf("Memória depois de libertar donosNif: %.10f\n\n", obterUsoMemoria());
 
     freeMatrizDistancias(bd->distancias);
-    printf("Memória depois de libertar matriz: %.10f\n\n", obterUsoMemoria());
 
     freeLista(bd->viagens, freeViagem);
-    printf("Memória depois de libertar viagens: %.10f\n\n", obterUsoMemoria());
 
     freeLista(bd->sensores, freeSensor);
-    printf("Memória depois de libertar sensores: %.10f\n\n", obterUsoMemoria());
 
     free(bd);
-    printf("Memória depois de libertar tudo: %.10f\n\n", obterUsoMemoria());
 }
 
 
@@ -146,6 +139,8 @@ size_t memUsageTudo(Bdados *bd) {
 
     size_t memTotal = sizeof(Bdados);
 
+    memTotal += memUsageVarGlobais();
+
     memTotal += dictMemUsage(bd->donosNif, memUsageDono, memUsageChaveDonoCod);
     memTotal += dictMemUsage(bd->donosAlfabeticamente, NULL, memUsageChaveDonoAlfabeticamente);
 
@@ -160,3 +155,4 @@ size_t memUsageTudo(Bdados *bd) {
 
     return memTotal;
 }
+

@@ -45,7 +45,7 @@ typedef struct {
 
 Lista *criarLista();
 int addInicioLista(Lista *li, void *elemento);
-void printLista(Lista *li, void (*printObj)(void *obj), int pausa);
+void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, int pausa);
 void exportarListaXML(Lista *li, char *nomeLista, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file);
 void exportarListaCSV(Lista *li, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file);
 void freeLista(Lista *li, void (*freeObj)(void *obj));
@@ -63,7 +63,7 @@ Dict *criarDict();
 NoHashing *posicaoInsercao(Dict *has, int indice, void *chave, int (*compChave)(void *chave, void *chave2));
 Lista *obterListaDoDict(Dict *has, void *chave, int (*compChave)(void *chave, void *chave2), int (*hashChave)(void *obj));
 int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave));
-void printDict(Dict *has, void (*printObj)(void *obj), int pausa);
+void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, int pausa);
 void exportarDictXML(Dict *has, char *nomeDict, void (*printObj)(void *obj, int indentacao, FILE *file), int indentacao, FILE *file);
 void exportarDictCSV(Dict *has, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file);
 void freeDict(Dict *has, void (*freeChave)(void *chave), void (*freeObj)(void *obj));

@@ -123,24 +123,25 @@ void freeCarro(void *carro) {
  * @brief Mostra um carro
  * 
  * @param carro Carro a mostrar
+ * @param file Ficheiro (stdin se for no terminal)
  */
-void printCarro(void *carro) {
-    if (!carro) return;
+void printCarro(void *carro, FILE *file) {
+    if (!carro || !file) return;
 
     Carro *c = (Carro *)carro;
-
-    printf("Código do Veículo: %d\n", c->codVeiculo);
-    printf("Matrícula: %s\n", c->matricula);
-    printf("Marca: %s\n", c->marca ? c->marca : "n/a");
-    printf("Modelo: %s\n", c->modelo ? c->modelo : "n/a");
-    printf("Ano do Veículo: %d\n", c->ano);
+    
+    fprintf(file, "Código do Veículo: %d\n", c->codVeiculo);
+    fprintf(file, "Matrícula: %s\n", c->matricula);
+    fprintf(file, "Marca: %s\n", c->marca ? c->marca : "n/a");
+    fprintf(file, "Modelo: %s\n", c->modelo ? c->modelo : "n/a");
+    fprintf(file, "Ano do Veículo: %d\n", c->ano);
     if (c->ptrPessoa) {
-        printf("NIF do Dono: %d\n", c->ptrPessoa->nif);
-        printf("Nome do Dono: %s\n", c->ptrPessoa->nome);
+        fprintf(file, "NIF do Dono: %d\n", c->ptrPessoa->nif);
+        fprintf(file, "Nome do Dono: %s\n", c->ptrPessoa->nome);
     }
     else {
-        printf("NIF do Dono: n/a\n");
-        printf("Nome do Dono: n/a\n");
+        fprintf(file, "NIF do Dono: n/a\n");
+        fprintf(file, "Nome do Dono: n/a\n");
     }
 }
 
@@ -510,6 +511,32 @@ void printCarroCSV(void *carro, FILE *file) {
 }
 
 /**
+ * @brief Escreve os headers dos carros em formato TXT (separado por tabs)
+ * 
+ * @param file Ficheiro .txt, aberto
+ */
+void printHeaderCarrosTXT(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "Código do veículo\tAno\tMatrícula\tMarca\tModelo\tNif Dono\n");
+}
+
+/**
+ * @brief Mostra um carro em formato TXT (separado por tabs)
+ * 
+ * @param carro Carro a mostrar
+ * @param file Ficheiro .txt, aberto
+ */
+void printCarroTXT(void *carro, FILE *file) {
+    if (!carro || !file) return;
+
+    Carro *c = (Carro *)carro;
+
+    fprintf(file, "%d\t%hd\t%s\t%s\t%s\t%d\n", c->codVeiculo, c->ano, c->matricula, c->marca ? c->marca : "n/a", 
+        c->modelo ? c->modelo : "n/a", c->ptrPessoa ? c->ptrPessoa->nif : -1);
+}
+
+/**
  * @brief Obtém a marca mais comum de um dicionário de carros ordenados em listas de marcas
  * 
  * @param carrosMarca Dicionário
@@ -616,7 +643,7 @@ int obterCodVeiculoNovo(Dict *carrosCod) {
  * @param bd 
  */
 void registarCarro(Bdados *bd) {
-    if (!bd) return NULL;
+    if (!bd) return;
     
     do {
         limpar_terminal();
@@ -719,3 +746,183 @@ void registarCarro(Bdados *bd) {
     } while(1);
 }
 
+/**
+ * @brief Lista todos os carros
+ * 
+ * @param bd Base de dados
+ */
+void listarCarrosTodos(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM];
+    
+    printDict(bd->carrosCod, printCarro, stdout, PAUSA_LISTAGEM);
+    printf("\n----FIM DE LISTAGEM----\n");
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderCarrosTXT(file);
+            printDict(bd->carrosCod, printCarroTXT, file, 0);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderCarrosCSV(file);
+            printDict(bd->carrosCod, printCarroCSV, file, 0);
+        }
+        fclose(file);
+    }
+    pressEnter();
+}
+
+/**
+ * @brief Lista todos os carros por matrícula
+ * 
+ * @param bd Base de dados
+ */
+void listarCarrosPorMatricula(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM];
+    
+    Lista *carrosMat = dictToLista(bd->carrosCod);
+    mergeSortLista(carrosMat, compCarroMatricula);
+    printLista(carrosMat, printCarro, stdout, PAUSA_LISTAGEM);
+    printf("\n----FIM DE LISTAGEM----\n\n");
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderCarrosTXT(file);
+            printLista(carrosMat, printCarroTXT, file, 0);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderCarrosCSV(file);
+            printLista(carrosMat, printCarroCSV, file, 0);
+        }
+        fclose(file);
+    }
+    freeLista(carrosMat, NULL);
+    pressEnter();
+}
+
+/**
+ * @brief Lista todos os carros por marca
+ * 
+ * @param bd Base de dados
+ */
+void listarCarrosPorMarca(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM];
+    
+    printDict(bd->carrosMarca, printCarro, stdout, PAUSA_LISTAGEM);
+    printf("\n----FIM DE LISTAGEM----\n");
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderCarrosTXT(file);
+            printDict(bd->carrosMarca, printCarroTXT, file, 0);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderCarrosCSV(file);
+            printDict(bd->carrosMarca, printCarroCSV, file, 0);
+        }
+        fclose(file);
+    }
+    pressEnter();
+}
+
+/**
+ * @brief Lista todos os carros por modelo
+ * 
+ * @param bd Base de dados
+ */
+void listarCarrosPorModelo(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
+    
+    Lista *carrosMod = dictToLista(bd->carrosCod);
+    mergeSortLista(carrosMod, compCarroModelo);
+    printLista(carrosMod, printCarro, stdout, PAUSA_LISTAGEM);
+    printf("\n----FIM DE LISTAGEM----\n");
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderCarrosTXT(file);
+            printLista(carrosMod, printCarroTXT, file, 0);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderCarrosCSV(file);
+            printLista(carrosMod, printCarroCSV, file, 0);
+        }
+        fclose(file);
+    }
+    freeLista(carrosMod, NULL);
+    pressEnter();
+}
+
+/**
+ * @brief Lista os carros quer circularam durante um determinado período de tempo
+ * 
+ * @param bd Base de dados
+ */
+void listarCarrosPorPeriodoTempo(Bdados *bd) {
+    if (!bd) return;
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
+    
+    int count = 0;
+    Data inicio = {0,0,0,0,0,0.0f};
+    Data fim = {0,0,0,0,0,0.0f};
+    pedirPeriodoTempo(&inicio, &fim, "Insira a data inicial: ", "Insira a data final: ");
+    
+
+    No *p = bd->viagens->inicio;
+    while(p) {
+        Viagem *v = (Viagem *)p->info;
+        if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
+            count++;
+            printViagem(p->info, stdout);
+            if (count % PAUSA_LISTAGEM == 0) {
+                printf("\n");
+                pressEnter();
+            }
+        }
+        p = p->prox;
+
+        printf("\n");
+    }
+    printf("\n----FIM DE LISTAGEM----\n");
+
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderCarrosTXT(file);
+            No *p = bd->viagens->inicio;
+            while(p) {
+                Viagem *v = (Viagem *)p->info;
+                if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
+                    printViagemTXT(p->info, file);
+                }
+                p = p->prox;
+            }
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderCarrosCSV(file);
+            No *p = bd->viagens->inicio;
+            while(p) {
+                Viagem *v = (Viagem *)p->info;
+                if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
+                    printViagemCSV(p->info, file);
+                }
+                p = p->prox;
+            }
+        }
+        fclose(file);
+    }
+    pressEnter();
+}
+ 

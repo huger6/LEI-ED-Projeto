@@ -1,6 +1,7 @@
 //Ficheiro com todas as funções relativas a menus
 
 #include "menus.h"
+#include "configs.h"
 #include "uteis.h"
 #include "dono.h"
 #include "passagens.h"
@@ -119,9 +120,9 @@ void menuListagemVeiculos() {
  */
 void menuPassagens() {
     printf("╔═════════════════════════════════╗\n");
-    printf("║           PASSAGENS             ║\n");
+    printf("║       PASSAGENS/VIAGENS         ║\n");
     printf("╠═════════════════════════════════╣\n");
-    printf("║  1. Registar passagem           ║\n");
+    printf("║  1. Registar viagem             ║\n");
     printf("║  2. Ver todas as passagens      ║\n");
     printf("║  0. Voltar ao menu anterior     ║\n");
     printf("╚═════════════════════════════════╝\n\n");
@@ -241,6 +242,24 @@ void menuFormatosListagem() {
     printf("╚══════════════════════════╝\n\n");
 }
 
+/**
+ * @brief Escreve o menu sobre os nomes dos ficheiros a carregar
+ * 
+ * @note Opções: 0-5
+ */
+void menuNomeFicheirosDados() {
+    printf("=====================================================\n");
+    printf("                 NOME DOS FICHEIROS\n");
+    printf("  Nota: Incluir o nome do diretório (Default Dados/)\n");
+    printf("=====================================================\n");
+    printf("%-15s | %s\n", "1. Donos",      donosFilename      ? donosFilename      : DONOS_TXT "(Default)");
+    printf("%-15s | %s\n", "2. Carros",     carrosFilename     ? carrosFilename     : CARROS_TXT "(Default)");
+    printf("%-15s | %s\n", "3. Sensores",   sensoresFilename   ? sensoresFilename   : SENSORES_TXT "(Default)");
+    printf("%-15s | %s\n", "4. Distancias", distanciasFilename ? distanciasFilename : DISTANCIAS_TXT "(Default)");
+    printf("%-15s | %s\n", "5. Passagens",  passagensFilename  ? passagensFilename  : PASSAGEM_TXT "(Default)");
+    printf("%-15s | %s\n", "0. Sair",  "(Default)");
+    printf("=====================================================\n");
+}
 
 //Processar os menus
 
@@ -313,16 +332,12 @@ void processarMenuDonos(Bdados *bd) {
                 registarDono(bd);
                 break;
             case '2':
-                //Listar donos (alfabeticamente)
-                printDict(bd->donosAlfabeticamente, printDono, 1000);
-                printf("Listagem terminada!\n");
-                pressEnter();
+                // Listar donos (alfabeticamente)
+                listarDonosAlfabeticamente(bd);
                 break;
             case '3':
-                //Listar donos (por NIF)
-                printDict(bd->donosNif, printDono, 1000);
-                printf("Listagem terminada!\n");
-                pressEnter();
+                // Listar donos (por NIF)
+                listarDonosNIF(bd);
                 break;
             default:
                 opcao = '0';
@@ -353,7 +368,8 @@ void processarMenuVeiculos(Bdados *bd) {
                 processarMenuListagemVeiculos(bd);
                 break;
             case '3':
-                //Veículos por período de circulação
+                // Veículos por período de circulação
+                listarCarrosPorPeriodoTempo(bd);
                 break;
             default:
                 opcao = '0'; 
@@ -380,31 +396,19 @@ void processarMenuListagemVeiculos(Bdados *bd) {
                 break;
             case '1':
                 // Mostrar todos
-                printDict(bd->carrosCod, printCarro, 1000);
-                printf("----FIM DE LISTAGEM----\n");
-                pressEnter();
+                listarCarrosTodos(bd);
                 break;
             case '2':
-                Lista *li = dictToLista(bd->carrosCod);
-                ordenarLista(li, compCarroMatricula);
-                printLista(li, printCarro, 1000);
-                
-                printf("----FIM DE LISTAGEM----\n");
-                pressEnter();
+                // Mostrar por matrícula
+                listarCarrosPorMatricula(bd);
                 break;
             case '3':
                 // Mostrar por marca
-                printDict(bd->carrosMarca, printCarro, 1000);
-                printf("----FIM DE LISTAGEM----\n");
-                pressEnter();
+                listarCarrosPorMarca(bd);
                 break;
             case '4':
-                Lista *li = dictToLista(bd->carrosCod);
-                ordenarLista(li, compCarroModelo);
-                printLista(li, printCarro, 1000);
-
-                printf("----FIM DE LISTAGEM----\n");
-                pressEnter();
+                // Mostrar por modelo
+                listarCarrosPorModelo(bd);
                 break;
             default:
                 opcao = '0';
@@ -432,6 +436,7 @@ void processarMenuPassagens(Bdados *bd) {
                 break;
             case '2':
                 // Ver todas as passagens
+                listarViagensTodas(bd);
                 break;
             default:
                 opcao = '0'; 
@@ -565,7 +570,7 @@ void processarMenuAnaliseDados(Bdados *bd) {
                 limpar_terminal();
                 char *marcaMaisComum = obterMarcaMaisComum(bd->carrosMarca);
 
-                if (marcaMaisComum) printf("A marca mais comum de automóveis é a \"%s\".\n\n", marcaMaisComum);
+                if (marcaMaisComum) printf("A marca de automóveis mais comum é a \"%s\".\n\n", marcaMaisComum);
                 else printf("Ainda não há dados sobre nenhum carro!\n\n");
 
                 pressEnter();

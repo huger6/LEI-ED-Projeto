@@ -1,4 +1,5 @@
 #include "uteis.h"
+#include "validacoes.h"
 
 Data DATA_ATUAL = {0,0,0,0,0,0.0f}; //var global para guardar a data atual
 
@@ -58,6 +59,21 @@ void limpar_terminal() {
 void pressEnter() {
     printf("Pressione Enter para continuar.\n");
     while (getchar() != '\n');
+}
+
+/**
+ * @brief Pede ao utilizador para pressionar enter ou espaço
+ * 
+ * @return int 0 se enter, 1 se espaço
+ */
+int enter_espaco() {
+    printf("#Pressione Enter para continuar ou Espaço para saltar para o fim da listagem#\n");
+    char c;
+    do {
+        c = getchar();
+        if (c == '\n') return 0;
+        else if (c == ' ') return 1;
+    } while(1);
 }
 
 /* Gera um int aleatório entre min e max
@@ -464,6 +480,65 @@ void pedirShort(short *num, char *mensagem, int (*validarInput)(short input)) {
 }
 
 /**
+ * @brief Pede uma data ao utilizador
+ * 
+ * @param data Data onde guardar o input
+ * @param mensagem Mensagem/ pedido (já inclui formato e ': ')
+ */
+void pedirData(Data *data, char *mensagem) {
+    if (!data) return;
+
+    char *input = NULL;
+    do {
+        printf("%s (DD-MM-AAAA HH:MM:SS): ", mensagem ? mensagem : "Data (DD-MM-AAAA HH:MM:SS): ");
+        input = lerLinhaTxt(stdin, NULL);
+        if (!input) continue;;
+
+        converterPontoVirgulaDecimal(input);
+
+        char *erro = converterParaData(input, data);
+        if (erro) {
+            printf("%s", erro);
+            free(input);
+            pressEnter();
+            continue;
+        }
+        free(input);
+
+        if (!validarData(*data, '1')) {
+            pressEnter();
+            continue;
+        }
+        break;
+    } while(1);
+}
+
+/**
+ * @brief Pede um intervalo de tempo
+ * 
+ * @param inicio Data inicial
+ * @param fim Data final
+ * @param mensagemInicial Mensagem inicial
+ * @param mensagemFinal Mensagem final
+ */
+void pedirPeriodoTempo(Data *inicio, Data *fim, char *mensagemInicial, char *mensagemFinal) {
+    if (!inicio || !fim) return;
+
+    do {
+        pedirData(inicio, mensagemInicial ? mensagemInicial : "Insira a data inicial: ");
+    
+        pedirData(fim, mensagemFinal ? mensagemFinal : "Insira a data final: ");
+    
+        if (compararDatas(*inicio, *fim) == 1) {
+            printf("A data final é inferior à inicial!\n");
+            pressEnter();
+            continue;
+        }
+        break;
+    } while(1);
+}
+
+/**
  * @brief Converte os dados de codPostal para os parâmetros do Código Postal
  * 
  * @param codPostal Source (String)
@@ -685,3 +760,110 @@ char *floatToStringPontoDecimal(float valor, int casasDecimais) {
     strcpy(resultado, buffer);
     return resultado;
 }
+
+/**
+ * @brief Verificar se um dado nome de um ficheiro é válido
+ * 
+ * @param filename Nome do ficheiro
+ * @return int 1 se válido, 0 se erro
+ */
+int validarNomeFicheiro(const char *filename) {
+    //Caracteres inválidos ao escrever ficheiros
+    const char *chars_invalidos = "\\/:*?\"<>|";
+
+    for (int i = 0; filename[i] != '\0'; i++) {
+        //strchr é semelhante à strstr já usada, mas procura um char dentro da string(1º param)
+        if (strchr(chars_invalidos, filename[i]) != NULL) { 
+            printf("O nome do ficheiro é inválido. Por favor, escreva um nome sem os seguintes caracteres: \n");
+            printf("%s\n", chars_invalidos);
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+/**
+ * @brief Valida se podemos abrir um ficheiro e verifica ficheiros iguais (mesmo nome)
+ * 
+ * @param nome Nome do ficheiro a abrir
+ * @return FILE* Ficheiro aberto ou NULL se erro
+ */
+FILE *abrirFicheiroComValidacao(const char *nome) {
+    /*
+    Esta função segue os padrões do Windows, mas obviamente que também funciona nos outros sistemas operativos, porém de forma mais restritiva
+    O nome do ficheiro é case insensitive (tal como no windows)
+    */
+    FILE *ficheiro = fopen(nome, "r"); 
+    //Verificar se o ficheiro existe
+    if (ficheiro) {
+        fclose(ficheiro);
+        char mensagem[TAMANHO_BUFFER_LISTAGEM];
+        snprintf(mensagem, sizeof(mensagem), "Já existe um ficheiro com o nome \"%s\". Quer substituir o ficheiro no destino?", nome);
+        if (!sim_nao(mensagem)) {
+            return NULL;
+        }
+        limpar_terminal();
+    }
+    //Abrimos em modo escrita como normal
+    ficheiro = fopen(nome, "w");
+    if (!ficheiro) {
+        printf("Ocorreu um erro a abrir o ficheiro. Por favor, tente novamente mais tarde.\n");
+        return NULL;
+    }
+    
+    return ficheiro;
+}
+
+/**
+ * @brief Pergunta ao utilizador se quer fazer a listagem em ficheiro
+ * 
+ * @param formatoSelecionado String para armazenar o formato de ficheiro escolhido pelo user
+ * @return FILE* Ficheiro aberto ou NULL se erro
+ */
+FILE *pedirListagemFicheiro(char *formatoSelecionado) {
+    const char *formatos[] = {".txt", ".csv"};
+    short opcao;
+    char *filename;
+    FILE *file = NULL;
+
+    if (sim_nao("Deseja guardar a listagem num ficheiro?")) {
+        opcao = (short) mostrarMenu(menuFormatosListagem, '0', '2') - '0';
+        if (opcao == 0) {
+            limpar_terminal();
+            return NULL;
+        }
+        opcao--; //Fazemos a opcao ser igual ao indice de formatos
+        strcpy(formatoSelecionado, formatos[opcao]); 
+
+        //Nome do ficheiro fica à escolha do utilizador
+        do {
+            printf("Nome do ficheiro a guardar: ");
+            filename = lerLinhaTxt(stdin, NULL);
+            if (validarNomeFicheiro(filename)) break;
+            else free(filename);
+        } while(1);
+
+        //Garantir que a string a que vamos concatenar o nome da extensão do ficheiro tem tamanho suficiente para isso
+        char *temp = realloc(filename, strlen(filename) + strlen(formatos[opcao]) + 1);
+        if (!temp) { 
+            free(filename);
+            printf("Erro ao alocar memória. Por favor tente novamente mais tarde.\n");
+            return NULL;
+        }
+        filename = temp;
+
+        //strcat dá append da 2º string ao fim da 1ª.
+        strcat(filename, formatos[opcao]);
+        file = abrirFicheiroComValidacao(filename);
+        if (!file) {
+            free(filename);
+            return NULL; //Caso seja inválido
+        }
+        limpar_terminal();
+        printf("O ficheiro \"%s\" foi aberto com sucesso!\n", filename);
+        return file;
+    }
+    return NULL;
+}
+

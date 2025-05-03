@@ -39,9 +39,7 @@ Para compilar em Linux, usar:
 
 // Criar uma opção chamada "Atualizar os dados do condutor", que serviria para o efeito do Carro ser introduzido antes do dono, nesse caso, após o
 // dono ser inserido, seria chamada e ela iria procurar pelo dono e encontrar o seu ponteiro, ou então pedir os dados nessa vez
-// Listagens pode ter espaço ou enter para avançar para o fim(espaço)
-// Listagens (modificar funcao printLista e dict de modo a aceitar um arg funcao printar em ficheiro e file, de modo a que se esses existam, seja também printado em ficheiro)
-// testar mem usage e registar
+// testar mem usage e registar (mem usage parece estar off)
 
 int main(void) {
     limpar_terminal();
@@ -54,10 +52,10 @@ int main(void) {
     // Primeira iteração do programa
     if (faseInstalacao(CONFIG_TXT, '0') == 1) {
         inicializarBD(bd);
-        if (!carregarDadosTxt(bd, NULL, NULL, NULL, NULL, NULL, NULL)) {
+        setFilenames(); // Obter os nomes dos ficheiros a carregar
+        if (!carregarDadosTxt(bd, donosFilename,  carrosFilename, sensoresFilename, distanciasFilename, passagensFilename, LOGS_TXT)) {
             // Tentar carregar dos ficheiros de backup
             // Talvez dar um aviso e dizer para colocar os ficheiros backup no diretório com o nome x
-            // Libertar memória na função de carregar dados de acordo com o que foi alocado
             exit(EXIT_FAILURE);
         }
         // Abrir o ficheiro flag (não é aberto antes para evitar ter de o fechar, em caso de erro)
@@ -76,8 +74,12 @@ int main(void) {
     }
     
     the_architect(bd);
-    (void) guardarDadosBin(bd, AUTOSAVE_BIN);
+    if(guardarDadosBin(bd, AUTOSAVE_BIN)) {
+        printf("Os dados foram guardados com sucesso!\n");
+    }
+    else {
+        printf("Ocorreu um erro ao guardar os dados!\n");
+    }
     freeTudo(bd); 
-    printf("Guardei com sucesso!\n\n");
     return EXIT_SUCCESS;
 }

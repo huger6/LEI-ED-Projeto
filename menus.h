@@ -19,6 +19,8 @@ void menuInfracoes();
 void menuAnaliseDados();
 void menuExportacao();
 void menuOpcoes();
+void menuFormatosListagem();
+void menuNomeFicheirosDados();
 
 void the_architect(Bdados *bd);
 void processarMenuDonos(Bdados *bd);

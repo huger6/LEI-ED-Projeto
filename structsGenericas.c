@@ -79,17 +79,17 @@ int addFimLista(Lista *li, void *elemento) {
  * 
  * @note Adiciona um espaço entre cada elemento
  */
-void printLista(Lista *li, void (*printObj)(void *obj), int pausa) {
-    if (!li || !printObj || pausa < 0) return;
+void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, int pausa) {
+    if (!li || !printObj || !file || pausa < 0) return;
 
     int count = 0;
 
     No *p = li->inicio;
     while(p) {
-        (*printObj)(p->info);
+        (*printObj)(p->info, file);
         p = p->prox;
 
-        if (pausa) {
+        if (file == stdout && pausa) {
             count++;
             if (count % pausa == 0) {
                 printf("\n");
@@ -97,7 +97,7 @@ void printLista(Lista *li, void (*printObj)(void *obj), int pausa) {
             }
         }
 
-        printf("\n"); // Para distinguir cada elemento
+        if (file == stdout) printf("\n"); // Para distinguir cada elemento
     }
 }
 
@@ -337,7 +337,7 @@ void ordenarLista(Lista * li, int (*compObjs)(void *obj1, void *obj2)) {
 }
 
 /**
- * @brief Pesquisa um código do tipo int na lista dada
+ * @brief Pesquisa um código na lista dada
  * 
  * @param li Lista onde procurar
  * @param compObjs Função para verificar se é a chave pretendida (deve retornar 0 caso seja)
@@ -571,18 +571,18 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
  * 
  * @note Adiciona um espaço entre cada elemento
  */
-void printDict(Dict *has, void (*printObj)(void *obj), int pausa) {
-    if (!has || !printObj || pausa < 0) return;
+void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, int pausa) {
+    if (!has || !printObj || !file ||pausa < 0) return;
 
     int count = 0;
 
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = has->tabela[i];
         while (p) {
-            printLista(p->dados, printObj, pausa);
+            printLista(p->dados, printObj, file, pausa);
             p = p->prox;
 
-            if (pausa) {
+            if (file == stdout && pausa) {
                 count++;
                 if (count % pausa == 0) {
                     printf("\n");
@@ -590,7 +590,7 @@ void printDict(Dict *has, void (*printObj)(void *obj), int pausa) {
                 }
             }
 
-            printf("\n");
+            if (file == stdout) printf("\n");
         }
     }
 }
