@@ -48,6 +48,7 @@ void printCarroCSV(void *carro, FILE *file);
 void printHeaderCarrosTXT(FILE *file);
 void printCarroTXT(void *carro, FILE *file);
 char *obterMarcaMaisComum(Dict *carrosMarca);
+char *obterMarcaMaisVelocidadeMedia(struct Bdados *bd);
 size_t memUsageCarro(void *carro);
 size_t memUsageChaveCarroCod(void *chave);
 size_t memUsageChaveCarroMarca(void *chave);

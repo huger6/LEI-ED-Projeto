@@ -7,6 +7,7 @@
 #define TAMANHO_TABELA_HASH 16007 // load factor 0,62; Nºprimo para não haver tantas colisões
 
 extern void pressEnter();
+extern int enter_espaco_esc();
 
 typedef struct no {
    void *info;

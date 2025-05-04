@@ -534,6 +534,7 @@ void registarDono(Bdados *bd) {
  */
 void listarDonosNIF(Bdados *bd) {
     if (!bd) return;
+    limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
@@ -565,6 +566,7 @@ void listarDonosNIF(Bdados *bd) {
  */
 void listarDonosAlfabeticamente(Bdados *bd) {
     if (!bd) return;
+    limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     

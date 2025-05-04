@@ -3,6 +3,7 @@
 #include "uteis.h"
 #include "menus.h"
 #include "constantes.h"
+#include "dados.h"
 
 int autosaveON = 0;
 char *donosFilename = DONOS_TXT;
@@ -339,5 +340,18 @@ size_t memUsageVarGlobais() {
     }
 
     return mem;
+}
+
+/**
+ * @brief Guarda automaticamente os dados se autosaveON == 1
+ * 
+ * @param bd Base de dados
+ */
+void autosave(Bdados *bd) {
+    if (!bd) return;
+
+    if (autosaveON == 1) {
+        (void) guardarDadosBin(bd, AUTOSAVE_BIN);
+    }
 }
 

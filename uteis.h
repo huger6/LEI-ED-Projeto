@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #if defined(_WIN32) || defined(_WIN64)
     #include <windows.h>
+    #include <conio.h>
     #include <psapi.h>
 #else 
     #include <sys/resource.h>
@@ -32,7 +33,7 @@ void limpar_buffer();
 int verificar_e_limpar_buffer();
 void limpar_terminal();
 void pressEnter();
-int enter_espaco();
+int enter_espaco_esc();
 int randomInt(int min, int max);
 void data_atual();
 int sim_nao(char *mensagem);

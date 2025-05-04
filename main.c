@@ -40,6 +40,8 @@ Para compilar em Linux, usar:
 // Criar uma opção chamada "Atualizar os dados do condutor", que serviria para o efeito do Carro ser introduzido antes do dono, nesse caso, após o
 // dono ser inserido, seria chamada e ela iria procurar pelo dono e encontrar o seu ponteiro, ou então pedir os dados nessa vez
 // testar mem usage e registar (mem usage parece estar off)
+// criar var global para ser o PAUSA_LISTAGEM e poder ser definida pelo user
+// NIF 123456789 dá segfault
 
 int main(void) {
     limpar_terminal();

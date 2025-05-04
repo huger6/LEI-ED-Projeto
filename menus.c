@@ -626,21 +626,19 @@ void processarMenuOpcoes(Bdados *bd) {
         switch(opcao) {
             case '0': break;
             case '1':
-                /*
                 limpar_terminal();
-                if (autosaveON == '0') {
-                    autosaveON = '1';
+                if (autosaveON == 0) {
+                    autosaveON = 1;
                     printf("O autosave foi ativado.\n");
                 }
                 else {
-                    autosaveON = '0';
+                    autosaveON = 0;
                     printf("O autosave foi desativado.\n");
                 }
                 pressEnter();
-                */
                 break;
             case '2':
-                //repor_estado_inicial(bd);
+                reset(bd);
                 break;
             case '3':
                 //guia_de_utilizacao();

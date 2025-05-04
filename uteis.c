@@ -57,23 +57,62 @@ void limpar_terminal() {
  * @note Bloqueia até receber \n
  */
 void pressEnter() {
-    printf("Pressione Enter para continuar.\n");
-    while (getchar() != '\n');
+    printf("#Pressione ENTER para continuar#\n");
+    #ifdef _WIN32
+        while(1) {
+            if (_kbhit()) {
+                int c = _getch();
+                if (c == 13) return;  // Enter
+            }
+        }
+    #else
+        char c;
+        system("stty raw");  // Disable line buffering
+        while(1) {
+            c = getchar();
+            if (c == '\n' || c == '\r') {
+                system("stty cooked");
+                return ;
+            }
+        }
+    #endif
 }
 
 /**
- * @brief Pede ao utilizador para pressionar enter ou espaço
+ * @brief Pede ao utilizador para pressionar enter, espaço ou esc
  * 
- * @return int 0 se enter, 1 se espaço
+ * @return int 0 se enter, 1 se espaço ou 2 se esc
  */
-int enter_espaco() {
-    printf("#Pressione Enter para continuar ou Espaço para saltar para o fim da listagem#\n");
-    char c;
-    do {
-        c = getchar();
-        if (c == '\n') return 0;
-        else if (c == ' ') return 1;
-    } while(1);
+int enter_espaco_esc() {
+    printf("#Pressione ENTER para continuar, ESPAÇO para saltar para o fim ou ESC para terminar#\n");
+    #ifdef _WIN32
+        while(1) {
+            if (_kbhit()) {
+                int c = _getch();
+                if (c == 13) return 0;  // Enter
+                if (c == 32) return 1;  // Space
+                if (c == 27) return 2;  // ESC
+            }
+        }
+    #else
+        char c;
+        system("stty raw");  // Disable line buffering
+        while(1) {
+            c = getchar();
+            if (c == '\n' || c == '\r') {
+                system("stty cooked");
+                return 0;
+            }
+            if (c == ' ') {
+                system("stty cooked");
+                return 1;
+            }
+            if (c == 27) {
+                system("stty cooked");
+                return 2;
+            }
+        }
+    #endif
 }
 
 /* Gera um int aleatório entre min e max
@@ -443,8 +482,9 @@ void pedirInt(int *num, char *mensagem, int (*validarInput)(int input)) {
             continue;
         }
         free(input);
-        
-        if (!validarInput(*num)) continue;
+        if (validarInput) {
+            if (!validarInput(*num)) continue;
+        }
         break;
     } while(1);
 }

@@ -93,7 +93,21 @@ void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, 
             count++;
             if (count % pausa == 0) {
                 printf("\n");
-                pressEnter();
+                int opcao = enter_espaco_esc();
+                switch (opcao) {
+                    case 0:
+                        break;
+                    case 1:
+                        while(count < li->nel - pausa) {
+                            p = p->prox;
+                            count++;
+                        }
+                        break;
+                    case 2:
+                        return;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -586,7 +600,21 @@ void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, in
                 count++;
                 if (count % pausa == 0) {
                     printf("\n");
-                    pressEnter();
+                    int opcao = enter_espaco_esc();
+                    switch (opcao) {
+                        case 0:
+                            break;
+                        case 1:
+                            while(count < has->nelDict - pausa) {
+                                p = p->prox;
+                                count++;
+                            }
+                            break;
+                        case 2:
+                            return;
+                        default:
+                            break;
+                    }
                 }
             }
 

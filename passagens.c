@@ -233,7 +233,7 @@ void printViagem(void *viagem, FILE *file) {
 	// Entrada
 	fprintf(file, "Passagem de entrada:\n");
 	fprintf(file, "\tSensor: %d\n", v->entrada->idSensor);
-	fprintf(file, "\tData: %hd-%hd-%hdT%hd:%hd:%f\n", v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
+	fprintf(file, "\tData: %hd-%hd-%hdT%hd:%hd:%.3f\n", v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
 		v->entrada->data.hora, v->entrada->data.min, v->entrada->data.seg);
 	// Saída
 	fprintf(file, "Passagem de saída:\n");
@@ -502,9 +502,10 @@ Passagem *pedirPassagem(Bdados *bd) {
 		pedirInt(&idSensor, "Insira o ID do sensor: ", validarCodSensor);
 		void *chave = (void *)&idSensor;
 		if (!searchLista(bd->sensores, compIdSensor, chave)) {
-			printf("O código do sensor não existe!");
+			printf("O código do sensor não existe!\n");
 			pressEnter();
 		}
+		break;
 	} while(1);
 
 	pedirData(&date, NULL);

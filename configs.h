@@ -24,6 +24,7 @@ void reset(struct Bdados *bd);
 void setFilenames();
 void freeFilenames();
 size_t memUsageVarGlobais();
+void autosave(struct Bdados *bd);
 
 
 #endif

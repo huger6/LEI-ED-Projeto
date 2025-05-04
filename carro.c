@@ -567,6 +567,60 @@ char *obterMarcaMaisComum(Dict *carrosMarca) {
 }
 
 /**
+ * @brief Obtém a marca de carros cuja velocidade média seja maior
+ * 
+ * @param bd Base de dados 
+ * @return char* Marca cuja velocidade média é  maior
+ */
+char *obterMarcaMaisVelocidadeMedia(Bdados *bd) {
+    if (!bd) return NULL;
+
+    char *marcaMaisRapida = NULL;
+    float velocidadeMax = 0;
+
+    // Iterar por todas as marcas
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->carrosMarca->tabela[i];
+        while(p) {
+            float distanciaTotal = 0;
+            float tempoTotal = 0;
+
+            // Iterar por todos os carros da marca
+            No *l = p->dados->inicio;
+            while (l) {
+                Carro *carro = (Carro *)l->info;
+                
+                // Iterar por todas as viagens
+                No *x = bd->viagens->inicio;
+                while(x) {
+                    Viagem *v = (Viagem *)x->info;
+                    // Verificar se a viagem é deste carro
+                    if (v->ptrCarro->codVeiculo == carro->codVeiculo) {
+                        distanciaTotal += v->kms;
+                        tempoTotal += v->tempo;
+                    }
+                    x = x->prox;
+                }
+                l = l->prox;
+            }
+
+            // Calcular velocidade média para esta marca
+            if (tempoTotal > 0) {
+                float velocidadeMedia = distanciaTotal / tempoTotal;
+                if (velocidadeMedia > velocidadeMax) {
+                    velocidadeMax = velocidadeMedia;
+                    Carro *primeiroCarro = (Carro *)p->dados->inicio->info;
+                    marcaMaisRapida = primeiroCarro->marca;
+                }
+            }
+            p = p->prox;
+        }
+    }
+
+    return marcaMaisRapida;
+}
+
+/**
  * @brief Memória ocupada por um carro
  * 
  * @param carro Carro
@@ -753,6 +807,7 @@ void registarCarro(Bdados *bd) {
  */
 void listarCarrosTodos(Bdados *bd) {
     if (!bd) return;
+    limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
@@ -781,6 +836,7 @@ void listarCarrosTodos(Bdados *bd) {
  */
 void listarCarrosPorMatricula(Bdados *bd) {
     if (!bd) return;
+    limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
@@ -812,6 +868,7 @@ void listarCarrosPorMatricula(Bdados *bd) {
  */
 void listarCarrosPorMarca(Bdados *bd) {
     if (!bd) return;
+    limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
@@ -840,6 +897,7 @@ void listarCarrosPorMarca(Bdados *bd) {
  */
 void listarCarrosPorModelo(Bdados *bd) {
     if (!bd) return;
+    limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
     
@@ -871,6 +929,7 @@ void listarCarrosPorModelo(Bdados *bd) {
  */
 void listarCarrosPorPeriodoTempo(Bdados *bd) {
     if (!bd) return;
+    limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
     
@@ -878,29 +937,45 @@ void listarCarrosPorPeriodoTempo(Bdados *bd) {
     Data inicio = {0,0,0,0,0,0.0f};
     Data fim = {0,0,0,0,0,0.0f};
     pedirPeriodoTempo(&inicio, &fim, "Insira a data inicial: ", "Insira a data final: ");
-    
 
     No *p = bd->viagens->inicio;
-    while(p) {
+    int sair = 0; // flag
+    int countTotal = 0;
+    while(p && sair == 0) {
         Viagem *v = (Viagem *)p->info;
         if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
             count++;
             printViagem(p->info, stdout);
             if (count % PAUSA_LISTAGEM == 0) {
                 printf("\n");
-                pressEnter();
+                int opcao = enter_espaco_esc();
+                switch (opcao) {
+                    case 0:
+                        break;
+                    case 1:
+                        while(countTotal < bd->viagens->nel - PAUSA_LISTAGEM) {
+                            p = p->prox;
+                            countTotal++;
+                        }
+                        break;
+                    case 2:
+                        sair = 1;
+                        break;
+                    default:
+                        break;
+                }
             }
+            printf("\n");
         }
+        countTotal++;
         p = p->prox;
-
-        printf("\n");
     }
     printf("\n----FIM DE LISTAGEM----\n");
 
     file = pedirListagemFicheiro(formato);
     if (file) {
         if (strcmp(formato, ".txt") == 0) {
-            printHeaderCarrosTXT(file);
+            printHeaderViagensTXT(file);
             No *p = bd->viagens->inicio;
             while(p) {
                 Viagem *v = (Viagem *)p->info;
@@ -911,7 +986,7 @@ void listarCarrosPorPeriodoTempo(Bdados *bd) {
             }
         }
         else if (strcmp(formato, ".csv") == 0) {
-            printHeaderCarrosCSV(file);
+            printHeaderViagensCSV(file);
             No *p = bd->viagens->inicio;
             while(p) {
                 Viagem *v = (Viagem *)p->info;
