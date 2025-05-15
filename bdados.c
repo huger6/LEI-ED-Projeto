@@ -129,6 +129,51 @@ void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFi
 }
 
 /**
+ * @brief Exporta todos os dados para formato HTML
+ * 
+ * @param bd Base de dados
+ * @param donosFilename Nome do ficheiro de donos (.html)
+ * @param carrosFilename Nome do ficheiro de carros (.html)
+ * @param sensoresFilename Nome do ficheiro de sensores (.html)
+ * @param distanciasFilename Nome do ficheiro das distâncias (.html)
+ * @param viagensFilename Nome do ficheiro das viagens (.html)
+ */
+void exportarTudoHTML(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename) {
+    if (!bd || !donosFilename || !carrosFilename || !sensoresFilename || !viagensFilename) return;
+    
+    FILE *donos = fopen(donosFilename, "w");
+    if (donos) {
+        exportarDictHTML(bd->donosNif, "Donos Database",printHeaderDonosHTML, printDonoHTML, donos);
+        fclose(donos);
+    }
+
+    FILE *carros = fopen(carrosFilename, "w");
+    if (carros) {
+        exportarDictHTML(bd->carrosCod, "Carros Database",printHeaderCarrosHTML, printCarroHTML, carros);
+        fclose(carros);
+    }
+
+    FILE *sensores = fopen(sensoresFilename, "w");
+    if (sensores) {
+        exportarListaHTML(bd->sensores, "Sensores Database", printHeaderSensoresHTML, printSensorHTML, sensores);
+        fclose(sensores);
+    }
+    
+    FILE *distancias = fopen(distanciasFilename, "w");
+    if (distancias) {
+        exportarDistanciasHTML(bd->distancias, "Distâncias Database", distancias);
+        fclose(distancias);
+    }
+    
+    // O ficheiro é demasiado grande, e como tal, não abre (seria necessário modificar com JS)
+    FILE *viagens = fopen(viagensFilename, "w");
+    if (viagens) {
+        exportarListaHTML(bd->viagens, "Viagens Database",printHeaderViagensHTML, printViagemHTML, viagens);
+        fclose(viagens);
+    }
+}
+
+/**
  * @brief Calcula a memória ocupada por toda a base de dados
  * 
  * @param bd Base de dados

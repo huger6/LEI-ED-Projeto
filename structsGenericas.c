@@ -1,5 +1,7 @@
 #include "structsGenericas.h"
 
+int listagemFlag = 0; // Inicializar a 0, caso seja 1 a listagem é interrompida
+
 /**
  * @brief Cria uma lista genérica
  * 
@@ -83,6 +85,7 @@ void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, 
     if (!li || !printObj || !file || pausa < 0) return;
 
     int count = 0;
+    listagemFlag = 0;
 
     No *p = li->inicio;
     while(p) {
@@ -104,6 +107,7 @@ void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, 
                         }
                         break;
                     case 2:
+                        listagemFlag = 1; // Avisar possíveis funções nestadas
                         return;
                     default:
                         break;
@@ -162,6 +166,60 @@ void exportarListaCSV(Lista *li, void (*printHeader)(FILE *file), void (*printOb
         printObj(p->info, file);
         p = p->prox;
     }
+}
+
+/**
+ * @brief Exporta uma lista para formato .html
+ * 
+ * @param li Lista
+ * @param pagename Nome da página
+ * @param printTableHead Função para mostrar o cabeçalho da tabela 
+ * @param printObj Função para mostrar o objeto
+ * @param file Ficheiro .html, aberto
+ */
+void exportarListaHTML(Lista *li, char *pagename, void (*printTableHead)(FILE *file), void  (*printObj)(void *obj, FILE *file), FILE *file) {
+    if (!li || !li->inicio || !printObj || !file) return;
+
+    // Lista de caracteres HTML especiais que precisam ser substituídos
+    if (!pagename) return;
+
+    const char *invalidos = "<>\"'&";
+    for (int i = 0; pagename[i]; i++) {
+        if (strchr(invalidos, pagename[i]) != NULL) {
+            pagename = NULL; // Nome da página contém caracteres HTML inválidos (usar default)
+        }
+    }
+
+    fprintf(file,
+        "<!DOCTYPE html>\n"
+        "<html lang=\"pt\">\n"
+        "<head>\n"
+        "\t<meta charset=\"UTF-8\">\n"
+        "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+        "\t<title>%s</title>\n"
+        "\t<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n"
+        "</head>\n"
+        "<body>\n"
+        "\t<div class=\"container my-4\">\n"
+        "\t\t<div class=\"table-responsive\">\n"
+        "\t\t\t<table class=\"table table-bordered table-striped table-hover\">\n"
+        "\t\t\t\t<thead class=\"table-dark\">\n", pagename ? pagename : "Exportação HTML");
+        (*printTableHead)(file); 
+        fprintf(file, "\t\t\t\t<tbody>\n");
+
+        No *p = li->inicio;
+        while(p) {
+            printObj(p->info, file);
+            p = p->prox;
+        }
+
+        fprintf(file,   "\t\t\t\t</tbody>\n"
+                        "\t\t\t</table>\n"
+                        "\t\t</div>\n"
+                        "\t</div>\n"
+                        "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"></script>\n"
+                        "</body>\n"
+                        "</html>\n");
 }
 
 /**
@@ -534,7 +592,7 @@ Lista *obterListaDoDict(Dict *has, void *chave, int (*compChave)(void *chave, vo
  * @return int 0 se erro, 1 se sucesso
  */
 int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave)) {
-    if (!has || !obj || !compChave || !criarChave || !hashChave) return 0;
+    if (!has || !obj || !compChave || !criarChave || !hashChave || !freeChave) return 0;
 
     void *chave = criarChave(obj);
     if (!chave) return 0;
@@ -589,11 +647,16 @@ void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, in
     if (!has || !printObj || !file ||pausa < 0) return;
 
     int count = 0;
+    listagemFlag = 0;
 
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = has->tabela[i];
         while (p) {
             printLista(p->dados, printObj, file, pausa);
+            if (listagemFlag == 1) {
+                listagemFlag = 0;
+                return;
+            }
             p = p->prox;
 
             if (file == stdout && pausa) {
@@ -674,6 +737,66 @@ void exportarDictCSV(Dict *has, void (*printHeader)(FILE *file), void (*printObj
             p = p->prox;
         }
     }
+}
+
+/**
+ * @brief Exporta um dicionário para formato .html
+ * 
+ * @param has Dicionário
+ * @param pagename Nome da página
+ * @param printTableHead Função para mostrar o cabeçalho da tabela 
+ * @param printObj Função para mostrar o objeto
+ * @param file Ficheiro .html, aberto
+ */
+void exportarDictHTML(Dict *has, char *pagename, void (*printTableHead)(FILE *file), void  (*printObj)(void *obj, FILE *file), FILE *file) {
+    if (!has || !printObj || !file) return;
+
+    // Lista de caracteres HTML especiais que precisam ser substituídos
+    if (!pagename) return;
+
+    const char *invalidos = "<>\"'&";
+    for (int i = 0; pagename[i]; i++) {
+        if (strchr(invalidos, pagename[i]) != NULL) {
+            pagename = NULL; // Nome da página contém caracteres HTML inválidos (usar default)
+        }
+    }
+
+    fprintf(file,
+        "<!DOCTYPE html>\n"
+        "<html lang=\"pt\">\n"
+        "<head>\n"
+        "\t<meta charset=\"UTF-8\">\n"
+        "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+        "\t<title>%s</title>\n"
+        "\t<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n"
+        "</head>\n"
+        "<body>\n"
+        "\t<div class=\"container my-4\">\n"
+        "\t\t<div class=\"table-responsive\">\n"
+        "\t\t\t<table class=\"table table-bordered table-striped table-hover\">\n"
+        "\t\t\t\t<thead class=\"table-dark\">\n", pagename ? pagename : "Exportação HTML");
+    (*printTableHead)(file);
+    fprintf(file, "\t\t\t\t<tbody>\n");
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = has->tabela[i];
+        while(p) {
+            No *n = p->dados->inicio;
+            while(n) {
+                printObj(n->info, file);
+                n = n->prox;
+            }
+            p = p->prox;
+        }
+    }
+
+    fprintf(file,   "\t\t\t\t</tbody>\n"
+                    "\t\t\t</table>\n"
+                    "\t\t</div>\n"
+                    "\t</div>\n"
+                    "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"></script>\n"
+                    "</body>\n"
+                    "</html>\n");
 }
 
 /**
@@ -877,14 +1000,195 @@ Lista *dictToLista(Dict *has) {
     return li;
 }
 
-// Árvores
+// Rankings
 
-Arvore *criarArvore() {
-    Arvore *tree = malloc(sizeof(Arvore));
-    if (tree != NULL) {
-        tree->raiz = NULL;
-        tree->nelArvore = 0;
-    }
-    return tree;
+/**
+ * @brief Cria um ranking
+ * 
+ * @return Ranking* 
+ */
+Ranking *criarRanking() {
+    Ranking *r = (Ranking *)malloc(sizeof(Ranking));
+    if (!r) return NULL;
+    
+    r->inicio = NULL;
+    r->nel = 0;
+    return r;
 }
 
+/**
+ * @brief Adiciona um elemento e a sua informação ao início de um ranking
+ * 
+ * @param r Ranking
+ * @param mainInfo Objeto
+ * @param compInfo Informação do objeto (que será comparada para formar o ranking)
+ * @return int 0 se erro, 1 se sucesso
+ */
+int addToRanking(Ranking *r, void *mainInfo, void *compInfo) {
+    if (!r || !mainInfo || !compInfo) return 0;
+
+    NoRankings *aux = (NoRankings *)malloc(sizeof(NoRankings));
+    if (!aux) return 0;
+
+    aux->mainInfo = mainInfo;
+    aux->compInfo = compInfo;
+    aux->prox = r->inicio;
+    r->inicio = aux;
+    r->nel++;
+
+    return 1;
+}
+
+/**
+ * @brief Mostra um ranking
+ * 
+ * @param r Ranking
+ * @param printObj Função para mostrar o objeto e a informação
+ * @param file Ficheiro
+ * @param pausa Pausa da listagem
+ */
+void printRanking(Ranking *r, void printCarroRanking(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file), 
+        void (*printHeaderCompObj)(FILE *file), void (*printCompObj)(void *compInfo, FILE *file), FILE *file, int pausa) {
+    if (!r || !printCompObj || !printHeaderCompObj || !file || pausa < 0) return;
+
+    int count = 0;
+    listagemFlag = 0;
+
+    NoRankings *p = r->inicio;
+    (*printHeaderCompObj)(file);
+    while(p) {
+        printf("%i. \t", count + 1);
+        (*printCarroRanking)(p, printCompObj, file);
+        p = p->prox;
+
+        if (file == stdout && pausa) {
+            count++;
+            if (count % pausa == 0) {
+                printf("\n");
+                int opcao = enter_espaco_esc();
+                switch (opcao) {
+                    case 0:
+                        break;
+                    case 1:
+                        while(count < r->nel - pausa) {
+                            p = p->prox;
+                            count++;
+                        }
+                        break;
+                    case 2:
+                        return;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (file == stdout) printf("\n");
+    }
+}
+
+/**
+ * @brief Liberta a memória associada a um ranking
+ * 
+ * @param r Ranking
+ * @param freeMainObj Função para libertar a memória do objeto
+ * @param freeCompObj Função para libertar a memória do identificador do ranking
+ */
+void freeRanking(Ranking *r, void (*freeMainObj)(void *obj), void (*freeCompObj)(void *obj)) {
+    if (!r || !freeCompObj) return;
+
+    NoRankings *p = r->inicio;
+    NoRankings *seg;
+
+    while(p) {
+        seg = p->prox;
+        if (freeMainObj) {
+            (*freeMainObj)(p->mainInfo);
+        }
+        free(p);
+        p = seg;
+    }
+    free(r);
+}
+
+/**
+ * @brief Combina 2 ranking ordenados em 1
+ * 
+ * @param a Nó do primeiro ranking
+ * @param b Nó do segundo ranking
+ * @param compObjs Função para comparar identificadores (deve retornar < 0 se obj1 < obj2)
+ * @return NoRankings* Ranking agrupado
+ */
+static NoRankings *mergeRankings(NoRankings *a, NoRankings *b, int (*compObjs)(void *obj1, void *obj2)) {
+    if (!a) return b;
+    if (!b) return a;
+    
+    NoRankings *result = NULL;
+    
+    if (compObjs(a->compInfo, b->compInfo) <= 0) {
+        result = a;
+        result->prox = mergeRankings(a->prox, b, compObjs);
+    } else {
+        result = b;
+        result->prox = mergeRankings(a, b->prox, compObjs);
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Separa 2 rankings
+ * 
+ * @param head Ranking a separar
+ * @param front Ponteiro para a primeira metade
+ * @param back Ponteiro para a segunda metade
+ */
+static void splitRanking(NoRankings *head, NoRankings **front, NoRankings **back) {
+    NoRankings *rapido = head->prox;
+    NoRankings *lento = head;
+    
+    while (rapido != NULL) {
+        rapido = rapido->prox;
+        if (rapido != NULL) {
+            lento = lento->prox;
+            rapido = rapido->prox;
+        }
+    }
+    
+    *front = head;
+    *back = lento->prox;
+    lento->prox = NULL;
+}
+
+/**
+ * @brief Mergesort recursivo para os nós da função
+ * 
+ * @param headRef Head da função
+ * @param compObjs Função para comparar identificadores
+ */
+static void mergesortRecursivoRanking(NoRankings **headRef, int (*compObjs)(void *obj1, void *obj2)) {
+    NoRankings *head = *headRef;
+    if (!head || !head->prox) return;
+    
+    NoRankings *a;
+    NoRankings *b;
+    
+    splitRanking(head, &a, &b);
+    mergesortRecursivoRanking(&a, compObjs);
+    mergesortRecursivoRanking(&b, compObjs);
+    
+    *headRef = mergeRankings(a, b, compObjs);
+}
+
+/**
+ * @brief Ordena os rankings
+ * 
+ * @param r Ranking a ordenar
+ * @param compObjs Função para comparar identificadores (ordem de ordenação)
+ */
+void mergeSortRanking(Ranking* r, int (*compObjs)(void *obj1, void *obj2)) {
+    if (!r || !r->inicio || !compObjs) return;
+
+    mergesortRecursivoRanking(&r->inicio, compObjs);
+}
+ 

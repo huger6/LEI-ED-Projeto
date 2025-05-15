@@ -24,6 +24,7 @@ void freeTudo(Bdados *bd);
 // Exportação fica aqui
 void exportarTudoXML(Bdados *bd, const char *filename);
 void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename);
+void exportarTudoHTML(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename);
 size_t memUsageTudo(Bdados *bd);
 
 

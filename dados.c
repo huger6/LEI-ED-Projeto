@@ -786,6 +786,12 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
                     Dono *ptrDono = (Dono *)searchDict(bd->donosNif, chaveSearch, compChaveDonoNif, compDonosNif, hashChaveDonoNif);
                     free(carro->ptrPessoa);
                     carro->ptrPessoa = ptrDono;
+                    if (carro->ptrPessoa) {
+                        if (!carro->ptrPessoa->carros) {
+                            carro->ptrPessoa->carros = criarLista();
+                        }
+                        (void) addInicioLista(carro->ptrPessoa->carros, (void *)carro);
+                    }
 
                     // Adicionar ao bd->carrosMarca
                     (void)appendToDict(bd->carrosMarca, x->info, compChaveCarroMarca, criarChaveCarroMarca, hashChaveCarroMarca, NULL, freeChaveCarroMarca);
@@ -810,9 +816,14 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
             Viagem *v = (Viagem *)p->info;
             void *chaveSearch = (void *)&v->ptrCarro->codVeiculo;
             Carro *ptrCarro = (Carro *)searchDict(bd->carrosCod, chaveSearch, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
-            free(v->ptrCarro);
-            v->ptrCarro = ptrCarro;
-
+            if (ptrCarro) {
+                free(v->ptrCarro);
+                v->ptrCarro = ptrCarro;
+                if (!v->ptrCarro->viagens) {
+                    v->ptrCarro->viagens = criarLista();
+                }
+                (void) addInicioLista(v->ptrCarro->viagens, (void *)v);
+            }
         }
         p = p->prox;
     }
@@ -823,4 +834,3 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     fclose(file);
     return 1;
 }
-

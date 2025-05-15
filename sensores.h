@@ -24,6 +24,8 @@ void *readSensorBin(FILE *file);
 void printSensorXML(void *sensor, int indentacao, FILE *file);
 void printHeaderSensoresCSV(FILE *file);
 void printSensorCSV(void *sensor, FILE *file);
+void printHeaderSensoresHTML(FILE *file);
+void printSensorHTML(void *sensor, FILE *file);
 size_t memUsageSensor(void *sensor);
 
 

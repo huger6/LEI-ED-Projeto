@@ -30,6 +30,8 @@ int inserirDonoLido(Bdados *bd, char *nome, int nif, CodPostal codigoPostal) {
     //Codigo Postal
     dono->codigoPostal.local = codigoPostal.local;
     dono->codigoPostal.zona = codigoPostal.zona;
+    //Lista dos carros dos donos
+    dono->carros = NULL;
     
     if (!appendToDict(bd->donosNif, (void *)dono, compChaveDonoNif, criarChaveDonoNif, hashChaveDonoNif, freeDono, freeChaveDonoNif)) {
         free(dono->nome);
@@ -107,6 +109,18 @@ int compCodDono(void *dono, void *codigo) {
 }
 
 /**
+ * @brief Compara 2 códigos postais
+ * 
+ * @param cod1 Código Postal 1
+ * @param cod2 Código Postal 2
+ * @return int 0 se iguais, 1 se diferentes
+ */
+int compararCodPostal(const CodPostal cod1, const CodPostal cod2) {
+    if (cod1.zona == cod2.zona && cod1.local == cod2.local) return 0;
+    return 1;
+}
+
+/**
  * @brief Liberta a memória de um dono
  * 
  * @param dono Dono
@@ -170,6 +184,9 @@ void *readDonoBin(FILE *file) {
 
     x->nome = (char *)malloc(tamanho);
     fread(x->nome, tamanho, 1, file);
+
+    x->carros = NULL;
+
     return (void *)x;
 }
 
@@ -389,6 +406,23 @@ void printDonoCSV(void *dono, FILE *file) {
 }
 
 /**
+ * @brief Mostra os donos junto às suas velocidades médias
+ * 
+ * @param dono Dono
+ * @param velocidadeMedia Velocidade média 
+ * @param file Ficheiro .csv, aberto
+ */
+void printDonoVelocidadesCSV(Dono *dono, float velocidadeMedia, FILE *file) {
+    if (!dono || velocidadeMedia < 0 || !file) return;
+
+    char *velMediaStr = floatToStringPontoDecimal(velocidadeMedia, 2);
+
+    fprintf(file, "%d\t%s\t%s\n", dono->nif, dono->nome ? dono->nome : "n/a", velMediaStr);
+
+    if (velMediaStr) free(velMediaStr);
+}
+
+/**
  * @brief Escreve os headers em formato TXT para o Dono
  * 
  * @param file Ficheiro .txt onde escrever, aberto
@@ -411,6 +445,55 @@ void printDonoTXT(void *dono, FILE *file) {
     Dono *d = (Dono *)dono;
 
     fprintf(file, "%d\t%s\t%hd-%hd\n", d->nif, d->nome ? d->nome : "n/a", d->codigoPostal.zona, d->codigoPostal.local);
+}
+
+/**
+ * @brief Mostra o header da tabela dos donos ao exportar para HTML
+ * 
+ * @param file Ficheiro .html, aberto
+ */
+void printHeaderDonosHTML(FILE *file) {
+    if (!file) return;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>NIF</th>\n"
+        "\t\t\t\t\t\t<th>Nome</th>\n"
+        "\t\t\t\t\t\t<th>Código Postal</th>\n"
+        "\t\t\t\t\t</tr>\n");
+}
+
+/**
+ * @brief Mostra um dono em formato HTML
+ * 
+ * @param dono Dono
+ * @param file Ficheiro .html, aberto
+ */
+void printDonoHTML(void *dono, FILE *file) {
+    if (!dono || !file) return;
+
+    Dono *d = (Dono *)dono;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t\t<th>%s</th>\n"
+        "\t\t\t\t\t\t<th>%hd-%hd</th>\n"
+        "\t\t\t\t\t</tr>\n",
+        d->nif, d->nome ? d->nome : "n/a", d->codigoPostal.zona, d->codigoPostal.local);
+}
+
+/**
+ * @brief Mostra os donos junto às suas velocidades médias
+ * 
+ * @param dono Dono
+ * @param velocidadeMedia Velocidade média 
+ * @param file Ficheiro .txt, aberto
+ */
+void printDonoVelocidadesTXT(Dono *dono, float velocidadeMedia, FILE *file) {
+    if (!dono || velocidadeMedia < 0 || !file) return;
+
+    fprintf(file, "%d\t%s\t%.2f\n", dono->nif, dono->nome ? dono->nome : "n/a", velocidadeMedia);
 }
 
 /**
@@ -528,6 +611,68 @@ void registarDono(Bdados *bd) {
 }
 
 /**
+ * @brief Obtém o condutor com a maior velocidade média
+ * 
+ * @param bd Base de dados
+ * @return Dono* Dono ou NULL se erro
+ */
+Dono *obterCondutorMaisVelocidadeMedia(Bdados *bd) {
+    if (!bd) return NULL;
+
+    Dono *donoMaisRapido = NULL;
+    float velocidadeMax = 0.0f;
+    float tempoTotal = 0.0f;
+    float distanciaTotal = 0.0f;
+    float velocidadeMedia = 0.0f;
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->donosNif->tabela[i];
+
+        tempoTotal = 0.0f;
+        distanciaTotal = 0.0f;
+        velocidadeMedia = 0.0f;
+        while(p) {
+            if (p->dados) {
+                No *m = p->dados->inicio;
+                while(m) {
+                    Dono *d = (Dono *)m->info;
+
+                    if (d->carros) {
+                        No *x = d->carros->inicio;
+                        while(x) {
+                            Carro *c = (Carro *)x->info;
+                            if (c->viagens) {
+                                No *l = c->viagens->inicio;
+                                while(l) {
+                                    Viagem *v = (Viagem *)l->info;
+                                    
+                                    tempoTotal += v->tempo;
+                                    distanciaTotal += v->kms;
+                                    l = l->prox; //viagem
+                                }
+                            }
+                            x = x->prox; //carro
+                        }
+                    }
+                    if (tempoTotal > 0) {
+                        velocidadeMedia = distanciaTotal / (tempoTotal / 60.0f);
+                        if (velocidadeMedia > velocidadeMax) {
+                            p = bd->donosNif->tabela[i];
+                            velocidadeMax = velocidadeMedia;
+                            donoMaisRapido = (Dono *)p->dados->inicio->info;
+                        }
+                    }
+                    m = m->prox; //dono
+                }
+            }
+            p = p->prox;
+        }
+    }
+
+    return donoMaisRapido;
+}
+
+/**
  * @brief Lista todos os donos ordenados pelo NIF
  * 
  * @param bd Base de dados
@@ -587,4 +732,297 @@ void listarDonosAlfabeticamente(Bdados *bd) {
     }
     pressEnter();
 }
+
+/**
+ * @brief Lista os donos com as suas respetivsas velocidades médias (não ordenado)
+ * 
+ * @param bd Base de dados
+ */
+void listarDonosVelocidadesMedias(Bdados *bd) {
+    if (!bd) return;
+    limpar_terminal();
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM];
+
+    int tempo, distancia;
+    float velocidadeMedia;
+
+    int count = 0;
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH && listagemFlag == 0; i++) {
+        NoHashing *p = bd->donosNif->tabela[i];
+
+        while(p) {
+            if (p->dados) {
+                No *m = p->dados->inicio;
+                while(m && listagemFlag == 0) {
+                    Dono *d = (Dono *)m->info;
+                    
+                    tempo = 0;
+                    distancia = 0;
+                    velocidadeMedia = 0;
+
+                    // Procura todas as viagens de cada carro
+                    if (d->carros) {
+                        No *x = d->carros->inicio;
+                        while(x) {
+                            Carro *c = (Carro *)x->info;
+                            if (c->viagens) {
+                                No *l = c->viagens->inicio;
+                                while(l) {
+                                    Viagem *v = (Viagem *)l->info;
+                                    
+                                    tempo += v->tempo;
+                                    distancia += v->kms;
+                                    l = l->prox; //viagem
+                                }
+                            }
+                            x = x->prox; //carro
+                        }
+                    }
+                    if (tempo > 0) {
+                        velocidadeMedia = distancia / (tempo / 60.0f);
+                        Dono *dono = (Dono *)p->dados->inicio->info;
+                        printf("Nome: %s\n", dono->nome);
+                        printf("Velocidade Média: %.2f\n\n", velocidadeMedia);
+                        count++;
+                        if (count % PAUSA_LISTAGEM == 0) {
+                            printf("\n");
+                            int opcao = enter_espaco_esc();
+                            switch (opcao) {
+                                case 0:
+                                    break;
+                                case 1:
+                                    while(count < bd->donosNif->nelDict - PAUSA_LISTAGEM || !p) { //!p importante
+                                        if (!p) {
+                                            p = bd->donosNif->tabela[++i];
+                                        } 
+                                        else {
+                                            p = p->prox;
+                                            count++; // apenas se incrementa se houver p
+                                        }
+                                    }
+                                    break;
+                                case 2:
+                                    listagemFlag = 1;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    m = m->prox; //dono
+                }
+            }
+            p = p->prox;
+        }
+    }
+    
+    printf("\n----FIM DE LISTAGEM----\n\n");
+
+    if (listagemFlag == 1) {
+        listagemFlag = 0;
+    }
+    
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            fprintf(file, "Nif\tNome\tVelocidade media\n");
+            for (int i = 0; i < TAMANHO_TABELA_HASH && listagemFlag == 0; i++) {
+                NoHashing *p = bd->donosNif->tabela[i];
+
+                while(p) {
+                    if (p->dados) {
+                        No *m = p->dados->inicio;
+                        while(m && listagemFlag == 0) {
+                            Dono *d = (Dono *)m->info;
+                            
+                            tempo = 0;
+                            distancia = 0;
+                            velocidadeMedia = 0;
+
+                            // Procura todas as viagens de cada carro
+                            if (d->carros) {
+                                No *x = d->carros->inicio;
+                                while(x) {
+                                    Carro *c = (Carro *)x->info;
+                                    if (c->viagens) {
+                                        No *l = c->viagens->inicio;
+                                        while(l) {
+                                            Viagem *v = (Viagem *)l->info;
+                                            
+                                            tempo += v->tempo;
+                                            distancia += v->kms;
+                                            l = l->prox; //viagem
+                                        }
+                                    }
+                                    x = x->prox; //carro
+                                }
+                            }
+                            if (tempo > 0) {
+                                velocidadeMedia = distancia / (tempo / 60.0f);
+                                Dono *dono = (Dono *)p->dados->inicio->info;
+                                printDonoVelocidadesTXT(dono, velocidadeMedia, file);
+                                count++;
+                            }
+                            m = m->prox; //dono
+                        }
+                    }
+                    p = p->prox;
+                }
+            }
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            fprintf(file, "Nif, Nome, Velocidade media\n");
+            for (int i = 0; i < TAMANHO_TABELA_HASH && listagemFlag == 0; i++) {
+                NoHashing *p = bd->donosNif->tabela[i];
+
+                while(p) {
+                    if (p->dados) {
+                        No *m = p->dados->inicio;
+                        while(m && listagemFlag == 0) {
+                            Dono *d = (Dono *)m->info;
+                            
+                            tempo = 0;
+                            distancia = 0;
+                            velocidadeMedia = 0;
+
+                            // Procura todas as viagens de cada carro
+                            if (d->carros) {
+                                No *x = d->carros->inicio;
+                                while(x) {
+                                    Carro *c = (Carro *)x->info;
+                                    if (c->viagens) {
+                                        No *l = c->viagens->inicio;
+                                        while(l) {
+                                            Viagem *v = (Viagem *)l->info;
+                                            
+                                            tempo += v->tempo;
+                                            distancia += v->kms;
+                                            l = l->prox; //viagem
+                                        }
+                                    }
+                                    x = x->prox; //carro
+                                }
+                            }
+                            if (tempo > 0) {
+                                velocidadeMedia = distancia / (tempo / 60.0f);
+                                Dono *dono = (Dono *)p->dados->inicio->info;
+                                printDonoVelocidadesCSV(dono, velocidadeMedia, file);
+                                count++;
+                            }
+                            m = m->prox; //dono
+                        }
+                    }
+                    p = p->prox;
+                }
+            }
+        }
+        fclose(file);
+    }
+    pressEnter();
+}
+
+/**
+ * @brief Pede um código postal e mostra as velocidades médias associadas a esse código postal
+ * 
+ * @param bd Base de dados
+ */
+void velocidadeMediaPorCodPostal(Bdados *bd) {
+    if (!bd) return;
+    limpar_terminal();
+
+    CodPostal chave = {0,0};
+    // Pedir código postal
+    do {
+        printf("Insira o código postal no formato XXXX-XXX: ");
+        char *codPostal = lerLinhaTxt(stdin, NULL);
+        if (!codPostal) {
+            printf("Erro a ler o código postal!\n\n");
+            pressEnter();
+            continue;
+        }
+        converterCodPostal(codPostal, &chave.zona, &chave.local);
+        free(codPostal);
+
+        if (!validarCodPostal(chave.zona, chave.local)) {
+            printf("Código postal inválido\n\n");
+            pressEnter();
+            continue;
+        }
+        break;
+    } while(1);
+    printf("\n");
+    
+    // Filtrar os donos com os códigos postais para uma lista
+    Lista *donosCods = criarLista();
+    if (!donosCods) {
+        printf("Ocorreu um erro inesperado. Tente novamente mais tarde!\n");
+        return;
+    }
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->donosNif->tabela[i];
+        while(p) {
+            if (p->dados) {
+                No *l = p->dados->inicio;
+                while(l) {
+                    Dono *d = (Dono *)l->info;
+                    if (compararCodPostal(d->codigoPostal, chave)) {
+                        (void) addInicioLista(donosCods, l->info);
+                    }
+                    l = l->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
+
+    // Percorrer a lista e encontrar a velocidade média
+    No *p = donosCods->inicio;
+    if (!p) {
+        printf("Não foram encontrados donos com o código postal \"%hd-%hd\"\n", chave.zona, chave.local);
+        freeLista(donosCods, NULL);
+        return;
+    }
+    int tempo = 0;
+    int distancia = 0;
+    float velocidadeMedia = 0.0f;
+
+    while(p) {
+        Dono *d = (Dono *)p->info;
+        if (d->carros) {
+            No *m = d->carros->inicio;
+            while(m) {
+                Carro *c = (Carro *)m->info;
+                if (c->viagens) {
+                    No *l = c->viagens->inicio;
+                    while(l) {
+                        Viagem *v = (Viagem *)l->info;
+
+                        tempo += v->tempo;
+                        distancia += v->kms;
+                        l = l->prox;
+                    }
+                }
+                m = m->prox;
+            }
+        }
+        p = p->prox;
+    }
+    if (tempo > 0) {
+        velocidadeMedia = distancia / (tempo / 60.0f);
+    }
+    else {
+        printf("Não há dados sobre quaisquer viagens efetuadas sobre os donos com o código postal \"%hd-%hd\"\n", chave.zona, chave.local);
+        freeLista(donosCods, NULL);
+        return;
+    }
+
+    printf("A velocidade média associada ao código postal \"%hd-%hd\" é de %.2f\n\n", chave.zona, chave.local, velocidadeMedia);
+    freeLista(donosCods, NULL);
+    pressEnter();
+}
+
+
 

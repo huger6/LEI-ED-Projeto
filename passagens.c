@@ -55,8 +55,24 @@ int inserirViagemLido(Bdados *bd, Passagem *entrada, Passagem *saida, int codVei
 		return 0;
 	}
 	v->ptrCarro = ptrCarro;
-
+	// Inserir o ponteiro de cada viagem no carro
+	if (!v->ptrCarro->viagens) {
+		v->ptrCarro->viagens = criarLista();
+		if (!v->ptrCarro->viagens) {
+			freePassagem(entrada);
+			freePassagem(saida);
+			free(v);
+			return 0;
+		}
+	}
 	getStatsViagem(bd, v);
+
+	if (!addInicioLista(v->ptrCarro->viagens, (void *)v)) {
+		freePassagem(entrada);
+		freePassagem(saida);
+		free(v);
+		return 0;
+	}
 
 	if (!addInicioLista(bd->viagens, (void *)v)) {
 		freePassagem(entrada);
@@ -125,6 +141,7 @@ void guardarViagemBin(void *viagem, FILE *file) {
 	Viagem *x = (Viagem *)viagem;
 	fwrite(&x->kms, sizeof(float), 1, file);
 	fwrite(&x->tempo, sizeof(float), 1, file);
+	fwrite(&x->velocidadeMedia, sizeof(float), 1, file);
 	guardarPassagemBin((void *)x->entrada, file);
 	guardarPassagemBin((void *)x->saida, file);
 	fwrite(&x->ptrCarro->codVeiculo, sizeof(int), 1, file);
@@ -146,6 +163,7 @@ void *readViagemBin(FILE *file) {
 
 	fread(&x->kms, sizeof(float), 1, file);
 	fread(&x->tempo, sizeof(float), 1, file);
+	fread(&x->velocidadeMedia, sizeof(float), 1, file);
 	x->entrada = (Passagem *)readPassagemBin(file);
 	if (!x->entrada) {
 		free(x);
@@ -214,7 +232,9 @@ void *readPassagemBin(FILE *file) {
 void getStatsViagem(Bdados *bd, Viagem *v) {
     v->kms = bd->distancias->matriz[(v->entrada->idSensor-1) * bd->distancias->nColunas + v->saida->idSensor-1];
     v->tempo = calcularIntervaloTempo(&v->entrada->data, &v->saida->data); //min
-	v->velocidadeMedia = v->kms / (v->tempo / 60.0f);
+	if (v->tempo != 0) {
+		v->velocidadeMedia = v->kms / (v->tempo / 60.0f);
+	}
 }
 
 /**
@@ -364,6 +384,58 @@ void printViagemTXT(void *viagem, FILE *file) {
 
 	fprintf(file,"%d\t%d\t%hd-%hd-%hdT%hd:%hd:%.3f\t%c\t%d\t%hd-%hd-%hdT%hd:%hd:%.3f\t%c\t%.3f\t%.2f\t%.2f\n",
 		v->ptrCarro ? v->ptrCarro->codVeiculo : -1, v->entrada->idSensor, v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
+		v->entrada->data.hora, v->entrada->data.min, v->entrada->data.seg, v->entrada->tipoRegisto, 
+		v->saida->idSensor, v->saida->data.dia, v->saida->data.mes, v->saida->data.ano, v->saida->data.hora, v->saida->data.min, 
+		v->saida->data.seg, v->saida->tipoRegisto, v->tempo, v->kms, v->velocidadeMedia);
+}
+
+/**
+ * @brief Mostra o header da tabela das viagens ao exportar para HTML
+ * 
+ * @param file Ficheiro .html, aberto
+ */
+void printHeaderViagensHTML(FILE *file) {
+    if (!file) return;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>codVeículo</th>\n"
+        "\t\t\t\t\t\t<th>Entrada-sensor</th>\n"
+        "\t\t\t\t\t\t<th>Entrada-tipo</th>\n"
+        "\t\t\t\t\t\t<th>Saída-sensor</th>\n"
+        "\t\t\t\t\t\t<th>Saída-data</th>\n"
+        "\t\t\t\t\t\t<th>Saída-tipo</th>\n"
+        "\t\t\t\t\t\t<th>Tempo</th>\n"
+        "\t\t\t\t\t\t<th>Distância</th>\n"
+        "\t\t\t\t\t\t<th>Velocidade Média</th>\n"
+        "\t\t\t\t\t</tr>\n");
+}
+
+/**
+ * @brief Mostra uma viagem em formato HTML
+ * 
+ * @param viagem Viagem
+ * @param file Ficheiro .html, aberto
+ */
+void printViagemHTML(void *viagem, FILE *file) {
+    if (!viagem || !file) return;
+
+    Viagem *v = (Viagem *)viagem;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t\t<th>%hd-%hd-%hdT%hd:%hd:%.3f</th>\n"
+        "\t\t\t\t\t\t<th>%c</th>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t\t<th>%hd-%hd-%hdT%hd:%hd:%.3f</th>\n"
+        "\t\t\t\t\t\t<th>%c</th>\n"
+        "\t\t\t\t\t\t<th>%.3f</th>\n"
+        "\t\t\t\t\t\t<th>%.2f</th>\n"
+        "\t\t\t\t\t\t<th>%.2f</th>\n"
+        "\t\t\t\t\t</tr>\n",
+        v->ptrCarro ? v->ptrCarro->codVeiculo : -1, v->entrada->idSensor, v->entrada->data.dia, v->entrada->data.mes, v->entrada->data.ano,
 		v->entrada->data.hora, v->entrada->data.min, v->entrada->data.seg, v->entrada->tipoRegisto, 
 		v->saida->idSensor, v->saida->data.dia, v->saida->data.mes, v->saida->data.ano, v->saida->data.hora, v->saida->data.min, 
 		v->saida->data.seg, v->saida->tipoRegisto, v->tempo, v->kms, v->velocidadeMedia);

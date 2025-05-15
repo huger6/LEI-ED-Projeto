@@ -53,7 +53,28 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
     }
     //Código Veículo
     aut->codVeiculo = codVeiculo;
+    aut->viagens = NULL;
+    
+    //Associar o carro ao dono
+    if (aut->ptrPessoa) {
+		if (!aut->ptrPessoa->carros) {
+            aut->ptrPessoa->carros = criarLista();
+            if (!aut->ptrPessoa->carros) {
+                free(aut->modelo);
+                free(aut->marca);
+                free(aut);
+                return 0;
+            }
+        }
+	}
 
+	if (!addInicioLista(aut->ptrPessoa->carros, (void *)aut)) {
+		free(aut->modelo);
+        free(aut->marca);
+        free(aut);
+		return 0;
+	}
+    
     if (!appendToDict(bd->carrosCod, (void *)aut, compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod)) {
         free(aut->modelo);
         free(aut->marca);
@@ -216,6 +237,8 @@ void *readCarroBin(FILE *file) {
     }
     fread(&d->nif, sizeof(int), 1, file);
     x->ptrPessoa = d;
+    x->viagens = NULL;
+    
     return (void *)x;
 }
 
@@ -351,8 +374,8 @@ void *criarChaveCarroCod(void *carro) {
 /**
  * @brief Função de hash para carro por Cod
  * 
- * @param carro Carro
- * @return int -1 se erro ou codVeiculo
+ * @param chave Chave
+ * @return int -1 se erro ou a chave
  */
 int hashChaveCarroCod(void *chave) {
     if (!chave) return -1;
@@ -377,8 +400,8 @@ void freeChaveCarroCod(void *chave) {
  * @brief Compara as chaves dos carros pelo código
  * 
  * @param chave Chave
- * @param carro Carro
- * @return int 
+ * @param chave2 Chave 2
+ * @return int -1 se erro, 0 se igual, 1 se diferente
  */
 int compChaveCarroCod(void *chave, void *chave2) {
     if (!chave || !chave2) return -1;
@@ -388,6 +411,40 @@ int compChaveCarroCod(void *chave, void *chave2) {
 
     if (*key == *key2) return 0;
     return 1;
+}
+
+/**
+ * @brief Compara as chaves dos carros pelos rankings
+ * 
+ * @param chave Chave
+ * @param carro Carro
+ * @return int -1 se erro, 0 se igual, 1 se diferente
+ * 
+ * @note Ordena por ordem descrescente (mais primeiro)
+ */
+int compChaveCarroRanking(void *chave, void *chave2) {
+    if (chave == NULL && chave2 == NULL) return 0;
+    if (chave == NULL) return -1; //NULL < qualquer coisa
+    if (chave2 == NULL) return 1;
+
+    int *key = (int *)chave;
+    int *key2 = (int *)chave2;
+
+    if (*key < *key2) return 1;
+    else if (*key > *key2) return -1;
+    return 0;
+}
+
+/**
+ * @brief Liberta a memória alocada para uma chave de carro por ranking
+ * 
+ * @param chave Chave
+ */
+void freeChaveCarroRanking(void *chave) {
+    if (!chave) return;
+
+    int *key = (int *)chave;
+    free(key);
 }
 
 /**
@@ -537,6 +594,125 @@ void printCarroTXT(void *carro, FILE *file) {
 }
 
 /**
+ * @brief Mostra o header da tabela dos carros ao exportar para HTML
+ * 
+ * @param file Ficheiro .html, aberto
+ */
+void printHeaderCarrosHTML(FILE *file) {
+    if (!file) return;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>CodVeiculo</th>\n"
+        "\t\t\t\t\t\t<th>Ano</th>\n"
+        "\t\t\t\t\t\t<th>Matrícula</th>\n"
+        "\t\t\t\t\t\t<th>Marca</th>\n"
+        "\t\t\t\t\t\t<th>Modelo</th>\n"
+        "\t\t\t\t\t\t<th>NIF Dono</th>\n"
+        "\t\t\t\t\t</tr>\n");
+}
+
+/**
+ * @brief Mostra um carro em formato HTML
+ * 
+ * @param carro Carro 
+ * @param file Ficheiro .html, aberto
+ */
+void printCarroHTML(void *carro, FILE *file) {
+    if (!carro || !file) return;
+
+    Carro *c = (Carro *)carro;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t\t<th>%s</th>\n"
+        "\t\t\t\t\t\t<th>%s</th>\n"
+        "\t\t\t\t\t\t<th>%s</th>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t</tr>\n", c->codVeiculo, c->ano, c->matricula, c->marca ? c->marca : "n/a", c->modelo ? c->modelo : "n/a", c->ptrPessoa ? c->ptrPessoa->nif : -1);
+}
+
+/**
+ * @brief Mostra um carro de um ranking
+ * 
+ * @param no No do ranking
+ * @param printHeaderCompObj Função para mostrar o header da compInfo
+ * @param printCompObj Função para mostrar o compInfo
+ * @param file Ficheiro onde mostrar
+ */
+void printCarroRanking(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file) {
+    if (!no || !file) return;
+
+    Carro *c = (Carro *)no->mainInfo;
+    const int WIDTH_MATRICULA = 15;
+    const int WIDTH_DONO = 30;
+    const int WIDTH_MARCA = 20;
+    
+    // Prepara strings truncadas se necessário
+    char donoStr[WIDTH_DONO + 1];
+    char marcaStr[WIDTH_MARCA + 1];
+    
+    // Processa nome do dono
+    const char* nomeDono = c->ptrPessoa ? c->ptrPessoa->nome : "n/a";
+    if (strlen(nomeDono) > (size_t) WIDTH_DONO - 3) {
+        strncpy(donoStr, nomeDono, WIDTH_DONO - 3);
+        donoStr[WIDTH_DONO - 3] = '.';
+        donoStr[WIDTH_DONO - 2] = '.';
+        donoStr[WIDTH_DONO - 1] = '.';
+        donoStr[WIDTH_DONO] = '\0';
+    } else {
+        strcpy(donoStr, nomeDono);
+    }
+
+    // Processa marca
+    if (strlen(c->marca) > (size_t) WIDTH_MARCA - 3) {
+        strncpy(marcaStr, c->marca, WIDTH_MARCA - 3);
+        marcaStr[WIDTH_MARCA - 3] = '.';
+        marcaStr[WIDTH_MARCA - 2] = '.';
+        marcaStr[WIDTH_MARCA - 1] = '.';
+        marcaStr[WIDTH_MARCA] = '\0';
+    } else {
+        strcpy(marcaStr, c->marca);
+    }
+    
+    // Dados alinhados com as mesmas larguras
+    fprintf(file, "%-*s\t%-*s\t%-*s", WIDTH_MATRICULA, c->matricula, WIDTH_DONO, donoStr, WIDTH_MARCA, marcaStr);
+            
+    if (printCompObj) {
+        printCompObj(no->compInfo, file);
+    } else {
+        fprintf(file, "\n");
+    }
+}
+
+/**
+ * @brief Escreve os headers sobre o número de infrações
+ * 
+ * @param file Ficheiro
+ */
+void printHeaderCarroMaisInfracoes(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "\tMatrícula\tDono\tMarca\tNº de infrações\n");
+}
+
+/**
+ * @brief Mostra os dados sobre as infrações de cada veículo
+ * 
+ * @param compInfo Infrações
+ * @param file Ficheiro
+ */
+void printMaisInfracoes(void *compInfo, FILE *file) {
+    if (!compInfo || !file) return;
+
+    int *info = (int *)compInfo;
+
+    fprintf(file, "%d\n", *info);
+}
+
+/**
  * @brief Obtém a marca mais comum de um dicionário de carros ordenados em listas de marcas
  * 
  * @param carrosMarca Dicionário
@@ -576,47 +752,61 @@ char *obterMarcaMaisVelocidadeMedia(Bdados *bd) {
     if (!bd) return NULL;
 
     char *marcaMaisRapida = NULL;
-    float velocidadeMax = 0;
+    float velocidadeMax = 0.0f;
+    int contadorViagens = 0;
+
+    float tempoTotal = 0.0f;
+    float distanciaTotal = 0.0f;
+    float velocidadeMedia = 0.0f;
 
     // Iterar por todas as marcas
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = bd->carrosMarca->tabela[i];
+        // Para cada marca
+        tempoTotal = 0.0f;
+        distanciaTotal = 0.0f;
+        velocidadeMedia = 0.0f;
         while(p) {
-            float distanciaTotal = 0;
-            float tempoTotal = 0;
-
-            // Iterar por todos os carros da marca
-            No *l = p->dados->inicio;
-            while (l) {
-                Carro *carro = (Carro *)l->info;
-                
-                // Iterar por todas as viagens
-                No *x = bd->viagens->inicio;
-                while(x) {
-                    Viagem *v = (Viagem *)x->info;
-                    // Verificar se a viagem é deste carro
-                    if (v->ptrCarro->codVeiculo == carro->codVeiculo) {
-                        distanciaTotal += v->kms;
-                        tempoTotal += v->tempo;
+            if (p->dados) {
+                // Para cada carro na marca
+                No *m = p->dados->inicio;
+                while (m) {
+                    Carro *c = (Carro *)m->info;
+                    
+                    No *x = c->viagens->inicio;
+                    // Para cada viagem
+                    while(x) {
+                        if (x->info) {
+                            Viagem *v = (Viagem *)x->info;
+                            
+                            tempoTotal += v->tempo;
+                            distanciaTotal += v->kms;
+                            contadorViagens++;
+                        }
+                        x = x->prox;
                     }
-                    x = x->prox;
-                }
-                l = l->prox;
-            }
-
-            // Calcular velocidade média para esta marca
-            if (tempoTotal > 0) {
-                float velocidadeMedia = distanciaTotal / tempoTotal;
-                if (velocidadeMedia > velocidadeMax) {
-                    velocidadeMax = velocidadeMedia;
-                    Carro *primeiroCarro = (Carro *)p->dados->inicio->info;
-                    marcaMaisRapida = primeiroCarro->marca;
+                    m = m->prox;
                 }
             }
             p = p->prox;
         }
-    }
 
+        // Ver velocidade média e comparar
+        if (tempoTotal > 0) {
+            velocidadeMedia = distanciaTotal / (tempoTotal / 60.0f);
+            p = bd->carrosMarca->tabela[i];
+            Carro *primeiroCarro2 = (Carro *)p->dados->inicio->info;
+            printf("Velocidade média da %s é %.2f\n", primeiroCarro2->marca, velocidadeMedia);
+            pressEnter();
+            if (velocidadeMedia > velocidadeMax) {
+                p = bd->carrosMarca->tabela[i];
+                velocidadeMax = velocidadeMedia;
+                Carro *primeiroCarro = (Carro *)p->dados->inicio->info;
+                marcaMaisRapida = primeiroCarro->marca;
+            }
+        }
+    }
+    printf("Contador de viagens: %d\n", contadorViagens);
     return marcaMaisRapida;
 }
 
@@ -689,6 +879,37 @@ int obterCodVeiculoNovo(Dict *carrosCod) {
     }
 
     return -1;
+}
+
+/**
+ * @brief Obtém o código máximo de um carro
+ * 
+ * @param carrosCod Dicionário dos carros
+ * @return int -1 se erro ou máximo
+ */
+int obterCodMaximoCarros(Dict *carrosCod) {
+    if (!carrosCod) return -1;
+
+    int max = 0;
+    
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = carrosCod->tabela[i];
+        while (p) {
+            if (p->dados) {
+                No *ptr = p->dados->inicio;
+                while (ptr) {
+                    Carro *c = (Carro *)ptr->info;
+                    if (c->codVeiculo > max) {
+                        max = c->codVeiculo;
+                    }
+                    ptr = ptr->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
+    
+    return max;
 }
 
 /**
@@ -1000,4 +1221,197 @@ void listarCarrosPorPeriodoTempo(Bdados *bd) {
     }
     pressEnter();
 }
- 
+
+/**
+ * @brief Lista as infrações de um dado período de tempo
+ * 
+ * @param bd Base de dados
+ */
+void listarInfracoesPorPeriodoTempo(Bdados *bd) {
+    if (!bd) return;
+
+    limpar_terminal();
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
+    
+    Data inicio = {0,0,0,0,0,0.0f};
+    Data fim = {0,0,0,0,0,0.0f};
+    pedirPeriodoTempo(&inicio, &fim, "Insira a data inicial: ", "Insira a data final: ");
+
+    Ranking *r = criarRanking();
+    if (!r) {
+        printf("Ocorreu um erro inesperado! Por favor tente novamente mais tarde!\n");
+        pressEnter();
+    }
+    
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->carrosCod->tabela[i];
+        while(p) {
+            if (p->dados) {
+                No *m = p->dados->inicio;
+                while(m) {
+                    Carro *c = (Carro *)m->info;
+
+                    int infracoes = 0;
+
+                    if (c->viagens) {
+                        No *l = c->viagens->inicio;
+                        while(l) {
+                            Viagem *v = (Viagem *)l->info;
+                            
+                            if (v->velocidadeMedia > MAX_VELOCIDADE_AE || v->velocidadeMedia < MIN_VELOCIDADE_AE) {
+                                infracoes++;
+                            }
+                            l = l->prox;
+                        }
+                    }
+                    if (infracoes > 0) {
+                        int *infr = (int *)malloc(sizeof(int));
+                        *infr = infracoes;
+
+                        void *temp = (void *)infr;
+                        addToRanking(r, (void *)c, temp);
+                    }
+                    m = m->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
+
+    mergeSortRanking(r, compChaveCarroRanking);
+
+    printRanking(r, printCarroRanking, printHeaderCarroMaisInfracoes, printMaisInfracoes, stdout, PAUSA_LISTAGEM);
+
+    printf("\n----FIM DE LISTAGEM----\n");
+
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printHeaderViagensTXT(file);
+            No *p = bd->viagens->inicio;
+            while(p) {
+                Viagem *v = (Viagem *)p->info;
+                if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
+                    printViagemTXT(p->info, file);
+                }
+                p = p->prox;
+            }
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printHeaderViagensCSV(file);
+            No *p = bd->viagens->inicio;
+            while(p) {
+                Viagem *v = (Viagem *)p->info;
+                if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
+                    printViagemCSV(p->info, file);
+                }
+                p = p->prox;
+            }
+        }
+        fclose(file);
+    }
+    freeRanking(r, NULL, freeChaveCarroRanking);
+    pressEnter();
+}
+
+/**
+ * @brief Lista os carros com infrações
+ * 
+ * @param bd Base de dados
+ */
+void listarCarrosComInfracoes(Bdados *bd) {
+    if (!bd) return;
+    limpar_terminal();
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
+
+    int count = 0;
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->carrosCod->tabela[i];
+        while(p && listagemFlag == 0) {
+            if (p->dados) {
+                No *l = p->dados->inicio;
+                while(l && listagemFlag == 0) {
+                    Carro *c = (Carro *)l->info;
+                    if (c->viagens) {
+                        No *m = c->viagens->inicio;
+                        while(m && listagemFlag == 0) {
+                            Viagem *v = (Viagem *)m->info;
+                            if (v->velocidadeMedia > MAX_VELOCIDADE_AE || v->velocidadeMedia < MIN_VELOCIDADE_AE) {
+                                printf("Matrícula: %s\n\n", c->matricula);
+                                count++;
+                                if (count % PAUSA_LISTAGEM == 0) {
+                                    printf("\n");
+                                    int opcao = enter_espaco_esc();
+                                    switch (opcao) {
+                                        case 0:
+                                            break;
+                                        case 1:
+                                            while(count < bd->carrosCod->nelDict - PAUSA_LISTAGEM || !p) {
+                                                if (!p) {
+                                                    p = bd->carrosCod->tabela[++i];
+                                                }
+                                                else {
+                                                    p = p->prox;
+                                                    count++;
+                                                }
+                                            }
+                                            break;
+                                        case 2:
+                                            listagemFlag = 1;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                                break;
+                            }
+                            m = m->prox;
+                        }
+                    }
+                    l = l->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
+    printf("\n----FIM DE LISTAGEM----\n");
+    
+    if (listagemFlag == 1) {
+        listagemFlag = 0;
+    }
+
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        fprintf(file, "Matrícula\n");
+        for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+            NoHashing *p = bd->carrosCod->tabela[i];
+            while(p && listagemFlag == 0) {
+                if (p->dados) {
+                    No *l = p->dados->inicio;
+                    while(l && listagemFlag == 0) {
+                        Carro *c = (Carro *)l->info;
+                        if (c->viagens) {
+                            No *m = c->viagens->inicio;
+                            while(m && listagemFlag == 0) {
+                                Viagem *v = (Viagem *)m->info;
+                                if (v->velocidadeMedia > MAX_VELOCIDADE_AE || v->velocidadeMedia < MIN_VELOCIDADE_AE) {
+                                    fprintf(file, "%s\n", c->matricula);
+                                    break;
+                                }
+                                m = m->prox;
+                            }
+                        }
+                        l = l->prox;
+                    }
+                }
+                p = p->prox;
+            }
+        }
+        fclose(file);
+    }
+    pressEnter();
+}
+

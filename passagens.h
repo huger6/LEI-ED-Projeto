@@ -43,6 +43,8 @@ void printHeaderViagensCSV(FILE *file);
 void printViagemCSV(void *viagem, FILE *file);
 void printHeaderViagensTXT(FILE *file);
 void printViagemTXT(void *viagem, FILE *file);
+void printHeaderViagensHTML(FILE *file);
+void printViagemHTML(void *viagem, FILE *file);
 size_t memUsagePassagem(void *passagem);
 size_t memUsageViagem(void *viagem);
 void registarViagem(struct Bdados *bd);

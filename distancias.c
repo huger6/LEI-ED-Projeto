@@ -159,6 +159,69 @@ void exportarDistanciasCSV(Distancias *d, FILE *file) {
 }
 
 /**
+ * @brief Exporta as distâncias para ficheiro HTML
+ * 
+ * @param d Distâncias
+ * @param pagename Nome da página
+ * @param file Ficheiro .html, aberto
+ */
+void exportarDistanciasHTML(Distancias *d, char *pagename, FILE *file) {
+    // Lista de caracteres HTML especiais que precisam ser substituídos
+    if (!pagename) return;
+
+    const char *invalidos = "<>\"'&";
+    for (int i = 0; pagename[i]; i++) {
+        if (strchr(invalidos, pagename[i]) != NULL) {
+            pagename = NULL; // Nome da página contém caracteres HTML inválidos (usar default)
+        }
+    }
+
+    fprintf(file,
+        "<!DOCTYPE html>\n"
+        "<html lang=\"pt\">\n"
+        "<head>\n"
+        "\t<meta charset=\"UTF-8\">\n"
+        "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+        "\t<title>%s</title>\n"
+        "\t<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n"
+        "</head>\n"
+        "<body>\n"
+        "\t<div class=\"container my-4\">\n"
+        "\t\t<div class=\"table-responsive\">\n"
+        "\t\t\t<table class=\"table table-bordered table-striped table-hover\">\n"
+        "\t\t\t\t<thead class=\"table-dark\">\n", pagename ? pagename : "Exportação HTML");
+        fprintf(file,
+            "\t\t\t\t\t<tr>\n"
+            "\t\t\t\t\t\t<th>Sensor 1</th>\n"
+            "\t\t\t\t\t\t<th>Sensor 2</th>\n"
+            "\t\t\t\t\t\t<th>Distância</th>\n"
+            "\t\t\t\t\t</tr>\n");
+        fprintf(file, "\t\t\t\t<tbody>\n");
+
+        for (int i = 0; i < d->nColunas; i++) {
+            for (int j = i; j < d->nColunas; j++) {
+                if (i == j) continue;
+
+                fprintf(file,
+                    "\t\t\t\t\t<tr>\n"
+                    "\t\t\t\t\t\t<th>%d</th>\n"
+                    "\t\t\t\t\t\t<th>%d</th>\n"
+                    "\t\t\t\t\t\t<th>%.1f</th>\n"
+                    "\t\t\t\t\t</tr>\n",
+                    i + 1, j + 1, d->matriz[(i) * d->nColunas + j]);
+            }
+        }
+
+        fprintf(file,   "\t\t\t\t</tbody>\n"
+                        "\t\t\t</table>\n"
+                        "\t\t</div>\n"
+                        "\t</div>\n"
+                        "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js\"></script>\n"
+                        "</body>\n"
+                        "</html>\n");
+}
+
+/**
  * @brief Memória ocupada pelas distâncias
  * 
  * @param d Distâncias

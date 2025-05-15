@@ -243,6 +243,44 @@ void printSensorCSV(void *sensor, FILE *file) {
 }
 
 /**
+ * @brief Mostra o header da tabela dos sensores ao exportar para HTML
+ * 
+ * @param file Ficheiro .html, aberto
+ */
+void printHeaderSensoresHTML(FILE *file) {
+    if (!file) return;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>CodSensor</th>\n"
+        "\t\t\t\t\t\t<th>Designação</th>\n"
+        "\t\t\t\t\t\t<th>Latitude</th>\n"
+        "\t\t\t\t\t\t<th>Longitude</th>\n"
+        "\t\t\t\t\t</tr>\n");
+}
+
+/**
+ * @brief Mostra um sensor em formato HTML
+ * 
+ * @param sensor Sensor 
+ * @param file Ficheiro .html, aberto
+ */
+void printSensorHTML(void *sensor, FILE *file) {
+    if (!sensor || !file) return;
+
+    Sensor *s = (Sensor *)sensor;
+
+    fprintf(file,
+        "\t\t\t\t\t<tr>\n"
+        "\t\t\t\t\t\t<th>%d</th>\n"
+        "\t\t\t\t\t\t<th>%s</th>\n"
+        "\t\t\t\t\t\t<th>%s</th>\n"
+        "\t\t\t\t\t\t<th>%s</th>\n"
+        "\t\t\t\t\t</tr>\n", s->codSensor, s->designacao ? s->designacao : "n/a", s->latitude ? s->latitude : "n/a", s->longitude ? s->longitude : "n/a");
+}
+
+
+/**
  * @brief Memória usada por um sensor
  * 
  * @param sensor Sensor

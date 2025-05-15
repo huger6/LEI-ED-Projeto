@@ -252,12 +252,12 @@ void menuNomeFicheirosDados() {
     printf("                 NOME DOS FICHEIROS\n");
     printf("  Nota: Incluir o nome do diretório (Default Dados/)\n");
     printf("=====================================================\n");
-    printf("%-15s | %s\n", "1. Donos",      donosFilename      ? donosFilename      : DONOS_TXT "(Default)");
-    printf("%-15s | %s\n", "2. Carros",     carrosFilename     ? carrosFilename     : CARROS_TXT "(Default)");
-    printf("%-15s | %s\n", "3. Sensores",   sensoresFilename   ? sensoresFilename   : SENSORES_TXT "(Default)");
-    printf("%-15s | %s\n", "4. Distancias", distanciasFilename ? distanciasFilename : DISTANCIAS_TXT "(Default)");
-    printf("%-15s | %s\n", "5. Passagens",  passagensFilename  ? passagensFilename  : PASSAGEM_TXT "(Default)");
-    printf("%-15s | %s\n", "0. Sair",  "(Default)");
+    printf(" %-15s | %s\n", "1. Donos",      donosFilename      ? donosFilename      : DONOS_TXT "(Default)");
+    printf(" %-15s | %s\n", "2. Carros",     carrosFilename     ? carrosFilename     : CARROS_TXT "(Default)");
+    printf(" %-15s | %s\n", "3. Sensores",   sensoresFilename   ? sensoresFilename   : SENSORES_TXT "(Default)");
+    printf(" %-15s | %s\n", "4. Distancias", distanciasFilename ? distanciasFilename : DISTANCIAS_TXT "(Default)");
+    printf(" %-15s | %s\n", "5. Passagens",  passagensFilename  ? passagensFilename  : PASSAGEM_TXT "(Default)");
+    printf(" %-15s | %s\n", "0. Concluir",  "(Default)");
     printf("=====================================================\n");
 }
 
@@ -494,15 +494,31 @@ void processarMenuVelocidades(Bdados *bd) {
                 break;
             case '1':
                 // Geral (cada condutor)
+                listarDonosVelocidadesMedias(bd);
                 break;
             case '2':
                 // Marca mais rápida
+                limpar_terminal();
+                char *marcaMaisRapida = obterMarcaMaisVelocidadeMedia(bd);
+
+                if (marcaMaisRapida) printf("A marca de automóveis mais rápida (velocidade média) é a \"%s\".\n\n", marcaMaisRapida);
+                else printf("Ainda não há dados sobre nenhum carro!\n\n");
+
+                pressEnter();
                 break;
             case '3': 
                 // Condutor mais rápido
+                limpar_terminal();
+                Dono *condutorMaisRapido = obterCondutorMaisVelocidadeMedia(bd);
+
+                if (condutorMaisRapido) printf("O condutor mais rápido (velocidade média) é \"%s\".\n\n", condutorMaisRapido->nome);
+                else printf("Ainda não há dados sobre nenhum condutor!\n\n");
+
+                pressEnter();
                 break;
             case '4': 
                 // Média por código postal
+                velocidadeMediaPorCodPostal(bd);
                 break;
             default:
                 opcao = '0';
@@ -527,9 +543,11 @@ void processarMenuInfracoes(Bdados *bd) {
                 break;
             case '1':
                 // Veículos com infrações
+                listarCarrosComInfracoes(bd);
                 break;
             case '2':
                 // Total de infrações por veículo
+                listarInfracoesPorPeriodoTempo(bd);
                 break;
             default:
                 opcao = '0'; 
@@ -604,6 +622,7 @@ void processarMenuExportacao(Bdados *bd) {
                 break;
             case '3':
                 // Exportar dados para HTML
+                exportarTudoHTML(bd, "donos.html", "carros.html", "sensores.html", "distancias.html", "viagens.html");
                 break;
             default:
                 opcao = '0';

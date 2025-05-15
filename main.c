@@ -41,7 +41,7 @@ Para compilar em Linux, usar:
 // dono ser inserido, seria chamada e ela iria procurar pelo dono e encontrar o seu ponteiro, ou então pedir os dados nessa vez
 // testar mem usage e registar (mem usage parece estar off)
 // criar var global para ser o PAUSA_LISTAGEM e poder ser definida pelo user
-// NIF 123456789 dá segfault
+// Rankings estão a ser ordeandos ao contrário
 
 int main(void) {
     limpar_terminal();
