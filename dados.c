@@ -747,7 +747,7 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     unsigned long sum = 0;
     fread(&sum, sizeof(unsigned long), 1, file);
 
-    // Configs
+    // Configs 
     fread(&autosaveON, sizeof(int), 1, file);
 
     // Donos

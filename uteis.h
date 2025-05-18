@@ -40,6 +40,7 @@ void data_atual();
 int sim_nao(char *mensagem);
 char *normString(const char *str);
 char *strlwrSafe(const char *str);
+int stricmpSafe(const char *s1, const char *s2);
 int stringToInt(const char *str, int *resultado);
 int stringToShort(const char *str, short *resultado);
 int stringToFloat(const char *str, float *resultado);

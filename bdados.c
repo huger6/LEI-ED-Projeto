@@ -219,3 +219,4 @@ size_t memUsageTudo(Bdados *bd) {
     return memTotal;
 }
 
+ 

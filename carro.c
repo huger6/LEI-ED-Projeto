@@ -520,7 +520,7 @@ int compCarroMatricula(void *carro1, void *carro2) {
     Carro *x = (Carro *)carro1;
     Carro *y = (Carro *)carro2;
 
-    return stricmp(x->matricula, y->matricula);
+    return stricmpSafe(x->matricula, y->matricula);
 }
 
 /**
@@ -538,7 +538,7 @@ int compCarroModelo(void *carro1, void *carro2) {
     Carro *x = (Carro *)carro1;
     Carro *y = (Carro *)carro2;
 
-    return stricmp(x->modelo, y->modelo);
+    return stricmpSafe(x->modelo, y->modelo);
 }
 
 /**

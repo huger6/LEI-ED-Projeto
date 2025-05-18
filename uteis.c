@@ -289,6 +289,32 @@ char *strlwrSafe(const char *str) {
     return copia;
 } 
 
+/**
+ * @brief Compara duas strings sem distinção entre maiúsculas e minúsculas
+ * 
+ * @param s1 String 1
+ * @param s2 String 2
+ * @return int mesmo que strcmp
+ */
+int stricmpSafe(const char *s1, const char *s2) {
+    if (!s1 && !s2) return 0;
+    if (!s1) return -1;
+    if (!s2) return 1;
+
+    while (*s1 && *s2) {
+        char c1 = tolower((unsigned char)*s1);
+        char c2 = tolower((unsigned char)*s2);
+
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        s1++;
+        s2++;
+    }
+
+    return tolower((unsigned char)*s1) - tolower((unsigned char)*s2);
+}
+
 /* Converte string para inteiro
  *
  * @param str         String a converter
