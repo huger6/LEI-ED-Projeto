@@ -6,8 +6,7 @@
  * @param nif Nif
  * @return int 1 se válido, 0 se inválido
  */
-int validarNif(const int nif) 
-{
+int validarNif(const int nif) {
     if (nif < 0) return 0;
 
     return 1;
@@ -19,8 +18,7 @@ int validarNif(const int nif)
  * @param nome Nome
  * @return NULL se válido; retorna uma mensagem de erro se for inválido;
  */
-char * validarNome(char *nome)
-{
+char * validarNome(char *nome) {
     int comprimento = strlen(nome);
 
     //Verificar nome vazio
@@ -52,8 +50,16 @@ char * validarNome(char *nome)
     return NULL;
 }
 
-int validarCodPostal(const short zona, const short local)
-{
+/**
+ * @brief Valida o código postal
+ * 
+ * @param zona Zona (4x)
+ * @param local Local (3x)
+ * @return int 
+ */
+int validarCodPostal(const short zona, const short local) {
+    if (zona < 0 || local < 0) return 0;
+
     return 1;
 }
 
@@ -63,17 +69,17 @@ int validarCodPostal(const short zona, const short local)
  * @param ano Ano do carro
  * @return int 1,se válido; int 0, se inválido;
  */
-int validarAnoCarro(const short ano)
-{
+int validarAnoCarro(const short ano) {
     if (ano < 1885 || ano > DATA_ATUAL.ano) return 0;
     
     return 1;
 }
+
 /**
- * @brief Validar matricula de veículo
+ * @brief Valida a matricula de um veículo
  * 
- * @param matricula Matricula de um veículo
- * @return int 1,se válido; int 0, se inválido; 
+ * @param matricula Matricula do veículo
+ * @return int 1 se válido, 0 se inválido; 
  */
 int validarMatricula(const char *matricula)
 {
@@ -93,6 +99,7 @@ int validarMatricula(const char *matricula)
     }
     return 0;
 }
+
 /**
  * @brief Valida a marca do veículo
  * 
@@ -123,17 +130,19 @@ char * validarModelo(char *modelo) {
  */
 int validarCodVeiculo(const int codigo) {
     if (codigo < 1) return 0;
+
     return 1;
 }
 
 /**
- * @brief Validar código de sensor
+ * @brief Valida o código do sensor
  * 
  * @param codSensor Código do Sensor
  * @return int 0, se o Código do sensor for zero ou negativo, logo é inválido; int 1, se o código do sensor maior ou igual que 1, logo válido;
  */
 int validarCodSensor(const int codSensor) {
     if (codSensor < 1) return 0;
+    
     return 1;
 }
 
@@ -145,6 +154,7 @@ int validarCodSensor(const int codSensor) {
  */
 int validarDistancia(const float distancia) {
     if (distancia < 0) return 0;
+
     return 1;
 }
 
@@ -219,5 +229,7 @@ int validarData(const Data date, const char modo) {
  */
 int validarTipoRegisto(const char tipoRegisto) {
     if (tipoRegisto == '0' || tipoRegisto == '1') return 1;
+
     return 0;
 }
+

@@ -19,15 +19,15 @@
  * @note Só sai quando adquire uma entrada válida
  */
 char mostrarMenu(void (*escrever_menu)(), char min_opcao, char max_opcao) { 
-    short valido = 0;
+    int valido = 0;
     char opcao = '0';
     do {
         limpar_terminal();
         escrever_menu();
-        printf("=>Escolha uma opção: ");
+        printf("\n Escolha uma opção! ");
 
-        valido = scanf(" %c", &opcao);
-        validacaoMenus(&valido, opcao, min_opcao, max_opcao);
+        opcao = (char) getKeyStroked();
+        valido = validacaoMenus(opcao, min_opcao, max_opcao);
 
         if (valido == 1) {
             return opcao;
@@ -53,7 +53,7 @@ void menuPrincipal() {
     printf("╠══════════════════════════════════╣\n");
     printf("║  1. Gestão de Donos              ║\n");
     printf("║  2. Gestão de Veículos           ║\n");
-    printf("║  3. Passagens                    ║\n");
+    printf("║  3. Passagens/Viagens            ║\n");
     printf("║  4. Estatísticas e Rankings      ║\n");
     printf("║  5. Infrações                    ║\n");
     printf("║  6. Análise de Dados             ║\n");
@@ -123,7 +123,7 @@ void menuPassagens() {
     printf("║       PASSAGENS/VIAGENS         ║\n");
     printf("╠═════════════════════════════════╣\n");
     printf("║  1. Registar viagem             ║\n");
-    printf("║  2. Ver todas as passagens      ║\n");
+    printf("║  2. Ver todas as viagens        ║\n");
     printf("║  0. Voltar ao menu anterior     ║\n");
     printf("╚═════════════════════════════════╝\n\n");
 }
@@ -134,15 +134,15 @@ void menuPassagens() {
  * @note Opções: 0-4
  */
 void menuEstatisticas() {
-    printf("╔══════════════════════════════════╗\n");
-    printf("║     ESTATÍSTICAS E RANKINGS      ║\n");
-    printf("╠══════════════════════════════════╣\n");
-    printf("║  1. Ranking de circulação        ║\n");
-    printf("║  2. Ranking por marca            ║\n");
-    printf("║  3. Ranking de infrações         ║\n");
-    printf("║  4. Velocidades médias           ║\n");
-    printf("║  0. Voltar ao menu anterior      ║\n");
-    printf("╚══════════════════════════════════╝\n\n");
+    printf("╔═══════════════════════════════════════╗\n");
+    printf("║     ESTATÍSTICAS E RANKINGS           ║\n");
+    printf("╠═══════════════════════════════════════╣\n");
+    printf("║  1. Ranking KMS por período de tempo  ║\n");
+    printf("║  2. Ranking KMS por marca             ║\n");
+    printf("║  3. Ranking de infrações              ║\n");
+    printf("║  4. Velocidades médias                ║\n");
+    printf("║  0. Voltar ao menu anterior           ║\n");
+    printf("╚═══════════════════════════════════════╝\n\n");
 }
 
 /**
@@ -173,7 +173,7 @@ void menuInfracoes() {
     printf("║             INFRAÇÕES              ║\n");
     printf("╠════════════════════════════════════╣\n");
     printf("║  1. Veículos com infrações         ║\n");
-    printf("║  2. Total de infrações por veículo ║\n");
+    printf("║  2. Infrações por período de tempo ║\n");
     printf("║  0. Voltar ao menu anterior        ║\n");
     printf("╚════════════════════════════════════╝\n\n");
 }
@@ -261,6 +261,35 @@ void menuNomeFicheirosDados() {
     printf("=====================================================\n");
 }
 
+/**
+ * @brief Um guia meramente informativo sobre como usar o programa
+ * 
+ */
+void menuGuiaUtilizacao() {
+    limpar_terminal();
+    printf("╔═════════════════════════════════════════════════╗\n");
+    printf("║            GUIA DE UTILIZAÇÃO                   ║\n");
+    printf("╠═════════════════════════════════════════════════╣\n");
+    printf("║ * Gestão de Donos:                              ║\n");
+    printf("║   - Registar e listar proprietários             ║\n");
+    printf("║                                                 ║\n");
+    printf("║ * Gestão de Veículos:                           ║\n");
+    printf("║   - Registar e consultar veículos               ║\n");
+    printf("║   - Pesquisar por matrícula/marca/modelo        ║\n");
+    printf("║                                                 ║\n");
+    printf("║ * Passagens/Viagens:                            ║\n");
+    printf("║   - Registar passagens em portagens             ║\n");
+    printf("║   - Consultar histórico de viagens              ║\n");
+    printf("║                                                 ║\n");
+    printf("║ * Exportação:                                   ║\n");
+    printf("║   - Exportar dados para CSV/XML/HTML            ║\n");
+    printf("║                                                 ║\n");
+    printf("║ * Autosave:                                     ║\n");
+    printf("║   - Guarda dados automaticamente                ║\n");
+    printf("╚═════════════════════════════════════════════════╝\n\n");
+    pressEnter();
+}
+
 //Processar os menus
 
 /**
@@ -272,7 +301,7 @@ void menuNomeFicheirosDados() {
 void the_architect(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
+        autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuPrincipal, '0', '8');
         switch(opcao) {
             case '0':
@@ -323,7 +352,6 @@ void the_architect(Bdados *bd) {
 void processarMenuDonos(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuDonos, '0', '3');
         switch(opcao) {
             case '0':
@@ -356,7 +384,6 @@ void processarMenuDonos(Bdados *bd) {
 void processarMenuVeiculos(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuVeiculos, '0', '3');
         switch(opcao) {
             case '0':
@@ -389,7 +416,6 @@ void processarMenuVeiculos(Bdados *bd) {
 void processarMenuListagemVeiculos(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuListagemVeiculos, '0', '4');
         switch(opcao) {
             case '0':
@@ -426,7 +452,6 @@ void processarMenuListagemVeiculos(Bdados *bd) {
 void processarMenuPassagens(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuPassagens, '0', '2');
         switch(opcao) {
             case '0':
@@ -454,19 +479,21 @@ void processarMenuPassagens(Bdados *bd) {
 void processarMenuEstatisticas(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuEstatisticas, '0', '4');
         switch(opcao) {
             case '0':
                 break;
             case '1':
-                // Ranking de circulação
+                // Ranking total KMS por período de tempo
+                rankingKMSPeriodoTempo(bd);
                 break;
             case '2':
-                // Ranking por marca
+                // Ranking total KMS por marca
+                rankingKMSMarca(bd);
                 break;
             case '3': 
                 // Ranking de infrações
+                rankingInfracoes(bd);
                 break;
             case '4': 
                 processarMenuVelocidades(bd);
@@ -487,7 +514,6 @@ void processarMenuEstatisticas(Bdados *bd) {
 void processarMenuVelocidades(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuVelocidadesMedias, '0', '4');
         switch(opcao) {
             case '0':
@@ -536,7 +562,6 @@ void processarMenuVelocidades(Bdados *bd) {
 void processarMenuInfracoes(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuInfracoes, '0', '2');
         switch(opcao) {
             case '0':
@@ -546,7 +571,7 @@ void processarMenuInfracoes(Bdados *bd) {
                 listarCarrosComInfracoes(bd);
                 break;
             case '2':
-                // Total de infrações por veículo
+                // Infrações por período de tempo
                 listarInfracoesPorPeriodoTempo(bd);
                 break;
             default:
@@ -565,7 +590,6 @@ void processarMenuInfracoes(Bdados *bd) {
 void processarMenuAnaliseDados(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuAnaliseDados, '0', '2');
         switch(opcao) {
             case '0':
@@ -609,7 +633,6 @@ void processarMenuAnaliseDados(Bdados *bd) {
 void processarMenuExportacao(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuExportacao, '0', '3');
         switch(opcao) {
             case '0':
@@ -640,7 +663,6 @@ void processarMenuExportacao(Bdados *bd) {
 void processarMenuOpcoes(Bdados *bd) {
     char opcao;
     do {
-        //autosave(bd);
         opcao = mostrarMenu(menuOpcoes, '0', '3');
         switch(opcao) {
             case '0': break;
@@ -660,7 +682,7 @@ void processarMenuOpcoes(Bdados *bd) {
                 reset(bd);
                 break;
             case '3':
-                //guia_de_utilizacao();
+                menuGuiaUtilizacao();
                 break;
             default: 
                 opcao = '0';
@@ -675,28 +697,18 @@ void processarMenuOpcoes(Bdados *bd) {
 /**
  * @brief Valida a opçção escolhida num menu
  * 
- * @param valido flag
  * @param opcao Opção
  * @param limInf Limite inferior do menu
  * @param limSup Limite superior do menu
+ * 
+ * @return 1 se válido, 0 se inválido
  */
-void validacaoMenus(short *valido, const char opcao, const char limInf, const char limSup) { 
-    if (*valido != 1) {
-        printf("Entrada inválida! Introduza um número do menu (%c a %c)\n", limInf, limSup); 
-        pressEnter();
-    }
-    else if (opcao < limInf || opcao > limSup) { 
-        *valido = 0; 
+int validacaoMenus(const char opcao, const char limInf, const char limSup) { 
+    if (opcao < limInf || opcao > limSup) { 
         printf("Por favor, escolha um número do menu (%c a %c).\n", limInf, limSup);
         pressEnter();
+        return 0;
     }
-    //Verificar entradas com mais de um char
-    char lixo = getchar();
-    if (lixo != '\n') {
-        *valido = 0;
-        limpar_buffer(); //\n
-        printf("Por favor, escolha um número do menu (%c a %c).\n", limInf, limSup);
-        pressEnter();
-    }
+    return 1;
 }
 

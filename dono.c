@@ -586,7 +586,12 @@ void registarDono(Bdados *bd) {
                 pressEnter();
                 continue;
             }
-            converterCodPostal(codPostal, &cod.zona, &cod.local);
+            if (!converterCodPostal(codPostal, &cod.zona, &cod.local)) {
+                free(codPostal);
+                printf("Erro a ler o código postal!\n\n");
+                pressEnter();
+                continue;
+            }
             free(codPostal);
 
             if (!validarCodPostal(cod.zona, cod.local)) {
@@ -659,7 +664,7 @@ Dono *obterCondutorMaisVelocidadeMedia(Bdados *bd) {
                         if (velocidadeMedia > velocidadeMax) {
                             p = bd->donosNif->tabela[i];
                             velocidadeMax = velocidadeMedia;
-                            donoMaisRapido = (Dono *)p->dados->inicio->info;
+                            donoMaisRapido = d;
                         }
                     }
                     m = m->prox; //dono
@@ -958,6 +963,7 @@ void velocidadeMediaPorCodPostal(Bdados *bd) {
     Lista *donosCods = criarLista();
     if (!donosCods) {
         printf("Ocorreu um erro inesperado. Tente novamente mais tarde!\n");
+        pressEnter();
         return;
     }
 
@@ -983,6 +989,7 @@ void velocidadeMediaPorCodPostal(Bdados *bd) {
     if (!p) {
         printf("Não foram encontrados donos com o código postal \"%hd-%hd\"\n", chave.zona, chave.local);
         freeLista(donosCods, NULL);
+        pressEnter();
         return;
     }
     int tempo = 0;
@@ -1014,15 +1021,14 @@ void velocidadeMediaPorCodPostal(Bdados *bd) {
         velocidadeMedia = distancia / (tempo / 60.0f);
     }
     else {
-        printf("Não há dados sobre quaisquer viagens efetuadas sobre os donos com o código postal \"%hd-%hd\"\n", chave.zona, chave.local);
+        printf("Não há dados sobre quaisquer viagens efetuadas sobre os donos com o código postal \"%hd-%hd\"!\n", chave.zona, chave.local);
         freeLista(donosCods, NULL);
+        pressEnter();
         return;
     }
 
-    printf("A velocidade média associada ao código postal \"%hd-%hd\" é de %.2f\n\n", chave.zona, chave.local, velocidadeMedia);
+    printf("A velocidade média associada ao código postal \"%hd-%hd\" é de %.2fkm/h!\n\n", chave.zona, chave.local, velocidadeMedia);
     freeLista(donosCods, NULL);
     pressEnter();
 }
-
-
 

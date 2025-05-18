@@ -279,7 +279,6 @@ void printSensorHTML(void *sensor, FILE *file) {
         "\t\t\t\t\t</tr>\n", s->codSensor, s->designacao ? s->designacao : "n/a", s->latitude ? s->latitude : "n/a", s->longitude ? s->longitude : "n/a");
 }
 
-
 /**
  * @brief Memória usada por um sensor
  * 

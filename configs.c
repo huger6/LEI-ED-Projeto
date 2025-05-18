@@ -6,6 +6,7 @@
 #include "dados.h"
 
 int autosaveON = 0;
+
 char *donosFilename = DONOS_TXT;
 char *carrosFilename = CARROS_TXT;
 char *sensoresFilename = SENSORES_TXT;
@@ -157,6 +158,8 @@ void setFilenames() {
         opcao = mostrarMenu(menuNomeFicheirosDados, '0', '5');
         switch(opcao) {
             case '0':
+                limpar_terminal();
+                printf("\n\nA carregar dados...\n\n");
                 break;
             case '1':
                 do {
@@ -317,6 +320,7 @@ size_t memUsageVarGlobais() {
     size_t mem = 0;
 
     mem += sizeof(autosaveON);
+
     mem += sizeof(donosFilename);
     mem += sizeof(carrosFilename);
     mem += sizeof(sensoresFilename);

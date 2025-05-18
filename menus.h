@@ -6,7 +6,7 @@
 #include "bdados.h"
 
 char mostrarMenu(void (*escrever_menu)(), char min_opcao, char max_opcao);
-void validacaoMenus(short *valido, const char opcao, const char limInf, const char limSup);
+int validacaoMenus(const char opcao, const char limInf, const char limSup);
 
 void menuPrincipal();
 void menuDonos();
@@ -21,6 +21,7 @@ void menuExportacao();
 void menuOpcoes();
 void menuFormatosListagem();
 void menuNomeFicheirosDados();
+void menuGuiaUtilizacao();
 
 void the_architect(Bdados *bd);
 void processarMenuDonos(Bdados *bd);

@@ -49,6 +49,29 @@ void limpar_terminal() {
     #endif
 }
 
+/**
+ * @brief Retorna automaticamente a tecla pressionada sem necessidade de enter (converte para char)
+ * 
+ * @return int tecla pressionada
+ */
+int getKeyStroked() {
+    #ifdef _WIN32
+        while(1) {
+            if (_kbhit()) {
+                int c = _getch();
+                return c;
+            }
+        }
+    #else
+        char c;
+        system("stty raw");  // Disable line buffering
+        while(1) {
+            c = getchar();
+            return c;
+        }
+    #endif
+}
+
 /* Pede ao utilizador para pressionar Enter
  *
  * @return void
@@ -163,12 +186,7 @@ int sim_nao(char *mensagem) {
     char opcao;
     do {
         printf("%s (S/N): ", mensagem);
-        scanf(" %c", &opcao);
-        //Verificar entradas inválidas
-        if (!verificar_e_limpar_buffer()) {
-            printf("Entrada inválida! Por favor tente novamente. Utilize 'S' ou 'N': ");
-            continue;
-        }
+        opcao = (char) getKeyStroked();
         if (opcao == 's' || opcao == 'S') {
             return 1;
         }
@@ -590,11 +608,14 @@ int converterCodPostal(const char *codPostal, short *zona, short *local) {
     if (!codPostal || !zona || !local) {
         return 0;
     }
-    char extra; //guardar /n ou outros caracteres
-    if (sscanf(codPostal, "%hd-%hd%c", zona, local, &extra) != 4 && extra !='\0') {
-        return 0;
+    char extra;
+    int result = sscanf(codPostal, "%hd-%hd%c", zona, local, &extra);
+    
+    if (result == 2 || (result == 3 && extra == '\n')) {
+        return 1;
     }
-    return 1;
+    
+    return 0;
 }
 
 /**
@@ -740,25 +761,6 @@ int deleteFile(const char *nome, const char modo) {
     }
 }
 
-// Parece não funcionar em linux
-double obterUsoMemoria() {
-    #if defined(_WIN32) || defined(_WIN64)
-        PROCESS_MEMORY_COUNTERS_EX pmc;
-        if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
-            return pmc.PrivateUsage / (1024.0 * 1024.0); // bytes para MB
-        }
-        return -1.0;
-
-    #else   
-        struct rusage usage;
-        if (getrusage(RUSAGE_SELF, &usage) == 0) {
-            return usage.ru_maxrss / 1024.0; // KB para MB
-        }
-        return -1.0; // erro
-    
-    #endif
-}
-
 /**
  * @brief Cria indentação num ficheiro
  * 
@@ -821,7 +823,6 @@ int validarNomeFicheiro(const char *filename) {
     }
     return 1;
 }
-
 
 /**
  * @brief Valida se podemos abrir um ficheiro e verifica ficheiros iguais (mesmo nome)

@@ -14,15 +14,14 @@ int carregarSensoresTxt(Bdados *bd, char *sensoresFilename, FILE *logs);
 int carregarDistanciasTxt(Bdados *bd, char *distanciasFilename, FILE *logs);
 int carregarPassagensTxt(Bdados *bd, char *passagensFilename, FILE *logs);
 
-
 void removerEspacos(char * str);
 void separarParametros(char *linha, char **parametros, int *numParametros, const int paramEsperados);
 void linhaInvalida(const char *linha, int nLinha, FILE *logs);
 int contarLinhas(const char *filename);
 
-
 int guardarDadosBin(Bdados *bd, const char *nome);
 int carregarDadosBin(Bdados *bd, const char *nome);
+unsigned long checksum(Bdados *bd);
 
 
 #endif

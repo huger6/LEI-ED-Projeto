@@ -66,15 +66,14 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
                 return 0;
             }
         }
+        if (!addInicioLista(aut->ptrPessoa->carros, (void *)aut)) {
+            free(aut->modelo);
+            free(aut->marca);
+            free(aut);
+            return 0;
+        }
 	}
 
-	if (!addInicioLista(aut->ptrPessoa->carros, (void *)aut)) {
-		free(aut->modelo);
-        free(aut->marca);
-        free(aut);
-		return 0;
-	}
-    
     if (!appendToDict(bd->carrosCod, (void *)aut, compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod)) {
         free(aut->modelo);
         free(aut->marca);
@@ -95,8 +94,8 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
 /**
  * @brief Compara 2 carros
  * 
- * @param carro1 
- * @param carro2 
+ * @param carro1 Carro 1
+ * @param carro2 Carro 2
  * @return int -1 se carro1 < carro2, 0 se iguais, 1 se carro1 > carro2
  */
 int compararCarros(void *carro1, void *carro2) {
@@ -144,7 +143,7 @@ void freeCarro(void *carro) {
  * @brief Mostra um carro
  * 
  * @param carro Carro a mostrar
- * @param file Ficheiro (stdin se for no terminal)
+ * @param file Ficheiro
  */
 void printCarro(void *carro, FILE *file) {
     if (!carro || !file) return;
@@ -295,7 +294,7 @@ int hashChaveCarroMarca(void *chave) {
 /**
  * @brief Liberta a memória da chave dos carros por marca
  * 
- * @param chave 
+ * @param chave Chave
  */
 void freeChaveCarroMarca(void *chave) {
     if (!chave) return;
@@ -414,7 +413,7 @@ int compChaveCarroCod(void *chave, void *chave2) {
 }
 
 /**
- * @brief Compara as chaves dos carros pelos rankings
+ * @brief Compara as chaves dos carros pelos rankings (ints)
  * 
  * @param chave Chave
  * @param carro Carro
@@ -422,7 +421,7 @@ int compChaveCarroCod(void *chave, void *chave2) {
  * 
  * @note Ordena por ordem descrescente (mais primeiro)
  */
-int compChaveCarroRanking(void *chave, void *chave2) {
+int compChaveCarroRankingInt(void *chave, void *chave2) {
     if (chave == NULL && chave2 == NULL) return 0;
     if (chave == NULL) return -1; //NULL < qualquer coisa
     if (chave2 == NULL) return 1;
@@ -436,14 +435,48 @@ int compChaveCarroRanking(void *chave, void *chave2) {
 }
 
 /**
+ * @brief Compara as chaves dos carros pelos rankings (floats)
+ * 
+ * @param chave Chave
+ * @param carro Carro
+ * @return int -1 se erro, 0 se igual, 1 se diferente
+ * 
+ * @note Ordena por ordem descrescente (mais primeiro)
+ */
+int compChaveCarroRankingFloat(void *chave, void *chave2) {
+    if (chave == NULL && chave2 == NULL) return 0;
+    if (chave == NULL) return -1; //NULL < qualquer coisa
+    if (chave2 == NULL) return 1;
+
+    float *key = (float *)chave;
+    float *key2 = (float *)chave2;
+
+    if (*key < *key2) return 1;
+    else if (*key > *key2) return -1;
+    return 0;
+}
+
+/**
+ * @brief Liberta a memória alocada para uma chave de carro por ranking (ints)
+ * 
+ * @param chave Chave
+ */
+void freeChaveCarroRankingInt(void *chave) {
+    if (!chave) return;
+
+    int *key = (int *)chave;
+    free(key);
+}
+
+/**
  * @brief Liberta a memória alocada para uma chave de carro por ranking
  * 
  * @param chave Chave
  */
-void freeChaveCarroRanking(void *chave) {
+void freeChaveCarroRankingFloat(void *chave) {
     if (!chave) return;
 
-    int *key = (int *)chave;
+    float *key = (float *)chave;
     free(key);
 }
 
@@ -688,6 +721,130 @@ void printCarroRanking(NoRankings *no, void (*printCompObj)(void *compInfo, FILE
 }
 
 /**
+ * @brief Mostra um carro de um ranking em ficheiro TXT
+ * 
+ * @param no Nó a mostrar
+ * @param printCompObj Função para mostrar no->compInfo
+ * @param file Ficheiro .txt, aberto
+ */
+void printCarroRankingTXT(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file) {
+    if (!no || !file) return;
+
+    Carro *c = (Carro *)no->mainInfo;
+    
+    fprintf(file, "\t%s\t%s\t%s", c->matricula, c->ptrPessoa ? c->ptrPessoa->nome : "n/a", c->marca);
+            
+    if (printCompObj) {
+        fprintf(file, "\t");
+        printCompObj(no->compInfo, file);
+    } else {
+        fprintf(file, "\tn/a\n");
+    }
+}
+
+/**
+ * @brief Mostra um carro de um ranking em ficheiro CSV
+ * 
+ * @param no Nó a mostrar
+ * @param printCompObj Função para mostrar no->compInfo
+ * @param file Ficheiro .csv, aberto
+ */
+void printCarroRankingCSV(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file) {
+    if (!no || !file) return;
+
+    Carro *c = (Carro *)no->mainInfo;
+    
+    fprintf(file, ", %s, %s, %s", c->matricula, c->ptrPessoa ? c->ptrPessoa->nome : "n/a", c->marca);
+            
+    if (printCompObj) {
+        fprintf(file, ", ");
+        printCompObj(no->compInfo, file);
+    } else {
+        fprintf(file, ", n/a\n");
+    }
+}
+
+/**
+ * @brief Mostra uma marca de um ranking
+ * 
+ * @param no No do ranking
+ * @param printHeaderCompObj Função para mostrar o header da compInfo
+ * @param printCompObj Função para mostrar o compInfo
+ * @param file Ficheiro onde mostrar
+ */
+void printMarcaRanking(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file) {
+    if (!no || !file) return;
+
+    Carro *c = (Carro *)no->mainInfo;
+    const int WIDTH_MARCA = 20;
+    
+    // Processa marca
+    char marcaStr[WIDTH_MARCA + 1];
+    if (strlen(c->marca) > (size_t) WIDTH_MARCA - 3) {
+        strncpy(marcaStr, c->marca, WIDTH_MARCA - 3);
+        marcaStr[WIDTH_MARCA - 3] = '.';
+        marcaStr[WIDTH_MARCA - 2] = '.';
+        marcaStr[WIDTH_MARCA - 1] = '.';
+        marcaStr[WIDTH_MARCA] = '\0';
+    } else {
+        strcpy(marcaStr, c->marca);
+    }
+    
+    // Mostra apenas a marca
+    fprintf(file, "%-*s", WIDTH_MARCA, marcaStr);
+            
+    if (printCompObj) {
+        printCompObj(no->compInfo, file);
+    } else {
+        fprintf(file, "\n");
+    }
+}
+
+/**
+ * @brief Mostra uma marca de um ranking em ficheiro TXT
+ * 
+ * @param no Nó a mostrar
+ * @param printCompObj Função para mostrar no->compInfo
+ * @param file Ficheiro .txt, aberto
+ */
+void printMarcaRankingTXT(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file) {
+    if (!no || !file) return;
+
+    Carro *c = (Carro *)no->mainInfo;
+    
+    fprintf(file, "\t%s", c->marca ? c->marca : "n/a");
+            
+    if (printCompObj) {
+        fprintf(file, "\t");
+        printCompObj(no->compInfo, file);
+    } else {
+        fprintf(file, "\tn/a\n");
+    }
+}
+
+/**
+ * @brief Mostra uma marca de um ranking em ficheiro CSV
+ * 
+ * @param no Nó a mostrar
+ * @param printCompObj Função para mostrar no->compInfo
+ * @param file Ficheiro .csv, aberto
+ */
+void printMarcaRankingCSV(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file) {
+    if (!no || !file) return;
+
+    Carro *c = (Carro *)no->mainInfo;
+    
+    fprintf(file, ", %s", c->marca ? c->marca : "n/a");
+            
+    if (printCompObj) {
+        fprintf(file, ", ");
+        printCompObj(no->compInfo, file);
+    } else {
+        fprintf(file, ", n/a\n");
+    }
+}
+
+/**
  * @brief Escreve os headers sobre o número de infrações
  * 
  * @param file Ficheiro
@@ -695,7 +852,7 @@ void printCarroRanking(NoRankings *no, void (*printCompObj)(void *compInfo, FILE
 void printHeaderCarroMaisInfracoes(FILE *file) {
     if (!file) return;
 
-    fprintf(file, "\tMatrícula\tDono\tMarca\tNº de infrações\n");
+    fprintf(file, "\n\tMatrícula\tDono\t\t\t\tMarca\t\tNº de infrações\n");
 }
 
 /**
@@ -710,6 +867,126 @@ void printMaisInfracoes(void *compInfo, FILE *file) {
     int *info = (int *)compInfo;
 
     fprintf(file, "%d\n", *info);
+}
+
+/**
+ * @brief Mostra os headers para ficheiro .txt
+ * 
+ * @param file Ficheiro .txt, aberto
+ */
+void printHeaderCarroMaisInfracoesTXT(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "Matrícula\tDono\tMarca\tNº de infrações\n");
+}
+
+/**
+ * @brief Mostra os headers para ficheiro .csv
+ * 
+ * @param file Ficheiro .csv, aberto
+ */
+void printHeaderCarroMaisInfracoesCSV(FILE *file) {
+if (!file) return;
+
+    fprintf(file, "Posição, Matrícula, Dono, Marca, Nº de infrações\n");
+}
+
+/**
+ * @brief Escreve os headers sobre o número de kilometros 
+ * 
+ * @param file Ficheiro
+ */
+void printHeaderCarroMaisKMS(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "\n\tMatrícula\tDono\t\t\t\tMarca\t\tTotal de quilómetros(km) percorridos\n");
+}
+
+/**
+ * @brief Mostra os dados sobre o total de quilómetros percorridos 
+ * 
+ * @param compInfo KMS
+ * @param file Ficheiro aberto
+ */
+void printMaisKMS(void *compInfo, FILE *file) {
+    if (!compInfo || !file) return;
+
+    float *info = (float *)compInfo;
+
+    fprintf(file, "%.2f\n", *info);
+}
+
+/**
+ * @brief Mostra os dados sobre o total de quilómetros percorridos em CSV
+ * 
+ * @param compInfo KMS
+ * @param file Ficheiro .csv, aberto
+ */
+void printMaisKMS_CSV(void *compInfo, FILE *file) {
+    if (!compInfo || !file) return;
+
+    float *info = (float *)compInfo;
+
+    char *infoStr = floatToStringPontoDecimal(*info, 2);
+
+    fprintf(file, "%s\n", infoStr ? infoStr : "n/a");
+
+    if (infoStr) free(infoStr);
+}
+
+/**
+ * @brief Mostra os headers para ficheiro .txt
+ * 
+ * @param file Ficheiro .txt, aberto
+ */
+void printHeaderCarroMaisKMS_TXT(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "Matrícula\tDono\tMarca\tTotal de quilómetros(km) percorridos\n");
+}
+
+/**
+ * @brief Mostra os headers para ficheiro .csv
+ * 
+ * @param file Ficheiro .csv, aberto
+ */
+void printHeaderCarroMaisKMS_CSV(FILE *file) {
+if (!file) return;
+
+    fprintf(file, "Posição, Matrícula, Dono, Marca, Total de quilómetros(km) percorridos\n");
+}
+
+/**
+ * @brief Escreve os headers sobre o número de kilometros
+ * 
+ * @param file Ficheiro
+ */
+void printHeaderMarcaMaisKMS(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "\n\tMarca\t\tTotal de quilómetros(km) percorridos\n");
+}
+
+/**
+ * @brief Mostra os headers para ficheiro .txt
+ * 
+ * @param file Ficheiro .txt, aberto
+ */
+void printHeaderMarcaMaisKMS_TXT(FILE *file) {
+    if (!file) return;
+
+    fprintf(file, "Posição\tMarca\tTotal de quilómetros(km) percorridos\n");
+}
+
+/**
+ * @brief Mostra os headers para ficheiro .csv
+ * 
+ * @param file Ficheiro .csv, aberto
+ */
+void printHeaderMarcaMaisKMS_CSV(FILE *file) {
+if (!file) return;
+
+    fprintf(file, "Posição, Marca, Total de quilómetros(km) percorridos\n");
 }
 
 /**
@@ -794,9 +1071,6 @@ char *obterMarcaMaisVelocidadeMedia(Bdados *bd) {
         // Ver velocidade média e comparar
         if (tempoTotal > 0) {
             velocidadeMedia = distanciaTotal / (tempoTotal / 60.0f);
-            p = bd->carrosMarca->tabela[i];
-            Carro *primeiroCarro2 = (Carro *)p->dados->inicio->info;
-            printf("Velocidade média da %s é %.2f\n", primeiroCarro2->marca, velocidadeMedia);
             pressEnter();
             if (velocidadeMedia > velocidadeMax) {
                 p = bd->carrosMarca->tabela[i];
@@ -881,7 +1155,7 @@ int obterCodVeiculoNovo(Dict *carrosCod) {
     return -1;
 }
 
-/**
+/** NÃO USADA
  * @brief Obtém o código máximo de um carro
  * 
  * @param carrosCod Dicionário dos carros
@@ -1243,7 +1517,82 @@ void listarInfracoesPorPeriodoTempo(Bdados *bd) {
         printf("Ocorreu um erro inesperado! Por favor tente novamente mais tarde!\n");
         pressEnter();
     }
-    
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->carrosCod->tabela[i];
+        while(p) {
+            if (p->dados) {
+                No *m = p->dados->inicio;
+                while(m) {
+                    Carro *c = (Carro *)m->info;
+
+                    int infracoes = 0;
+
+                    if (c->viagens) {
+                        No *l = c->viagens->inicio;
+                        while(l) {
+                            Viagem *v = (Viagem *)l->info;
+                            
+                            if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
+                                if (v->velocidadeMedia > MAX_VELOCIDADE_AE || v->velocidadeMedia < MIN_VELOCIDADE_AE) {
+                                    infracoes++;
+                                }
+                            }
+                            l = l->prox;
+                        }
+                    }
+                    if (infracoes > 0) {
+                        int *infr = (int *)malloc(sizeof(int));
+                        *infr = infracoes;
+
+                        void *temp = (void *)infr;
+                        addToRanking(r, (void *)c, temp);
+                    }
+                    m = m->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
+
+    mergeSortRanking(r, compChaveCarroRankingInt);
+
+    printRanking(r, printCarroRanking, printHeaderCarroMaisInfracoes, printMaisInfracoes, stdout, PAUSA_LISTAGEM);
+
+    printf("\n----FIM DE LISTAGEM----\n");
+
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisInfracoesTXT, printMaisInfracoes, file, PAUSA_LISTAGEM);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisInfracoesCSV, printMaisInfracoes, file, PAUSA_LISTAGEM);
+        }
+        fclose(file);
+    }
+    freeRanking(r, NULL, freeChaveCarroRankingInt);
+    pressEnter();
+}
+
+/**
+ * @brief Ranking das infrações
+ * 
+ * @param bd Base de dados
+ */
+void rankingInfracoes(Bdados *bd) {
+    if (!bd) return;
+
+    limpar_terminal();
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
+
+    Ranking *r = criarRanking();
+    if (!r) {
+        printf("Ocorreu um erro inesperado! Por favor tente novamente mais tarde!\n");
+        pressEnter();
+    }
+
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = bd->carrosCod->tabela[i];
         while(p) {
@@ -1279,7 +1628,7 @@ void listarInfracoesPorPeriodoTempo(Bdados *bd) {
         }
     }
 
-    mergeSortRanking(r, compChaveCarroRanking);
+    mergeSortRanking(r, compChaveCarroRankingInt);
 
     printRanking(r, printCarroRanking, printHeaderCarroMaisInfracoes, printMaisInfracoes, stdout, PAUSA_LISTAGEM);
 
@@ -1288,30 +1637,162 @@ void listarInfracoesPorPeriodoTempo(Bdados *bd) {
     file = pedirListagemFicheiro(formato);
     if (file) {
         if (strcmp(formato, ".txt") == 0) {
-            printHeaderViagensTXT(file);
-            No *p = bd->viagens->inicio;
-            while(p) {
-                Viagem *v = (Viagem *)p->info;
-                if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
-                    printViagemTXT(p->info, file);
-                }
-                p = p->prox;
-            }
+            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisInfracoesTXT, printMaisInfracoes, file, PAUSA_LISTAGEM);
         }
         else if (strcmp(formato, ".csv") == 0) {
-            printHeaderViagensCSV(file);
-            No *p = bd->viagens->inicio;
-            while(p) {
-                Viagem *v = (Viagem *)p->info;
-                if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
-                    printViagemCSV(p->info, file);
-                }
-                p = p->prox;
-            }
+            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisInfracoesCSV, printMaisInfracoes, file, PAUSA_LISTAGEM);
         }
         fclose(file);
     }
-    freeRanking(r, NULL, freeChaveCarroRanking);
+    freeRanking(r, NULL, freeChaveCarroRankingInt);
+    pressEnter();
+}
+
+/**
+ * @brief Ranking do total de quilómetros percorridos por cada veículo num dado período de tempo
+ * 
+ * @param bd Base de dados
+ */
+void rankingKMSPeriodoTempo(Bdados *bd) {
+    if (!bd) return;
+
+    limpar_terminal();
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
+    
+    Data inicio = {0,0,0,0,0,0.0f};
+    Data fim = {0,0,0,0,0,0.0f};
+    pedirPeriodoTempo(&inicio, &fim, "Insira a data inicial: ", "Insira a data final: ");
+
+    Ranking *r = criarRanking();
+    if (!r) {
+        printf("Ocorreu um erro inesperado! Por favor tente novamente mais tarde!\n");
+        pressEnter();
+    }
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->carrosCod->tabela[i];
+        while(p) {
+            if (p->dados) {
+                No *m = p->dados->inicio;
+                while(m) {
+                    Carro *c = (Carro *)m->info;
+
+                    float kmsPercorridos = 0;
+
+                    if (c->viagens) {
+                        No *l = c->viagens->inicio;
+                        while(l) {
+                            Viagem *v = (Viagem *)l->info;
+                            
+                            if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
+                                kmsPercorridos += v->kms;
+                            }
+                            l = l->prox;
+                        }
+                    }
+                    if (kmsPercorridos > 0) {
+                        float *kms = (float *)malloc(sizeof(float));
+                        *kms = kmsPercorridos;
+
+                        void *temp = (void *)kms;
+                        addToRanking(r, (void *)c, temp);
+                    }
+                    m = m->prox;
+                }
+            }
+            p = p->prox;
+        }
+    }
+
+    mergeSortRanking(r, compChaveCarroRankingFloat);
+
+    printRanking(r, printCarroRanking, printHeaderCarroMaisKMS, printMaisKMS, stdout, PAUSA_LISTAGEM);
+
+    printf("\n----FIM DE LISTAGEM----\n");
+
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisKMS_TXT, printMaisKMS, file, PAUSA_LISTAGEM);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisKMS_CSV, printMaisKMS_CSV, file, PAUSA_LISTAGEM);
+        }
+        fclose(file);
+    }
+    freeRanking(r, NULL, freeChaveCarroRankingFloat);
+    pressEnter();
+}
+
+/**
+ * @brief Ranking do total de quilómetros percorridos por cada marca
+ * 
+ * @param bd Base de dados
+ */
+void rankingKMSMarca(Bdados *bd) {
+    if (!bd) return;
+
+    limpar_terminal();
+    FILE *file = NULL;
+    char formato[TAMANHO_FORMATO_LISTAGEM] = {0};
+
+    Ranking *r = criarRanking();
+    if (!r) {
+        printf("Ocorreu um erro inesperado! Por favor tente novamente mais tarde!\n");
+        pressEnter();
+    }
+
+    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
+        NoHashing *p = bd->carrosMarca->tabela[i];
+        while(p) {
+            if (p->dados) {
+                No *m = p->dados->inicio;
+                float kmsPercorridos = 0;
+                while(m) {
+                    Carro *c = (Carro *)m->info;
+
+                    if (c->viagens) {
+                        No *l = c->viagens->inicio;
+                        while(l) {
+                            Viagem *v = (Viagem *)l->info;
+                            
+                            kmsPercorridos += v->kms;
+                            l = l->prox;
+                        }
+                    }
+                    m = m->prox;
+                }
+                if (kmsPercorridos > 0) {
+                    m = p->dados->inicio;
+                    float *kms = (float *)malloc(sizeof(float));
+                    *kms = kmsPercorridos;
+
+                    void *temp = (void *)kms;
+                    addToRanking(r, m->info, temp); // colocamos um dos carros (obtemos a marca por ele)
+                }
+            }
+            p = p->prox;
+        }
+    }
+
+    mergeSortRanking(r, compChaveCarroRankingFloat);
+
+    printRanking(r, printMarcaRanking, printHeaderMarcaMaisKMS, printMaisKMS, stdout, PAUSA_LISTAGEM);
+
+    printf("\n----FIM DE LISTAGEM----\n");
+
+    file = pedirListagemFicheiro(formato);
+    if (file) {
+        if (strcmp(formato, ".txt") == 0) {
+            printRanking(r, printMarcaRankingTXT, printHeaderMarcaMaisKMS_TXT, printMaisKMS, file, PAUSA_LISTAGEM);
+        }
+        else if (strcmp(formato, ".csv") == 0) {
+            printRanking(r, printMarcaRankingCSV, printHeaderMarcaMaisKMS_CSV, printMaisKMS_CSV, file, PAUSA_LISTAGEM);
+        }
+        fclose(file);
+    }
+    freeRanking(r, NULL, freeChaveCarroRankingFloat);
     pressEnter();
 }
 

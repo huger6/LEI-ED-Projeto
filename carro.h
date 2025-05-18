@@ -19,7 +19,7 @@ typedef struct {
     int codVeiculo; //PRIMARY KEY
     Dono *ptrPessoa;
     Lista *viagens;
-} Carro, Car, *ptCar, *ptCarro;
+} Carro;
 
 
 int compararCarros(void *carro1, void *carro2);
@@ -43,8 +43,10 @@ void *criarChaveCarroCod(void *carro);
 int hashChaveCarroCod(void *carro);
 void freeChaveCarroCod(void *chave);
 int compChaveCarroCod(void *chave, void *chave2);
-int compChaveCarroRanking(void *chave, void *chave2);
-void freeChaveCarroRanking(void *chave);
+int compChaveCarroRankingInt(void *chave, void *chave2);
+int compChaveCarroRankingFloat(void *chave, void *chave2);
+void freeChaveCarroRankingInt(void *chave);
+void freeChaveCarroRankingFloat(void *chave);
 void printCarroXML(void *carro, int indentacao, FILE *file);
 void printHeaderCarrosCSV(FILE *file);
 void printCarroCSV(void *carro, FILE *file);
@@ -53,8 +55,21 @@ void printCarroTXT(void *carro, FILE *file);
 void printHeaderCarrosHTML(FILE *file);
 void printCarroHTML(void *carro, FILE *file);
 void printCarroRanking(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file);
+void printCarroRankingTXT(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file);
+void printCarroRankingCSV(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file);
+void printMarcaRanking(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file);
+void printMarcaRankingTXT(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file);
+void printMarcaRankingCSV(NoRankings *no, void (*printCompObj)(void *compInfo, FILE *file), FILE *file);
 void printHeaderCarroMaisInfracoes(FILE *file);
 void printMaisInfracoes(void *compInfo, FILE *file);
+void printHeaderCarroMaisInfracoesTXT(FILE *file);
+void printHeaderCarroMaisInfracoesCSV(FILE *file);
+void printHeaderCarroMaisKMS(FILE *file);
+void printMaisKMS(void *compInfo, FILE *file);
+void printMaisKMS_CSV(void *compInfo, FILE *file);
+void printHeaderCarroMaisKMS_TXT(FILE *file);
+void printHeaderCarroMaisKMS_CSV(FILE *file);
+void printHeaderMarcaMaisKMS(FILE *file);
 char *obterMarcaMaisComum(Dict *carrosMarca);
 char *obterMarcaMaisVelocidadeMedia(struct Bdados *bd);
 size_t memUsageCarro(void *carro);
@@ -69,6 +84,9 @@ void listarCarrosPorMarca(struct Bdados *bd);
 void listarCarrosPorModelo(struct Bdados *bd);
 void listarCarrosPorPeriodoTempo(struct Bdados *bd);
 void listarInfracoesPorPeriodoTempo(struct Bdados *bd);
+void rankingInfracoes(struct Bdados *bd);
+void rankingKMSPeriodoTempo(struct Bdados *bd);
+void rankingKMSMarca(struct Bdados *bd);
 void listarCarrosComInfracoes(struct Bdados *bd);
 
 

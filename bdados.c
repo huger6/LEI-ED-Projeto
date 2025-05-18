@@ -20,6 +20,7 @@ int inicializarBD(Bdados *bd) {
     bd->viagens = criarLista();
     bd->sensores = criarLista();
     inicializarMatrizDistancias(bd);
+
     if (!bd->carrosMarca || !bd->carrosCod|| !bd->distancias || !bd->distancias->matriz || !bd->donosNif ||
          !bd->donosAlfabeticamente	|| !bd->viagens || !bd->sensores) return 0;
     return 1;
@@ -32,6 +33,7 @@ int inicializarBD(Bdados *bd) {
  */
 void freeTudo(Bdados *bd) {
     if (!bd) return;
+    
     freeFilenames();
 
     freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
@@ -61,9 +63,12 @@ void freeTudo(Bdados *bd) {
  */
 void exportarTudoXML(Bdados *bd, const char *filename) {
     if (!bd || !filename) return;
+    limpar_terminal();
 
     FILE *file = fopen(filename, "w");
     if (!file) return;
+
+    printf("A exportar dados...\n\n");
 
     fprintf(file, "<database>\n");
 
@@ -81,7 +86,8 @@ void exportarTudoXML(Bdados *bd, const char *filename) {
 
     fclose(file);
 
-    printf("Os dados foram exportados para o ficheiro XML (%s) com sucesso!\n\n", filename);
+    printf("Os dados foram exportados para o ficheiro XML (%s) com sucesso!\n", filename);
+    pressEnter();
 }
 
 /**
@@ -96,6 +102,9 @@ void exportarTudoXML(Bdados *bd, const char *filename) {
  */
 void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename) {
     if (!bd || !donosFilename || !carrosFilename || !sensoresFilename || !viagensFilename) return;
+    limpar_terminal();
+    
+    printf("A exportar dados...\n\n");
 
     FILE *donos = fopen(donosFilename, "w");
     if (donos) {
@@ -126,6 +135,9 @@ void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFi
         exportarListaCSV(bd->viagens, printHeaderViagensCSV, printViagemCSV, viagens);
         fclose(viagens);
     }
+
+    printf("A exportação foi concluída!\n");
+    pressEnter();
 }
 
 /**
@@ -140,7 +152,10 @@ void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFi
  */
 void exportarTudoHTML(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename) {
     if (!bd || !donosFilename || !carrosFilename || !sensoresFilename || !viagensFilename) return;
-    
+    limpar_terminal();
+
+    printf("A exportar dados...\n\n");
+
     FILE *donos = fopen(donosFilename, "w");
     if (donos) {
         exportarDictHTML(bd->donosNif, "Donos Database",printHeaderDonosHTML, printDonoHTML, donos);
@@ -171,6 +186,9 @@ void exportarTudoHTML(Bdados *bd, const char *donosFilename, const char *carrosF
         exportarListaHTML(bd->viagens, "Viagens Database",printHeaderViagensHTML, printViagemHTML, viagens);
         fclose(viagens);
     }
+
+    printf("A exportação foi concluída!\n");
+    pressEnter();
 }
 
 /**

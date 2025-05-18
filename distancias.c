@@ -151,7 +151,7 @@ void exportarDistanciasCSV(Distancias *d, FILE *file) {
         for (int j = i; j < d->nColunas; j++) {
             if (i == j) continue;
 
-            char *distanciaStr = floatToStringPontoDecimal(d->matriz[(i) * d->nColunas + j], 1);
+            char *distanciaStr = floatToStringPontoDecimal(d->matriz[i * d->nColunas + j], 1);
             fprintf(file, "%d, %d, %s\n", i + 1, j + 1, distanciaStr);
             free(distanciaStr);
         }

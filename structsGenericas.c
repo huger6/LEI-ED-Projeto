@@ -101,7 +101,7 @@ void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, 
                     case 0:
                         break;
                     case 1:
-                        while(count < li->nel - pausa) {
+                        while(count <= li->nel - pausa) {
                             p = p->prox;
                             count++;
                         }
@@ -668,7 +668,7 @@ void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, in
                         case 0:
                             break;
                         case 1:
-                            while(count < has->nelDict - pausa) {
+                            while(count <= has->nelDict - pausa) {
                                 p = p->prox;
                                 count++;
                             }
@@ -1052,12 +1052,18 @@ void printRanking(Ranking *r, void printCarroRanking(NoRankings *no, void (*prin
     if (!r || !printCompObj || !printHeaderCompObj || !file || pausa < 0) return;
 
     int count = 0;
+    int pole = 1;
     listagemFlag = 0;
 
     NoRankings *p = r->inicio;
     (*printHeaderCompObj)(file);
     while(p) {
-        printf("%i. \t", count + 1);
+        if (file == stdout) {
+            fprintf(file, "%d. \t", count + 1);
+        }
+        else {
+            fprintf(file, "%d", pole++);
+        }
         (*printCarroRanking)(p, printCompObj, file);
         p = p->prox;
 
@@ -1070,7 +1076,7 @@ void printRanking(Ranking *r, void printCarroRanking(NoRankings *no, void (*prin
                     case 0:
                         break;
                     case 1:
-                        while(count < r->nel - pausa) {
+                        while(count <= r->nel - pausa) {
                             p = p->prox;
                             count++;
                         }
@@ -1095,7 +1101,7 @@ void printRanking(Ranking *r, void printCarroRanking(NoRankings *no, void (*prin
  * @param freeCompObj Função para libertar a memória do identificador do ranking
  */
 void freeRanking(Ranking *r, void (*freeMainObj)(void *obj), void (*freeCompObj)(void *obj)) {
-    if (!r || !freeCompObj) return;
+    if (!r) return;
 
     NoRankings *p = r->inicio;
     NoRankings *seg;
@@ -1104,6 +1110,9 @@ void freeRanking(Ranking *r, void (*freeMainObj)(void *obj), void (*freeCompObj)
         seg = p->prox;
         if (freeMainObj) {
             (*freeMainObj)(p->mainInfo);
+        }
+        if (freeCompObj) {
+            (*freeCompObj)(p->compInfo);
         }
         free(p);
         p = seg;
