@@ -136,6 +136,9 @@ void freeCarro(void *carro) {
     Carro *obj = (Carro *)carro;
     if (obj->marca) free(obj->marca);
     if (obj->modelo) free(obj->modelo);
+    if (obj->viagens) {
+        freeLista(obj->viagens, NULL);
+    }
     free(obj);
 }
 

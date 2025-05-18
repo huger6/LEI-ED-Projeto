@@ -128,6 +128,9 @@ int compararCodPostal(const CodPostal cod1, const CodPostal cod2) {
 void freeDono(void *dono) {
     Dono *obj = (Dono *)dono;
     if (obj->nome) free(obj->nome);
+    if (obj->carros) {
+        freeLista(obj->carros, NULL);
+    }
     free(dono);
 }
 
