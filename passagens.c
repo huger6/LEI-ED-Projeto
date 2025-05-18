@@ -174,7 +174,14 @@ void guardarPassagemBin(void *passagem, FILE *file) {
 	if (!passagem || !file) return;
 
 	Passagem *x = (Passagem *)passagem;
-	fwrite(&x->data, sizeof(Data), 1, file);
+
+	fwrite(&x->data.ano, sizeof(short), 1, file);
+	fwrite(&x->data.mes, sizeof(short), 1, file);
+	fwrite(&x->data.dia, sizeof(short), 1, file);
+	fwrite(&x->data.hora, sizeof(short), 1, file);
+	fwrite(&x->data.min, sizeof(short), 1, file);
+	fwrite(&x->data.seg, sizeof(float), 1, file);
+
 	fwrite(&x->idSensor, sizeof(int), 1, file);
 	fwrite(&x->tipoRegisto, sizeof(char), 1, file);
 }
@@ -193,7 +200,13 @@ void *readPassagemBin(FILE *file) {
 	Passagem *x = (Passagem *)malloc(sizeof(Passagem));
 	if (!x) return NULL;
 
-	fread(&x->data, sizeof(Data), 1, file);
+	fread(&x->data.ano, sizeof(short), 1, file);
+	fread(&x->data.mes, sizeof(short), 1, file);
+	fread(&x->data.dia, sizeof(short), 1, file);
+	fread(&x->data.hora, sizeof(short), 1, file);
+	fread(&x->data.min, sizeof(short), 1, file);
+	fread(&x->data.seg, sizeof(float), 1, file);
+
 	fread(&x->idSensor, sizeof(int), 1, file);
 	fread(&x->tipoRegisto, sizeof(char), 1, file);
 

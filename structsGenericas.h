@@ -33,12 +33,6 @@ typedef struct {
     int nelDict;
 } Dict;
 
-typedef struct noArvore {
-    void *info;
-    struct noArvore *esq;
-    struct noArvore *dir;
-} NoArvore;
-
 typedef struct noRankings {
     void *mainInfo;
     void *compInfo;

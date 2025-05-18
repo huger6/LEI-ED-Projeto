@@ -67,6 +67,7 @@ int getKeyStroked() {
         system("stty raw");  // Disable line buffering
         while(1) {
             c = getchar();
+            system("stty cooked");
             return c;
         }
     #endif

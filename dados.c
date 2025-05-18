@@ -841,6 +841,7 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     bd->distancias = readDistanciasBin(file);
 
     unsigned long sumAfter = checksum(bd);
+    
     /*
     if (sum != sumAfter) {
         printf("O ficheiro está corrompido ou foi adulterado. Por favor, tente recarregar uma cópia do mesmo\n");
