@@ -897,8 +897,8 @@ FILE *pedirListagemFicheiro(char *formatoSelecionado) {
 
     if (sim_nao("Deseja guardar a listagem num ficheiro?")) {
         opcao = (short) mostrarMenu(menuFormatosListagem, '0', '2') - '0';
+        limpar_terminal();
         if (opcao == 0) {
-            limpar_terminal();
             return NULL;
         }
         opcao--; //Fazemos a opcao ser igual ao indice de formatos
@@ -930,6 +930,7 @@ FILE *pedirListagemFicheiro(char *formatoSelecionado) {
         }
         limpar_terminal();
         printf("O ficheiro \"%s\" foi aberto com sucesso!\n", filename);
+        free(filename);
         return file;
     }
     return NULL;

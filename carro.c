@@ -189,8 +189,13 @@ void guardarCarroBin(void *carro, FILE *file) {
     size_t tamanhoModelo = strlen(x->modelo) + 1;
     fwrite(&tamanhoModelo, sizeof(size_t), 1, file);
     fwrite(x->modelo, tamanhoModelo, 1, file);
-
-    fwrite(&x->ptrPessoa->nif, sizeof(int), 1, file);
+    if (x->ptrPessoa) {
+        fwrite(&x->ptrPessoa->nif, sizeof(int), 1, file);
+    }
+    else {
+        int nif = 0; // caso o dono não exista ainda
+        fwrite(&nif, sizeof(int), 1, file);
+    }
 }
 
 /**
@@ -230,15 +235,21 @@ void *readCarroBin(FILE *file) {
     }
     fread(x->modelo, tamanhoModelo, 1, file);
 
-    Dono *d = (Dono *)malloc(sizeof(Dono));
-    if (!d) {
-        free(x->marca);
-        free(x->modelo);
-        free(x);
-        return NULL;
+    int nif = 0;
+    fread(&nif, sizeof(int), 1, file);
+    if (nif == 0) {
+        x->ptrPessoa = NULL;
     }
-    fread(&d->nif, sizeof(int), 1, file);
-    x->ptrPessoa = d;
+    else {
+        Dono *d = (Dono *)malloc(sizeof(Dono));
+        if (!d) {
+            free(x->marca);
+            free(x->modelo);
+            free(x);
+            return NULL;
+        }
+        x->ptrPessoa = d;
+    }
     x->viagens = NULL;
     
     return (void *)x;
