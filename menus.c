@@ -286,6 +286,7 @@ void menuGuiaUtilizacao() {
     printf("║                                                 ║\n");
     printf("║ * Autosave:                                     ║\n");
     printf("║   - Guarda dados automaticamente                ║\n");
+    printf("║   - Pode tornar o menu principal mais lento     ║\n");
     printf("╚═════════════════════════════════════════════════╝\n\n");
     pressEnter();
 }

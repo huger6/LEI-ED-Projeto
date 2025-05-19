@@ -842,15 +842,17 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
 
     unsigned long sumAfter = checksum(bd);
     
-    /*
     if (sum != sumAfter) {
-        printf("O ficheiro está corrompido ou foi adulterado. Por favor, tente recarregar uma cópia do mesmo\n");
-        printf("O programa será reiniciado!\n");
-        deleteFile(CONFIG_TXT, '1');
-        deleteFile(AUTOSAVE_BIN, '1');
-        freeTudo(bd);
-        exit(EXIT_FAILURE);
-    }*/
+        printf("O ficheiro está corrompido ou foi adulterado. Os dados podem estar incompletos.\n");
+        if (!sim_nao("Deseja prosseguir mesmo assim?")) {
+            printf("O programa será encerrado!\n");
+            deleteFile(CONFIG_TXT, '1');
+            fclose(file);
+            deleteFile(AUTOSAVE_BIN, '1');
+            freeTudo(bd);
+            exit(EXIT_FAILURE);
+        }
+    }
 
     fclose(file);
     return 1;
@@ -866,7 +868,8 @@ unsigned long checksum(Bdados *bd) {
     if (!bd) return 0;
 
     unsigned long sum = 0;
-    const unsigned long PRIMO = 31;
+
+    sum += autosaveON;
 
     // Donos
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
@@ -877,23 +880,23 @@ unsigned long checksum(Bdados *bd) {
                 while(x) {
                     Dono *d = (Dono *)x->info;
                     // NIF
-                    sum = sum * PRIMO + d->nif;
+                    sum += d->nif;
                     // Nome
                     for (int j = 0; d->nome[j]; j++) {
-                        sum = sum * PRIMO + d->nome[j];
+                        sum += d->nome[j];
                     }
-                    // Cod postal
-                    sum = sum * PRIMO + d->codigoPostal.zona;
-                    sum = sum * PRIMO + d->codigoPostal.local;
+                    // Cod postal 
+                    sum += d->codigoPostal.zona;
+                    sum += d->codigoPostal.local;
                     x = x->prox;
                 }
             }
             p = p->prox;
         }
     }
-    sum = sum * PRIMO + bd->donosNif->nelDict;
+    sum += bd->donosNif->nelDict;
 
-    // Carros 
+    // Carros
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = bd->carrosCod->tabela[i];
         while(p) {
@@ -902,56 +905,56 @@ unsigned long checksum(Bdados *bd) {
                 while(x) {
                     Carro *c = (Carro *)x->info;
                     // Cod
-                    sum = sum * PRIMO + c->codVeiculo;
+                    sum += c->codVeiculo;
                     // Matricula
                     for (int j = 0; c->matricula[j]; j++) {
-                        sum = sum * PRIMO + c->matricula[j];
+                        sum += c->matricula[j];
                     }
                     // Marca e modelo
                     for (int j = 0; c->marca[j]; j++) {
-                        sum = sum * PRIMO + c->marca[j];
+                        sum += c->marca[j];
                     }
                     for (int j = 0; c->modelo[j]; j++) {
-                        sum = sum * PRIMO + c->modelo[j];
+                        sum += c->modelo[j];
                     }
                     // Ano
-                    sum = sum * PRIMO + c->ano;
+                    sum += c->ano;
                     x = x->prox;
                 }
             }
             p = p->prox;
         }
     }
-    sum = sum * PRIMO + bd->carrosCod->nelDict;
+    sum += bd->carrosCod->nelDict;
 
     // Sensores
     No *s = bd->sensores->inicio;
     while(s) {
         Sensor *sensor = (Sensor *)s->info;
         // ID
-        sum = sum * PRIMO + sensor->codSensor;
+        sum += sensor->codSensor;
         // Designação
         for (int i = 0; sensor->designacao[i]; i++) {
-            sum = sum * PRIMO + sensor->designacao[i];
+            sum += sensor->designacao[i];
         }
         // Longitude
         for (int i = 0; sensor->longitude[i]; i++) {
-            sum = sum * PRIMO + sensor->longitude[i];
+            sum += sensor->longitude[i];
         }
         // Latitude
         for (int i = 0; sensor->latitude[i]; i++) {
-            sum = sum * PRIMO + sensor->latitude[i];
+            sum += sensor->latitude[i];
         }
         s = s->prox;
     }
-    sum = sum * PRIMO + bd->sensores->nel;
+    sum += bd->sensores->nel;
 
     // Distâncias
     int tamanho = bd->distancias->nColunas;
     for (int i = 0; i < tamanho; i++) {
         for (int j = i; j < tamanho; j++) {
             if (i == j) continue;
-                sum = sum * PRIMO + (unsigned long)(bd->distancias->matriz[i * tamanho + j] * 100); // Multiplica por 100 para preservar decimais
+            sum += (unsigned long)(bd->distancias->matriz[i * tamanho + j] * 100); // Multiplica por 100 para preservar decimais
         }
     }
 
@@ -960,22 +963,22 @@ unsigned long checksum(Bdados *bd) {
     while(v) {
         Viagem *viagem = (Viagem *)v->info;
         // ID sensores
-        sum = sum * PRIMO + viagem->entrada->idSensor;
-        sum = sum * PRIMO + viagem->saida->idSensor; 
+        sum += viagem->entrada->idSensor;
+        sum += viagem->saida->idSensor;
         // Data entrada
-        sum = sum * PRIMO + viagem->entrada->data.dia;
-        sum = sum * PRIMO + viagem->entrada->data.mes;
-        sum = sum * PRIMO + viagem->entrada->data.ano;
+        sum += viagem->entrada->data.dia;
+        sum += viagem->entrada->data.mes;
+        sum += viagem->entrada->data.ano;
         // Data saida
-        sum = sum * PRIMO + viagem->saida->data.dia;
-        sum = sum * PRIMO + viagem->saida->data.mes;
-        sum = sum * PRIMO + viagem->saida->data.ano;
+        sum += viagem->saida->data.dia;
+        sum += viagem->saida->data.mes;
+        sum += viagem->saida->data.ano;
         // Tipo registro
-        sum = sum * PRIMO + viagem->entrada->tipoRegisto;
-        sum = sum * PRIMO + viagem->saida->tipoRegisto;
+        sum += viagem->entrada->tipoRegisto;
+        sum += viagem->saida->tipoRegisto;
         v = v->prox;
     }
-    sum = sum * PRIMO + bd->viagens->nel;
+    sum += bd->viagens->nel;
 
     return sum;
 }

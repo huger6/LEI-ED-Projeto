@@ -70,6 +70,8 @@ void freeMatrizDistancias(Distancias *distancia) {
  * @param file Ficheiro binário, aberto
  */
 void guardarDistanciasBin(Distancias *distancia, FILE *file) {
+    if (!distancia || !file) return;
+    
     fwrite(&distancia->nColunas, sizeof(int), 1, file);
     fwrite(distancia->matriz, sizeof(float), distancia->nColunas * distancia->nColunas, file);
 }   
@@ -81,6 +83,8 @@ void guardarDistanciasBin(Distancias *distancia, FILE *file) {
  * @return Distancias* Distâncias ou NULL se erro
  */
 Distancias *readDistanciasBin(FILE *file) {
+    if (!file) return NULL;
+
     Distancias *d = (Distancias *)malloc(sizeof(Distancias));
     if (!d) return NULL;
     d->matriz = NULL;
