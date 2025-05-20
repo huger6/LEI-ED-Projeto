@@ -511,7 +511,7 @@ void registarViagem(Bdados *bd) {
 				pressEnter();
 				continue;
 			}
-			entrada->tipoRegisto = '1';
+			saida->tipoRegisto = '1';
 			break;
 		} while(1);
 		printf("\n");
@@ -538,12 +538,8 @@ void registarViagem(Bdados *bd) {
 		if (!inserirViagemLido(bd, entrada, saida, codVeiculo)) {
 			printf("Ocorreu um erro a registar a viagem em memória. Por favor tente novamente!\n\n");
 			pressEnter();
-			freePassagem((void *)entrada);
-			freePassagem((void *)saida);
 			continue;
 		}
-		freePassagem((void *)entrada);
-		freePassagem((void *)saida);
 
 		if (!sim_nao("Quer inserir mais alguma viagem?")) break;
 	} while(1);

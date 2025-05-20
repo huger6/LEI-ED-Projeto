@@ -31,8 +31,6 @@ void freeDono(void *dono);
 void printDono(void *dono, FILE *file);
 void guardarDonoBin(void *obj, FILE *file);
 void *readDonoBin(FILE *file);
-void guardarChaveDonoNif(void *chaveNif, FILE *file);
-void *readChaveDonoNif(FILE *file);
 void *criarChaveDonoNif(void *dono);
 void freeChaveDonoNif(void *chave);
 int compChaveDonoNif(void *chave, void *chave2);

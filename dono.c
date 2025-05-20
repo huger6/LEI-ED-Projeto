@@ -159,6 +159,7 @@ void guardarDonoBin(void *obj, FILE *file) {
     if (!obj || !file) return;
 
     Dono *x = (Dono *)obj;
+
     fwrite(&x->codigoPostal, sizeof(CodPostal), 1, file);
     fwrite(&x->nif, sizeof(int), 1, file);
 
@@ -191,35 +192,6 @@ void *readDonoBin(FILE *file) {
     x->carros = NULL;
 
     return (void *)x;
-}
-
-/**
- * @brief Guarda a chave do dono por Nif em ficheiro binário
- * 
- * @param chaveNif Chave(NIF)
- * @param file Ficheiro binário, aberto
- */
-void guardarChaveDonoNif(void *chaveNif, FILE *file) {
-    if (!chaveNif || !file) return;
-
-    int *chave = (int *)chaveNif;
-    fwrite(chave, sizeof(int), 1, file);
-}
-
-/**
- * @brief Lê e retorna a chave por Nif
- * 
- * @param file Ficheiro binário, aberto
- * @return void* chave ou NULL se erro
- */
-void *readChaveDonoNif(FILE *file) {
-    if (!file) return NULL;
-
-    int *chave = (int *)malloc(sizeof(int));
-    if (!chave) return NULL;
-
-    fread(chave, sizeof(int), 1, file);
-    return chave;
 }
 
 /**
