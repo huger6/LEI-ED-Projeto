@@ -933,6 +933,7 @@ FILE *pedirListagemFicheiro(char *formatoSelecionado) {
         free(filename);
         return file;
     }
+    printf("\n");
     return NULL;
 }
 

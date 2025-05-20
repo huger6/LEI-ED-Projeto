@@ -212,6 +212,8 @@ void *readCarroBin(FILE *file) {
     Carro *x = (Carro *)malloc(sizeof(Carro));
     if (!x) return NULL;
 
+    x->viagens = NULL;
+
     fread(&x->ano, sizeof(short), 1, file);
     fread(&x->codVeiculo, sizeof(int), 1, file);
     fread(x->matricula, sizeof(x->matricula), 1, file);
@@ -249,8 +251,8 @@ void *readCarroBin(FILE *file) {
             return NULL;
         }
         x->ptrPessoa = d;
+        x->ptrPessoa->nif = nif;
     }
-    x->viagens = NULL;
     
     return (void *)x;
 }
@@ -279,7 +281,7 @@ void guardarChaveCarroMarca(void *chaveMarca, FILE *file) {
  * @param carro Carro
  * @return void* Chave(tipo void) ou NULL se erro
  * 
- * @note Coloca a chave em maiúscula
+ * @note Coloca a chave em minúscula
  */
 void *criarChaveCarroMarca(void *carro) {
     if (!carro) return NULL;
@@ -425,6 +427,69 @@ int compChaveCarroCod(void *chave, void *chave2) {
     if (*key == *key2) return 0;
     return 1;
 }
+
+/**
+ * @brief Cria uma chave para o carro por matrícula
+ * 
+ * @param carro Carro
+ * @return void* Chave(tipo void) ou NULL se erro
+ * 
+ * @note Coloca a chave em minúscula
+ */
+void *criarChaveCarroMatricula(void *matricula) {
+    if (!matricula) return NULL;
+
+    Carro *x = (Carro *)matricula;
+
+    return (void *)strlwrSafe(x->matricula);
+}
+
+/**
+ * @brief Função de hash para o carro por matricula
+ * 
+ * @param chave Chave (matrícula)
+ * @return int hash ou -1 se erro
+ */
+int hashChaveCarroMatricula(void *chave) {
+    if (!chave) return -1;
+
+    char *key = (char *)chave;
+    char *matNorm = normString(key);
+    int hash = hashString(matNorm);
+    free(matNorm); // Liberta a cópia criada por normString
+    return hash;
+}
+
+/**
+ * @brief Liberta a memória da chave dos carros por matrícula
+ * 
+ * @param chave Chave
+ */
+void freeChaveCarroMatricula(void *chave) {
+    if (!chave) return;
+
+    char *key = (char *)chave;
+    free(key);
+}
+
+/**
+ * @brief Compara as chaves dos carros pela matricula
+ * 
+ * @param chave Chave
+ * @param chave2 Chave
+ * @return int -1 se erro, 0 se iguais, 1 se diferente
+ */
+int compChaveCarroMatricula(void *chave, void *chave2) {
+    if (!chave || !chave2) return -1;
+
+    char *key = (char *)chave;
+    char *key2 = (char *)chave2;
+
+    if (strcmp(key, key2) == 0) {
+        return 0;
+    }
+    return 1;
+} 
 
 /**
  * @brief Compara as chaves dos carros pelos rankings (ints)

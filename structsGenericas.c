@@ -1,6 +1,7 @@
 #include "structsGenericas.h"
 
 int listagemFlag = 0; // Inicializar a 0, caso seja 1 a listagem é interrompida
+int printingDict = 0;
 
 /**
  * @brief Cria uma lista genérica
@@ -80,10 +81,12 @@ int addFimLista(Lista *li, void *elemento) {
  * @param pausa Número de elementos a mostrar antes de pedir pausa (pressionar enter), 0 para ignorar
  * 
  * @note Adiciona um espaço entre cada elemento
+ * @note listagemFlag deve ser colocado a 0 depois do uso da função
  */
 void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, int pausa) {
     if (!li || !printObj || !file || pausa < 0) return;
 
+    int noStop = 1;
     int count = 0;
     listagemFlag = 0;
 
@@ -94,17 +97,22 @@ void printLista(Lista *li, void (*printObj)(void *obj, FILE *file), FILE *file, 
 
         if (file == stdout && pausa) {
             count++;
-            if (count % pausa == 0) {
+            if (count % pausa == 0 && count < li->nel && noStop) {
                 printf("\n");
                 int opcao = enter_espaco_esc();
                 switch (opcao) {
                     case 0:
                         break;
                     case 1:
-                        while(count <= li->nel - pausa) {
-                            p = p->prox;
+                        if (printingDict == 1) {
+                            listagemFlag = -1;
+                            return;
+                        } 
+                        while(count < li->nel - pausa) {
                             count++;
+                            p = p->prox;
                         }
+                        noStop = 0;
                         break;
                     case 2:
                         listagemFlag = 1; // Avisar possíveis funções nestadas
@@ -593,7 +601,7 @@ Lista *obterListaDoDict(Dict *has, void *chave, int (*compChave)(void *chave, vo
  */
 int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj), void *(*criarChave)(void *obj), int (*hashChave)(void *obj), void (*freeObj)(void *obj), void (*freeChave)(void *chave)) {
     if (!has || !obj || !compChave || !criarChave || !hashChave || !freeChave) return 0;
-
+    
     void *chave = criarChave(obj);
     if (!chave) return 0;
 
@@ -644,10 +652,11 @@ int appendToDict(Dict *has, void *obj, int (*compChave)(void *chave, void *obj),
  * @note Adiciona um espaço entre cada elemento
  */
 void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, int pausa) {
-    if (!has || !printObj || !file ||pausa < 0) return;
+    if (!has || !printObj || !file || pausa < 0) return;
 
     int count = 0;
     listagemFlag = 0;
+    printingDict = 1;
 
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = has->tabela[i];
@@ -656,6 +665,26 @@ void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, in
             if (listagemFlag == 1) {
                 listagemFlag = 0;
                 return;
+            }
+            if (listagemFlag == -1) {
+                int nel = 0;
+                for (int j = TAMANHO_TABELA_HASH - 1; j > 0 && nel < pausa; j--) {
+                    NoHashing *k = has->tabela[j];
+                    while(k) {
+                        if (k->dados) {
+                            nel += k->dados->nel;
+                        }
+                        k = k->prox;
+                    }
+                    i = j;
+                }
+                i++; // avançar até ao próximo elemento, de modo a ficar com menos de pausa elementos
+                p = has->tabela[i];
+                // Ecnontrar p não nulo
+                while(!p) {
+                    i++;
+                    p = has->tabela[i];
+                }
             }
             p = p->prox;
 
@@ -668,9 +697,23 @@ void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, in
                         case 0:
                             break;
                         case 1:
-                            while(count <= has->nelDict - pausa) {
-                                p = p->prox;
-                                count++;
+                            int nel = 0;
+                            for (int j = TAMANHO_TABELA_HASH - 1; j > 0 && nel < pausa; j--) {
+                                NoHashing *k = has->tabela[j];
+                                while(k) {
+                                    if (k->dados) {
+                                        nel += k->dados->nel;
+                                    }
+                                    k = k->prox;
+                                }
+                                i = j;
+                            }
+                            i++; // avançar até ao próximo elemento, de modo a ficar com menos de pausa elementos
+                            p = has->tabela[i];
+                            // Encontrar p não nulo
+                            while(!p) {
+                                i++;
+                                p = has->tabela[i];
                             }
                             break;
                         case 2:
@@ -684,6 +727,7 @@ void printDict(Dict *has, void (*printObj)(void *obj, FILE *file),FILE *file, in
             if (file == stdout) printf("\n");
         }
     }
+    printingDict = 0;
 }
 
 /**
@@ -1051,6 +1095,7 @@ void printRanking(Ranking *r, void printCarroRanking(NoRankings *no, void (*prin
         void (*printHeaderCompObj)(FILE *file), void (*printCompObj)(void *compInfo, FILE *file), FILE *file, int pausa) {
     if (!r || !printCompObj || !printHeaderCompObj || !file || pausa < 0) return;
 
+    int noStop = 1;
     int count = 0;
     int pole = 1;
     listagemFlag = 0;
@@ -1069,7 +1114,7 @@ void printRanking(Ranking *r, void printCarroRanking(NoRankings *no, void (*prin
 
         if (file == stdout && pausa) {
             count++;
-            if (count % pausa == 0) {
+            if (count % pausa == 0 && count < r->nel && noStop) {
                 printf("\n");
                 int opcao = enter_espaco_esc();
                 switch (opcao) {
@@ -1077,9 +1122,10 @@ void printRanking(Ranking *r, void printCarroRanking(NoRankings *no, void (*prin
                         break;
                     case 1:
                         while(count <= r->nel - pausa) {
-                            p = p->prox;
                             count++;
+                            p = p->prox;
                         }
+                        noStop = 0;
                         break;
                     case 2:
                         return;

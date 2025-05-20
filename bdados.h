@@ -12,6 +12,7 @@ typedef struct Bdados{
     Dict *donosAlfabeticamente;
     Dict *carrosCod;
     Dict *carrosMarca;
+    Dict *carrosMat;
     Lista *sensores;
     Distancias *distancias;
     Lista *viagens;
