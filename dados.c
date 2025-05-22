@@ -712,6 +712,7 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
 
     // Configs
     fwrite(&autosaveON, sizeof(int), 1, file);
+    fwrite(&pausaListagem, sizeof(int), 1, file);
 
     // Donos
     guardarDadosDictBin(bd->donosNif, guardarDonoBin, file);
@@ -749,6 +750,7 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
 
     // Configs 
     fread(&autosaveON, sizeof(int), 1, file);
+    fread(&pausaListagem, sizeof(int), 1, file);
 
     // Donos
     bd->donosNif = readToDictBin(criarChaveDonoNif, hashChaveDonoNif, freeDono, freeChaveDonoNif, readDonoBin, file);
@@ -782,6 +784,7 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
     // Carros
     bd->carrosCod = readToDictBin(criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod, readCarroBin, file);
     bd->carrosMarca = criarDict();
+    bd->carrosMat = criarDict();
     // Obter ptrPessoa e libertar Dono atual (e adicionar Carros ao bd->carrosMarca)
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = bd->carrosCod->tabela[i];
@@ -805,6 +808,8 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
 
                     // Adicionar ao bd->carrosMarca
                     (void)appendToDict(bd->carrosMarca, x->info, compChaveCarroMarca, criarChaveCarroMarca, hashChaveCarroMarca, NULL, freeChaveCarroMarca);
+                    // Adicionar ao bd->carrosMat
+                    (void)appendToDict(bd->carrosMat, x->info, compChaveCarroMatricula, criarChaveCarroMatricula, hashChaveCarroMatricula, NULL, freeChaveCarroMatricula);
                     
                     x = x->prox;
                 }
@@ -870,6 +875,7 @@ unsigned long checksum(Bdados *bd) {
     unsigned long sum = 0;
 
     sum += autosaveON;
+    sum += pausaListagem;
 
     // Donos
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {

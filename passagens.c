@@ -1,6 +1,7 @@
 #include "passagens.h"
 #include "bdados.h"
 #include "validacoes.h"
+#include "configs.h"
 
 /**
  * @brief Aloca memória para a passagem 
@@ -473,19 +474,35 @@ void registarViagem(Bdados *bd) {
 
 	do {
 		limpar_terminal();
-		int codVeiculo = 0;
+		char *matricula = NULL;
+		Carro *c = NULL;
 		Passagem *entrada = NULL;
 		Passagem *saida = NULL;
-		// Código do veículo
-		pedirInt(&codVeiculo, "Insira o código do veículo: ", validarCodVeiculo);
-		
-		void *codTemp = (void *)&codVeiculo;
-		Carro *carro = searchDict(bd->carrosCod, codTemp, compChaveCarroCod, compCodCarro, hashChaveCarroCod);
-		if (!carro) {
-			printf("Não existe nenhum veículo com o código %d!\n", codVeiculo);
-			pressEnter();
-			continue;
-		}
+		// Matrícula
+		do {    
+            printf("Insira a matrícula do veículo: ");
+            matricula = lerLinhaTxt(stdin, NULL);
+            if (!matricula) {
+                printf("Erro ao ler a matrícula!\n\n");
+                pressEnter();
+                continue;
+            }
+            if (!validarMatricula(matricula)) {
+                free(matricula);
+                printf("A matrícula é inválida!\n\n");
+                pressEnter();
+                continue;
+            }
+            void *matTemp = (void *)matricula;
+            c = (Carro *)searchDict(bd->carrosMat, matTemp, compChaveCarroMatricula, compCarroMatricula, hashChaveCarroMatricula);
+            if (!c) {
+                free(matricula);
+                printf("Não foi encontrado nenhum carro com esta matrícula!\n\n");
+                pressEnter();
+                continue;
+            }
+            break;
+        } while(1);
 		printf("\n");
 
 		// Entrada
@@ -535,7 +552,7 @@ void registarViagem(Bdados *bd) {
 		}
 		
 		// Inserir na bd
-		if (!inserirViagemLido(bd, entrada, saida, codVeiculo)) {
+		if (!inserirViagemLido(bd, entrada, saida, c->codVeiculo)) {
 			printf("Ocorreu um erro a registar a viagem em memória. Por favor tente novamente!\n\n");
 			pressEnter();
 			continue;
@@ -584,7 +601,7 @@ void listarViagensTodas(Bdados *bd) {
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
-    printLista(bd->viagens, printViagem, stdout, PAUSA_LISTAGEM);
+    printLista(bd->viagens, printViagem, stdout, pausaListagem);
     printf("\n----FIM DE LISTAGEM----\n");
     
     file = pedirListagemFicheiro(formato);

@@ -11,6 +11,7 @@
 struct Bdados;
 
 extern int autosaveON;
+extern int pausaListagem;
 
 extern char *donosFilename;
 extern char *carrosFilename;
@@ -21,6 +22,7 @@ extern char *passagensFilename;
 void colocarTerminalUTF8();
 int faseInstalacao(const char *flag, const char abrir);
 void reset(struct Bdados *bd);
+void setPausaListagem();
 void setFilenames();
 void freeFilenames();
 size_t memUsageVarGlobais();

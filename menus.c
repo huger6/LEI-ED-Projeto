@@ -82,15 +82,16 @@ void menuDonos() {
 /**
  * @brief Mostra o menu dos veículos
  * 
- * @note Opções: 0-3
+ * @note Opções: 0-4
  */
 void menuVeiculos() {
     printf("╔════════════════════════════════════════════╗\n");
     printf("║             GESTÃO DE VEÍCULOS             ║\n");
     printf("╠════════════════════════════════════════════╣\n");
     printf("║  1. Registar veículo                       ║\n");
-    printf("║  2. Listar veículos                        ║\n");
-    printf("║  3. Veículos por período de circulação     ║\n");
+    printf("║  2. Mudar proprietário do veículo          ║\n");
+    printf("║  3. Listar veículos                        ║\n");
+    printf("║  4. Veículos por período de circulação     ║\n");
     printf("║  0. Voltar ao menu anterior                ║\n");
     printf("╚════════════════════════════════════════════╝\n\n");
 }
@@ -214,17 +215,18 @@ void menuExportacao() {
 /**
  * @brief Escreve o menu das opções
  * 
- * @note Opções: 0-3
+ * @note Opções: 0-4
  */
 void menuOpcoes() {
-    printf("╔══════════════════════════════════╗\n");
-    printf("║              OPÇÕES              ║\n");
-    printf("╠══════════════════════════════════╣\n");
-    printf("║  1. Ativar/Desativar autosave    ║\n");
-    printf("║  2. Repor definições             ║\n");
-    printf("║  3. Guia de utilização           ║\n");
-    printf("║  0. Voltar ao menu anterior      ║\n");
-    printf("╚══════════════════════════════════╝\n\n");
+    printf("╔════════════════════════════════════════╗\n");
+    printf("║                 OPÇÕES                 ║\n");
+    printf("╠════════════════════════════════════════╣\n");
+    printf("║  1. Ativar/Desativar autosave          ║\n");
+    printf("║  2. Definir nº elementos por listagem  ║\n");
+    printf("║  3. Repor definições                   ║\n");
+    printf("║  4. Guia de utilização                 ║\n");
+    printf("║  0. Voltar ao menu anterior            ║\n");
+    printf("╚════════════════════════════════════════╝\n\n");
 }
 
 /**
@@ -385,7 +387,7 @@ void processarMenuDonos(Bdados *bd) {
 void processarMenuVeiculos(Bdados *bd) {
     char opcao;
     do {
-        opcao = mostrarMenu(menuVeiculos, '0', '3');
+        opcao = mostrarMenu(menuVeiculos, '0', '4');
         switch(opcao) {
             case '0':
                 break;
@@ -393,9 +395,12 @@ void processarMenuVeiculos(Bdados *bd) {
                 registarCarro(bd);
                 break;
             case '2':
-                processarMenuListagemVeiculos(bd);
+                mudarDonoCarro(bd);
                 break;
             case '3':
+                processarMenuListagemVeiculos(bd);
+                break;
+            case '4':
                 // Veículos por período de circulação
                 listarCarrosPorPeriodoTempo(bd);
                 break;
@@ -664,7 +669,7 @@ void processarMenuExportacao(Bdados *bd) {
 void processarMenuOpcoes(Bdados *bd) {
     char opcao;
     do {
-        opcao = mostrarMenu(menuOpcoes, '0', '3');
+        opcao = mostrarMenu(menuOpcoes, '0', '4');
         switch(opcao) {
             case '0': break;
             case '1':
@@ -680,9 +685,12 @@ void processarMenuOpcoes(Bdados *bd) {
                 pressEnter();
                 break;
             case '2':
-                reset(bd);
+                setPausaListagem();
                 break;
             case '3':
+                reset(bd);
+                break;
+            case '4':
                 menuGuiaUtilizacao();
                 break;
             default: 

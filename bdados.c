@@ -15,8 +15,11 @@
 int inicializarBD(Bdados *bd) {
     bd->carrosMarca = criarDict();
     bd->carrosCod = criarDict();
+    bd->carrosMat = criarDict();
+
     bd->donosNif = criarDict();
     bd->donosAlfabeticamente = criarDict();
+
     bd->viagens = criarLista();
     bd->sensores = criarLista();
     inicializarMatrizDistancias(bd);
@@ -37,6 +40,7 @@ void freeTudo(Bdados *bd) {
     freeFilenames();
 
     freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
+    freeDict(bd->carrosMat, freeChaveCarroMatricula, NULL);
     freeDict(bd->carrosCod, freeChaveCarroCod, freeCarro);
 
     freeDict(bd->donosAlfabeticamente, freeChaveDonoAlfabeticamente, NULL);
@@ -209,6 +213,7 @@ size_t memUsageTudo(Bdados *bd) {
 
     memTotal += dictMemUsage(bd->carrosCod, memUsageCarro, memUsageChaveCarroCod);
     memTotal += dictMemUsage(bd->carrosMarca, NULL, memUsageChaveCarroMarca);
+    memTotal += dictMemUsage(bd->carrosMat, NULL, memUsageChaveCarroMatricula);
 
     memTotal += listaMemUsage(bd->sensores, memUsageSensor);
 

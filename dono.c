@@ -3,6 +3,7 @@
 #include "constantes.h"
 #include "bdados.h"
 #include "validacoes.h"
+#include "configs.h"
 
 /**
  * @brief Introduz o dono na base de dados
@@ -530,9 +531,19 @@ void registarDono(Bdados *bd) {
         char *nome = NULL;
         CodPostal cod = {0,0};
         // NIF
-        pedirInt(&nif, "Insira o NIF do dono: ", validarNif);
-        printf("\n");
-
+        do {
+            pedirInt(&nif, "Insira o NIF do dono: ", validarNif);
+            printf("\n");
+            // Validar se já existe
+            void *temp = (void *)&nif;
+            Dono *nifUsado = (Dono *)searchDict(bd->donosNif, temp, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
+            if (nifUsado) {
+                printf("O nif \"%d\" já existe!\n\n", nif);
+                pressEnter();
+                continue;
+            }   
+            break;
+        } while(1);
         // Nome
         do {    
             printf("Insira o nome do dono: ");
@@ -665,7 +676,7 @@ void listarDonosNIF(Bdados *bd) {
     
     Lista *donosNifOrd = dictToLista(bd->donosNif);
     mergeSortLista(donosNifOrd, compDonosNif);
-    printLista(donosNifOrd, printDono, stdout, PAUSA_LISTAGEM);
+    printLista(donosNifOrd, printDono, stdout, pausaListagem);
     printf("\n----FIM DE LISTAGEM----\n");
     
     file = pedirListagemFicheiro(formato);
@@ -695,7 +706,7 @@ void listarDonosAlfabeticamente(Bdados *bd) {
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
-    printDict(bd->donosAlfabeticamente, printDono, stdout, PAUSA_LISTAGEM);
+    printDict(bd->donosAlfabeticamente, printDono, stdout, pausaListagem);
     printf("\n----FIM DE LISTAGEM----\n");
     
     file = pedirListagemFicheiro(formato);
@@ -766,14 +777,14 @@ void listarDonosVelocidadesMedias(Bdados *bd) {
                         printf("Nome: %s\n", dono->nome);
                         printf("Velocidade Média: %.2f\n\n", velocidadeMedia);
                         count++;
-                        if (count % PAUSA_LISTAGEM == 0) {
+                        if (count % pausaListagem == 0) {
                             printf("\n");
                             int opcao = enter_espaco_esc();
                             switch (opcao) {
                                 case 0:
                                     break;
                                 case 1:
-                                    while(count < bd->donosNif->nelDict - PAUSA_LISTAGEM || !p) { //!p importante
+                                    while(count < bd->donosNif->nelDict - pausaListagem || !p) { //!p importante
                                         if (!p) {
                                             p = bd->donosNif->tabela[++i];
                                         } 

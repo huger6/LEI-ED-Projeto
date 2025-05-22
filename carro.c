@@ -3,6 +3,7 @@
 #include "bdados.h"
 #include "uteis.h"
 #include "structsGenericas.h"
+#include "configs.h"
 
 /**
  * @brief Inserir um carro na base de dados
@@ -17,6 +18,7 @@
  * @return int 0 se erro, 1 se sucesso
  * 
  * @note Não faz validações
+ * @note Os argumentos passado alocados dinamicamente devem ser libertados
  */
 int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, short ano, int nif, int codVeiculo) {
     if (!bd) return 0;
@@ -74,17 +76,16 @@ int inserirCarroLido(Bdados *bd, char *matricula, char *marca, char *modelo, sho
         }
 	}
 
+    // Em caso de falha, os dados são libertados em appendToDict
     if (!appendToDict(bd->carrosCod, (void *)aut, compChaveCarroCod, criarChaveCarroCod, hashChaveCarroCod, freeCarro, freeChaveCarroCod)) {
-        free(aut->modelo);
-        free(aut->marca);
-        free(aut);
         return 0;
     }
 
     if (!appendToDict(bd->carrosMarca, (void *)aut, compChaveCarroMarca, criarChaveCarroMarca, hashChaveCarroMarca, freeCarro, freeChaveCarroMarca)) {
-        free(aut->modelo);
-        free(aut->marca);
-        free(aut);
+        return 0;
+    }
+
+    if (!appendToDict(bd->carrosMat, (void *)aut, compChaveCarroMatricula, criarChaveCarroMatricula, hashChaveCarroMatricula, freeCarro, freeChaveCarroMatricula)) {
         return 0;
     }
     
@@ -332,7 +333,7 @@ int compChaveCarroMarca(void *chave, void *chave2) {
     char *key = (char *)chave;
     char *key2 = (char *)chave2;
 
-    if (strcmp(key, key2) == 0) {
+    if (stricmpSafe(key, key2) == 0) {
         return 0;
     }
     return 1;
@@ -485,11 +486,27 @@ int compChaveCarroMatricula(void *chave, void *chave2) {
     char *key = (char *)chave;
     char *key2 = (char *)chave2;
 
-    if (strcmp(key, key2) == 0) {
+    if (stricmpSafe(key, key2) == 0) {
         return 0;
     }
     return 1;
 } 
+
+/**
+ * @brief Compara um carro com uma matrícula
+ * 
+ * @param carro Carro
+ * @param matricula Matrícula
+ * @return int mesmo que strcmp(carro, matricula)
+ */
+int compMatCarro(void *carro, void *matricula) {
+    if (!carro || !matricula) return 1;
+
+    Carro *x = (Carro *)carro;
+    char *mat = (char *)matricula;
+
+    return strcmp(x->matricula, mat);
+}
 
 /**
  * @brief Compara as chaves dos carros pelos rankings (ints)
@@ -1150,7 +1167,6 @@ char *obterMarcaMaisVelocidadeMedia(Bdados *bd) {
         // Ver velocidade média e comparar
         if (tempoTotal > 0) {
             velocidadeMedia = distanciaTotal / (tempoTotal / 60.0f);
-            pressEnter();
             if (velocidadeMedia > velocidadeMax) {
                 p = bd->carrosMarca->tabela[i];
                 velocidadeMax = velocidadeMedia;
@@ -1201,6 +1217,21 @@ size_t memUsageChaveCarroCod(void *chave) {
  * @return size_t Memória ocupada ou 0 se erro
  */
 size_t memUsageChaveCarroMarca(void *chave) {
+    if (!chave) return 0;
+
+    char *key = (char *)chave;
+
+    size_t mem = strlen(key) + 1;
+    return mem;
+}
+
+/**
+ * @brief Memória ocupada pela chave dos carros por matrícula
+ * 
+ * @param chave Chave
+ * @return size_t Memória ocupada ou 0 se erro
+ */
+size_t memUsageChaveCarroMatricula(void *chave) {
     if (!chave) return 0;
 
     char *key = (char *)chave;
@@ -1299,6 +1330,13 @@ void registarCarro(Bdados *bd) {
                 pressEnter();
                 continue;
             }
+            void *matTemp = (void *)matricula;
+            if (searchDict(bd->carrosMat, matTemp, compChaveCarroMatricula, compCarroMatricula, hashChaveCarroMatricula)) {
+                printf("Já existe um veículo com a matrícula \"%s\"!\n\n", matricula);
+                free(matricula);
+                pressEnter();
+                continue;
+            }
             break;
         } while(1);
         printf("\n");
@@ -1375,6 +1413,84 @@ void registarCarro(Bdados *bd) {
 }
 
 /**
+ * @brief Muda o dono de um determinado Carro (ou coloca caso não tenha)
+ * 
+ * @param bd 
+ */
+void mudarDonoCarro(Bdados *bd) {
+    if (!bd) return;
+
+    do {
+        limpar_terminal();
+        char *matricula = NULL;
+        Carro *c = NULL;
+        Dono *novoDono = NULL;
+        int nif = 0;
+        do {    
+            printf("Insira a matrícula do veículo que quer alterar: ");
+            matricula = lerLinhaTxt(stdin, NULL);
+            if (!matricula) {
+                printf("Erro ao ler a matrícula!\n\n");
+                pressEnter();
+                continue;
+            }
+            if (!validarMatricula(matricula)) {
+                free(matricula);
+                printf("A matrícula é inválida!\n\n");
+                pressEnter();
+                continue;
+            }
+            void *matTemp = (void *)matricula;
+            c = (Carro *)searchDict(bd->carrosMat, matTemp, compChaveCarroMatricula, compCarroMatricula, hashChaveCarroMatricula);
+            if (!c) {
+                free(matricula);
+                printf("Não foi encontrado nenhum carro com esta matrícula!\n\n");
+                pressEnter();
+                continue;
+            }
+            break;
+        } while(1);
+
+        // c existe para sair do loop anterior
+        // NIF
+        do {
+            pedirInt(&nif, "Insira o NIF do dono: ", validarNif);
+            printf("\n");
+            // Validar se já existe
+            void *temp = (void *)&nif;
+            novoDono = (Dono *)searchDict(bd->donosNif, temp, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
+            if (!novoDono) {
+                printf("O nif \"%d\" não existe! É necessário um NIF de um dono já existente!\n", nif);
+                if (sim_nao("Deseja inserir um NIF existente (S) ou sair (N)?")) {
+                    pressEnter();
+                    continue;
+                }
+                else {
+                    free(matricula);
+                    return;
+                }
+            }   
+            break;
+        } while(1);
+        
+        Dono *antigo = c->ptrPessoa;
+        c->ptrPessoa = novoDono;
+        if (antigo) {
+            printf("O carro com matrícula \"%s\", cujo NIF do antigo dono é %d (%s) ficou agora registado em nome de %s (NIF %d).\n\n", 
+                matricula, antigo->nif, antigo->nome ? antigo->nome : "n/a", novoDono->nome, novoDono->nif);
+        }
+        else {
+            printf("O carro com matrícula \"%s\", sem dono, ficou agora registado em nome de %s (NIF %d).\n\n", 
+                matricula, novoDono->nome ? novoDono->nome : "n/a", novoDono->nif);
+        }
+
+        free(matricula);
+
+        if (!sim_nao("Quer alterar/atualizar o condutor de mais algum veículo?")) break;
+    } while(1);
+}
+
+/**
  * @brief Lista todos os carros
  * 
  * @param bd Base de dados
@@ -1385,7 +1501,7 @@ void listarCarrosTodos(Bdados *bd) {
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
-    printDict(bd->carrosCod, printCarro, stdout, PAUSA_LISTAGEM);
+    printDict(bd->carrosCod, printCarro, stdout, pausaListagem);
     printf("\n----FIM DE LISTAGEM----\n");
     
     file = pedirListagemFicheiro(formato);
@@ -1412,12 +1528,12 @@ void listarCarrosPorMatricula(Bdados *bd) {
     if (!bd) return;
     limpar_terminal();
     FILE *file = NULL;
-    char formato[TAMANHO_FORMATO_LISTAGEM];
     
+    char formato[TAMANHO_FORMATO_LISTAGEM];
     Lista *carrosMat = dictToLista(bd->carrosCod);
     mergeSortLista(carrosMat, compCarroMatricula);
-    printLista(carrosMat, printCarro, stdout, PAUSA_LISTAGEM);
-    printf("\n----FIM DE LISTAGEM----\n\n");
+    printLista(carrosMat, printCarro, stdout, pausaListagem);
+    printf("\n----FIM DE LISTAGEM----\n\n"); 
     
     file = pedirListagemFicheiro(formato);
     if (file) {
@@ -1446,7 +1562,7 @@ void listarCarrosPorMarca(Bdados *bd) {
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
     
-    printDict(bd->carrosMarca, printCarro, stdout, PAUSA_LISTAGEM);
+    printDict(bd->carrosMarca, printCarro, stdout, pausaListagem);
     printf("\n----FIM DE LISTAGEM----\n");
     
     file = pedirListagemFicheiro(formato);
@@ -1477,7 +1593,7 @@ void listarCarrosPorModelo(Bdados *bd) {
     
     Lista *carrosMod = dictToLista(bd->carrosCod);
     mergeSortLista(carrosMod, compCarroModelo);
-    printLista(carrosMod, printCarro, stdout, PAUSA_LISTAGEM);
+    printLista(carrosMod, printCarro, stdout, pausaListagem);
     printf("\n----FIM DE LISTAGEM----\n");
     
     file = pedirListagemFicheiro(formato);
@@ -1520,14 +1636,14 @@ void listarCarrosPorPeriodoTempo(Bdados *bd) {
         if (compararDatas(fim, v->entrada->data) >= 0 && compararDatas(inicio, v->saida->data) <= 0) {
             count++;
             printViagem(p->info, stdout);
-            if (count % PAUSA_LISTAGEM == 0) {
+            if (count % pausaListagem == 0) {
                 printf("\n");
                 int opcao = enter_espaco_esc();
                 switch (opcao) {
                     case 0:
                         break;
                     case 1:
-                        while(countTotal < bd->viagens->nel - PAUSA_LISTAGEM) {
+                        while(countTotal < bd->viagens->nel - pausaListagem) {
                             p = p->prox;
                             countTotal++;
                         }
@@ -1636,17 +1752,17 @@ void listarInfracoesPorPeriodoTempo(Bdados *bd) {
 
     mergeSortRanking(r, compChaveCarroRankingInt);
 
-    printRanking(r, printCarroRanking, printHeaderCarroMaisInfracoes, printMaisInfracoes, stdout, PAUSA_LISTAGEM);
+    printRanking(r, printCarroRanking, printHeaderCarroMaisInfracoes, printMaisInfracoes, stdout, pausaListagem);
 
     printf("\n----FIM DE LISTAGEM----\n");
 
     file = pedirListagemFicheiro(formato);
     if (file) {
         if (strcmp(formato, ".txt") == 0) {
-            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisInfracoesTXT, printMaisInfracoes, file, PAUSA_LISTAGEM);
+            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisInfracoesTXT, printMaisInfracoes, file, pausaListagem);
         }
         else if (strcmp(formato, ".csv") == 0) {
-            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisInfracoesCSV, printMaisInfracoes, file, PAUSA_LISTAGEM);
+            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisInfracoesCSV, printMaisInfracoes, file, pausaListagem);
         }
         fclose(file);
     }
@@ -1709,17 +1825,17 @@ void rankingInfracoes(Bdados *bd) {
 
     mergeSortRanking(r, compChaveCarroRankingInt);
 
-    printRanking(r, printCarroRanking, printHeaderCarroMaisInfracoes, printMaisInfracoes, stdout, PAUSA_LISTAGEM);
+    printRanking(r, printCarroRanking, printHeaderCarroMaisInfracoes, printMaisInfracoes, stdout, pausaListagem);
 
     printf("\n----FIM DE LISTAGEM----\n");
 
     file = pedirListagemFicheiro(formato);
     if (file) {
         if (strcmp(formato, ".txt") == 0) {
-            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisInfracoesTXT, printMaisInfracoes, file, PAUSA_LISTAGEM);
+            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisInfracoesTXT, printMaisInfracoes, file, pausaListagem);
         }
         else if (strcmp(formato, ".csv") == 0) {
-            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisInfracoesCSV, printMaisInfracoes, file, PAUSA_LISTAGEM);
+            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisInfracoesCSV, printMaisInfracoes, file, pausaListagem);
         }
         fclose(file);
     }
@@ -1786,17 +1902,17 @@ void rankingKMSPeriodoTempo(Bdados *bd) {
 
     mergeSortRanking(r, compChaveCarroRankingFloat);
 
-    printRanking(r, printCarroRanking, printHeaderCarroMaisKMS, printMaisKMS, stdout, PAUSA_LISTAGEM);
+    printRanking(r, printCarroRanking, printHeaderCarroMaisKMS, printMaisKMS, stdout, pausaListagem);
 
     printf("\n----FIM DE LISTAGEM----\n");
 
     file = pedirListagemFicheiro(formato);
     if (file) {
         if (strcmp(formato, ".txt") == 0) {
-            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisKMS_TXT, printMaisKMS, file, PAUSA_LISTAGEM);
+            printRanking(r, printCarroRankingTXT, printHeaderCarroMaisKMS_TXT, printMaisKMS, file, pausaListagem);
         }
         else if (strcmp(formato, ".csv") == 0) {
-            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisKMS_CSV, printMaisKMS_CSV, file, PAUSA_LISTAGEM);
+            printRanking(r, printCarroRankingCSV, printHeaderCarroMaisKMS_CSV, printMaisKMS_CSV, file, pausaListagem);
         }
         fclose(file);
     }
@@ -1857,17 +1973,17 @@ void rankingKMSMarca(Bdados *bd) {
 
     mergeSortRanking(r, compChaveCarroRankingFloat);
 
-    printRanking(r, printMarcaRanking, printHeaderMarcaMaisKMS, printMaisKMS, stdout, PAUSA_LISTAGEM);
+    printRanking(r, printMarcaRanking, printHeaderMarcaMaisKMS, printMaisKMS, stdout, pausaListagem);
 
     printf("\n----FIM DE LISTAGEM----\n");
 
     file = pedirListagemFicheiro(formato);
     if (file) {
         if (strcmp(formato, ".txt") == 0) {
-            printRanking(r, printMarcaRankingTXT, printHeaderMarcaMaisKMS_TXT, printMaisKMS, file, PAUSA_LISTAGEM);
+            printRanking(r, printMarcaRankingTXT, printHeaderMarcaMaisKMS_TXT, printMaisKMS, file, pausaListagem);
         }
         else if (strcmp(formato, ".csv") == 0) {
-            printRanking(r, printMarcaRankingCSV, printHeaderMarcaMaisKMS_CSV, printMaisKMS_CSV, file, PAUSA_LISTAGEM);
+            printRanking(r, printMarcaRankingCSV, printHeaderMarcaMaisKMS_CSV, printMaisKMS_CSV, file, pausaListagem);
         }
         fclose(file);
     }
@@ -1902,14 +2018,14 @@ void listarCarrosComInfracoes(Bdados *bd) {
                             if (v->velocidadeMedia > MAX_VELOCIDADE_AE || v->velocidadeMedia < MIN_VELOCIDADE_AE) {
                                 printf("Matrícula: %s\n\n", c->matricula);
                                 count++;
-                                if (count % PAUSA_LISTAGEM == 0) {
+                                if (count % pausaListagem == 0) {
                                     printf("\n");
                                     int opcao = enter_espaco_esc();
                                     switch (opcao) {
                                         case 0:
                                             break;
                                         case 1:
-                                            while(count < bd->carrosCod->nelDict - PAUSA_LISTAGEM || !p) {
+                                            while(count < bd->carrosCod->nelDict - pausaListagem || !p) {
                                                 if (!p) {
                                                     p = bd->carrosCod->tabela[++i];
                                                 }

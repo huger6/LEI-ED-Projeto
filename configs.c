@@ -6,6 +6,7 @@
 #include "dados.h"
 
 int autosaveON = 0;
+int pausaListagem = PAUSA_LISTAGEM;
 
 char *donosFilename = DONOS_TXT;
 char *carrosFilename = CARROS_TXT;
@@ -75,52 +76,8 @@ void reset(Bdados *bd) {
     limpar_terminal();
 
     printf("Todos os dados serão excluídos e será necessário carregar os ficheiros .txt.\n");
-    /* GUARDAR CÓPIAS DOS FICHEIROS
-    printf("Quer guardar uma cópia dos dados em ficheiro .txt? (S/N) ");
-    if(sim_nao()) { //Guardar cópias
-        FILE * dados;
-        FILE * escolar;
-        char * dados_nome;
-        char * escolar_nome;
-        do {
-            dados = NULL;
-            dados_nome = NULL;
-            printf("Escreva o nome do ficheiro cópia de '%s': ", DADOS_TXT);
-            dados_nome = ler_linha_txt(stdin, NULL);
-            if (!dados_nome) continue;
+    printf("O ficheiro de dados \"%s\" será eliminado!\n", AUTOSAVE_BIN);
 
-            if (!verificar_extensao(dados_nome)) {
-                free(dados_nome);
-                continue;
-            }
-            if ((dados = validar_ficheiro_e_abrir(dados_nome)) == NULL) {
-                free(dados_nome);
-                continue;
-            }
-            fclose(dados); //Neste caso, não queremos o ficheiro aberto porque guardar_dados já o abre
-            break;
-        } while(1);
-        do {
-            escolar = NULL;
-            escolar_nome = NULL;
-            printf("Escreva o nome do ficheiro cópia de '%s': ", SITUACAO_ESCOLAR_TXT);
-            escolar_nome = ler_linha_txt(stdin, NULL);
-            if (!escolar_nome) continue;
-
-            if (!verificar_extensao(escolar_nome)) {
-                free(escolar_nome);
-                continue;
-            }
-            if ((escolar = validar_ficheiro_e_abrir(escolar_nome)) == NULL) {
-                free(escolar_nome);
-                continue;
-            }
-            fclose(escolar);
-            break;
-        } while(1);
-        guardar_dados_txt(dados_nome, escolar_nome, bd);
-    }
-    */
     if (!sim_nao("Tem a certeza que quer continuar?")) return;
 
     // Eliminar o ficheiro de instalação
@@ -145,6 +102,24 @@ void reset(Bdados *bd) {
 
     freeTudo(bd);
     exit(EXIT_SUCCESS);
+}
+
+/**
+ * @brief Define o número de elementos a mostrar de cada vez
+ * 
+ */
+void setPausaListagem() {
+    int num = 0;
+    do {
+        pedirInt(&num, "Insira o número de elementos a mostrar de cada vez numa listagem: ", NULL);
+        if (num < 0) {
+            printf("Entrada inválida!\n\n");
+            pressEnter();
+            continue;
+        }
+        break;
+    } while(1);
+    pausaListagem = num;
 }
 
 /**
@@ -320,6 +295,7 @@ size_t memUsageVarGlobais() {
     size_t mem = 0;
 
     mem += sizeof(autosaveON);
+    mem += sizeof(pausaListagem);
 
     mem += sizeof(donosFilename);
     mem += sizeof(carrosFilename);
