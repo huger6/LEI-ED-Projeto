@@ -23,14 +23,12 @@ https://github.com/huger6/ProjetoED
 Para compilar MATEUS (versão antiga compilador):  gcc -Wall -Wextra -g -O0 -std=c2x -o "filename" main.c uteis.c validacoes.c sensores.c passagens.c menus.c structsGenericas.c dono.c distancias.c dados.c carro.c bdados.c configs.c
 
 Para compilar em Windows, usar:
-	gcc -Wall -Wextra -g -O0 -std=c23 -o (**FILENAME**) main.c uteis.c validacoes.c sensores.c passagens.c menus.c structsGenericas.c dono.c distancias.c dados.c carro.c bdados.c configs.c
-
+	gcc -Wall -Wextra -g -O0 -std=c23 -o **FILENAME** main.c uteis.c validacoes.c sensores.c passagens.c menus.c structsGenericas.c dono.c distancias.c dados.c carro.c bdados.c configs.c
 
 	Testado com o compilador GGC em C23, no Windows 11 Home 23H2 (64bits)
 
-------Ainda não foi testado em Linux------
 Para compilar em Linux, usar:
-	gcc -std=c2x -Wall -Wextra -o (**FILENAME**) main.c uteis.c validacoes.c sensores.c passagens.c menus.c structsGenericas.c dono.c distancias.c dados.c carro.c bdados.c configs.c -D_XOPEN_SOURCE=700
+	gcc -std=c2x -Wall -Wextra -o **FILENAME** main.c uteis.c validacoes.c sensores.c passagens.c menus.c structsGenericas.c dono.c distancias.c dados.c carro.c bdados.c configs.c -D_XOPEN_SOURCE=700
 
 	Garantir que estamos a usar gcc13 (C23) - Testado na versão 13.1.0
 	Testado em Linux Ubuntu 20.04.6 LTS
@@ -68,7 +66,7 @@ int main(void) {
         // Ler os ficheiros .bin no diretório e mostrar ao user para escolher
         // Caso não seja possível, usar um simples pedido do nome do ficheiro
         if (!carregarDadosBin(bd, AUTOSAVE_BIN)) {
-            // Tentar carregar backups
+            // Tentar carregar um ficheiro à escolha do user
 
             reset(NULL);
         }

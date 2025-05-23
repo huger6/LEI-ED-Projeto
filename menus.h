@@ -21,6 +21,7 @@ void menuExportacao();
 void menuOpcoes();
 void menuFormatosListagem();
 void menuNomeFicheirosDados();
+void menuNomeFicheirosExportacao();
 void menuGuiaUtilizacao();
 
 void the_architect(Bdados *bd);

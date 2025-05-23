@@ -14,6 +14,13 @@ char *sensoresFilename = SENSORES_TXT;
 char *distanciasFilename = DISTANCIAS_TXT;
 char *passagensFilename = PASSAGEM_TXT;
 
+char *donosExportacaoFilename = DONOS;
+char *carrosExportacaoFilename = CARROS;
+char *sensoresExportacaoFilename = SENSORES;
+char *distanciasExportacaoFilename = DISTANCIAS;
+char *viagensExportacaoFilename = VIAGENS;
+char *databaseExportacaoXML = DATABASE_XML;
+
 /* Coloca terminal para UTF-8
  *
  * @return void
@@ -109,6 +116,7 @@ void reset(Bdados *bd) {
  * 
  */
 void setPausaListagem() {
+    limpar_terminal();
     int num = 0;
     do {
         pedirInt(&num, "Insira o número de elementos a mostrar de cada vez numa listagem: ", NULL);
@@ -129,7 +137,6 @@ void setPausaListagem() {
 void setFilenames() {
     char opcao;
     do {
-        //autosave(bd); //Guarda automaticamente caso autosaveON ativo
         opcao = mostrarMenu(menuNomeFicheirosDados, '0', '5');
         switch(opcao) {
             case '0':
@@ -143,10 +150,13 @@ void setFilenames() {
                     if (!donos) {
                         printf("Ocorreu um erro a ler o nome do ficheiro.\n");
                         pressEnter();
+                        continue;
                     }
                     if (strcmp(donos, DONOS_TXT) == 0) {
+                        free(donos);
                         printf("O nome é igual ao padrão!\n");
                         pressEnter();
+                        continue;
                     }
                     if (!validarNomeFicheiro(donos)) {
                         free(donos);
@@ -166,10 +176,13 @@ void setFilenames() {
                     if (!carros) {
                         printf("Ocorreu um erro a ler o nome do ficheiro.\n");
                         pressEnter();
+                        continue;
                     }
                     if (strcmp(carros, CARROS_TXT) == 0) {
+                        free(carros);
                         printf("O nome é igual ao padrão!\n");
                         pressEnter();
+                        continue;
                     }
                     if (!validarNomeFicheiro(carros)) {
                         free(carros);
@@ -189,10 +202,13 @@ void setFilenames() {
                     if (!sensores) {
                         printf("Ocorreu um erro a ler o nome do ficheiro.\n");
                         pressEnter();
+                        continue;
                     }
                     if (strcmp(sensores, SENSORES_TXT) == 0) {
+                        free(sensores);
                         printf("O nome é igual ao padrão!\n");
                         pressEnter();
+                        continue;
                     }
                     if (!validarNomeFicheiro(sensores)) {
                         free(sensores);
@@ -212,10 +228,13 @@ void setFilenames() {
                     if (!distancias) {
                         printf("Ocorreu um erro a ler o nome do ficheiro.\n");
                         pressEnter();
+                        continue;
                     }
                     if (strcmp(distancias, DISTANCIAS_TXT) == 0) {
+                        free(distancias);
                         printf("O nome é igual ao padrão!\n");
                         pressEnter();
+                        continue;
                     }
                     if (!validarNomeFicheiro(distancias)) {
                         free(distancias);
@@ -235,10 +254,13 @@ void setFilenames() {
                     if (!passagens) {
                         printf("Ocorreu um erro a ler o nome do ficheiro.\n");
                         pressEnter();
+                        continue;
                     }
                     if (strcmp(passagens, PASSAGEM_TXT) == 0) {
+                        free(passagens);
                         printf("O nome é igual ao padrão!\n");
                         pressEnter();
+                        continue;
                     }
                     if (!validarNomeFicheiro(passagens)) {
                         free(passagens);
@@ -246,6 +268,181 @@ void setFilenames() {
                         continue;
                     }
                     passagensFilename = passagens;
+                    break;
+                } while(1);
+                printf("O nome foi alterado com sucesso!\n");
+                pressEnter();
+                break;
+            default:
+                opcao = '0';
+                break;
+        }
+    } while(opcao != '0');
+}
+
+/**
+ * @brief Permite ao utilizador escolher que nome utilizar nos ficheiros de exportação da base de dados
+ * 
+ */
+void setExportacaoFilenames() {
+    char opcao;
+    do {
+        opcao = mostrarMenu(menuNomeFicheirosExportacao, '0', '6');
+        limpar_terminal();
+        switch(opcao) {
+            case '0':
+                break;
+            case '1':
+                do {
+                    printf("Nome do ficheiro a usar na exportação dos donos (sem extensão): ");
+                    char *donos = lerLinhaTxt(stdin, NULL);
+                    if (!donos) {
+                        printf("Ocorreu um erro a ler o nome do ficheiro.\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (strcmp(donos, DONOS) == 0) {
+                        free(donos);
+                        printf("O nome é igual ao padrão!\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(donos)) {
+                        free(donos);
+                        pressEnter();
+                        continue;
+                    }
+                    donosExportacaoFilename = donos;
+                    break;
+                } while(1);
+                printf("O nome foi alterado com sucesso!\n");
+                pressEnter();
+                break;
+            case '2':
+                do {
+                    printf("Nome do ficheiro a usar na exportação dos carros (sem extensão): ");
+                    char *carros = lerLinhaTxt(stdin, NULL);
+                    if (!carros) {
+                        printf("Ocorreu um erro a ler o nome do ficheiro.\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (strcmp(carros, CARROS) == 0) {
+                        free(carros);
+                        printf("O nome é igual ao padrão!\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(carros)) {
+                        free(carros);
+                        pressEnter();
+                        continue;
+                    }
+                    carrosExportacaoFilename = carros;
+                    break;
+                } while(1);
+                printf("O nome foi alterado com sucesso!\n");
+                pressEnter();
+                break;
+            case '3':
+                do {
+                    printf("Nome do ficheiro a usar na exportação dos sensores (sem extensão): ");
+                    char *sensores = lerLinhaTxt(stdin, NULL);
+                    if (!sensores) {
+                        printf("Ocorreu um erro a ler o nome do ficheiro.\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (strcmp(sensores, SENSORES) == 0) {
+                        free(sensores);
+                        printf("O nome é igual ao padrão!\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(sensores)) {
+                        free(sensores);
+                        pressEnter();
+                        continue;
+                    }
+                    sensoresExportacaoFilename = sensores;
+                    break;
+                } while(1);
+                printf("O nome foi alterado com sucesso!\n");
+                pressEnter();
+                break;
+            case '4':
+                do {
+                    printf("Nome do ficheiro a usar na exportação das distâncias (sem extensão): ");
+                    char *distancias = lerLinhaTxt(stdin, NULL);
+                    if (!distancias) {
+                        printf("Ocorreu um erro a ler o nome do ficheiro.\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (strcmp(distancias, DISTANCIAS) == 0) {
+                        free(distancias);
+                        printf("O nome é igual ao padrão!\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(distancias)) {
+                        free(distancias);
+                        pressEnter();
+                        continue;
+                    }
+                    distanciasExportacaoFilename = distancias;
+                    break;
+                } while(1);
+                printf("O nome foi alterado com sucesso!\n");
+                pressEnter();
+                break;
+            case '5': 
+                do {
+                    printf("Nome do ficheiro a usar na exportação das viagens (sem extensão): ");
+                    char *viagens = lerLinhaTxt(stdin, NULL);
+                    if (!viagens) {
+                        printf("Ocorreu um erro a ler o nome do ficheiro.\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (strcmp(viagens, VIAGENS) == 0) {
+                        free(viagens);
+                        printf("O nome é igual ao padrão!\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(viagens)) {
+                        free(viagens);
+                        pressEnter();
+                        continue;
+                    }
+                    viagensExportacaoFilename = viagens;
+                    break;
+                } while(1);
+                printf("O nome foi alterado com sucesso!\n");
+                pressEnter();
+                break;
+            case '6': 
+                do {
+                    printf("Nome do ficheiro a usar na exportação das viagens (sem extensão): ");
+                    char *dbXML = lerLinhaTxt(stdin, NULL);
+                    if (!dbXML) {
+                        printf("Ocorreu um erro a ler o nome do ficheiro.\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (strcmp(dbXML, DATABASE_XML) == 0) {
+                        free(dbXML);
+                        printf("O nome é igual ao padrão!\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(dbXML)) {
+                        free(dbXML);
+                        pressEnter();
+                        continue;
+                    }
+                    databaseExportacaoXML = dbXML;
                     break;
                 } while(1);
                 printf("O nome foi alterado com sucesso!\n");
@@ -287,6 +484,38 @@ void freeFilenames() {
 }
 
 /**
+ * @brief Liberta a memória alocada para o nome dos ficheiros de exportação
+ * 
+ */
+void freeExportacaoFilenames() {
+    // Verificar pelo nome
+    if (strcmp(donosExportacaoFilename, DONOS) != 0) {
+        free(donosExportacaoFilename);
+        donosExportacaoFilename = DONOS;
+    }
+    if (strcmp(carrosExportacaoFilename, CARROS) != 0) {
+        free(carrosExportacaoFilename);
+        carrosExportacaoFilename = CARROS;
+    }
+    if (strcmp(sensoresExportacaoFilename, SENSORES) != 0) {
+        free(sensoresExportacaoFilename);
+        sensoresExportacaoFilename = SENSORES;
+    }
+    if (strcmp(distanciasExportacaoFilename, DISTANCIAS) != 0) {
+        free(distanciasExportacaoFilename);
+        distanciasExportacaoFilename = DISTANCIAS;
+    }
+    if (strcmp(viagensExportacaoFilename, VIAGENS) != 0) {
+        free(viagensExportacaoFilename);
+        viagensExportacaoFilename = VIAGENS;
+    }
+    if (strcmp(databaseExportacaoXML, DATABASE_XML) != 0) {
+        free(databaseExportacaoXML);
+        databaseExportacaoXML = DATABASE_XML;
+    }
+}
+
+/**
  * @brief Obtém a memória utilizada por todas as variáveis locais
  * 
  * @return size_t 
@@ -303,6 +532,13 @@ size_t memUsageVarGlobais() {
     mem += sizeof(distanciasFilename);
     mem += sizeof(passagensFilename);
 
+    mem += sizeof(donosExportacaoFilename);
+    mem += sizeof(carrosExportacaoFilename);
+    mem += sizeof(sensoresExportacaoFilename);
+    mem += sizeof(distanciasExportacaoFilename);
+    mem += sizeof(viagensExportacaoFilename);
+    mem += sizeof(databaseExportacaoXML);
+
     if (strcmp(donosFilename, DONOS_TXT) != 0) {
         mem += strlen(donosFilename) + 1;
     }
@@ -317,6 +553,25 @@ size_t memUsageVarGlobais() {
     }
     if (strcmp(passagensFilename, PASSAGEM_TXT) != 0) {
         mem += strlen(passagensFilename) + 1;
+    }
+
+    if (strcmp(donosExportacaoFilename, DONOS) != 0) {
+        mem += strlen(donosExportacaoFilename) + 1;
+    }
+    if (strcmp(carrosExportacaoFilename, CARROS) != 0) {
+        mem += strlen(carrosExportacaoFilename) + 1;
+    }
+    if (strcmp(sensoresExportacaoFilename, SENSORES) != 0) {
+        mem += strlen(sensoresExportacaoFilename) + 1;
+    }
+    if (strcmp(distanciasExportacaoFilename, DISTANCIAS) != 0) {
+        mem += strlen(distanciasExportacaoFilename) + 1;
+    }
+    if (strcmp(viagensExportacaoFilename, VIAGENS) != 0) {
+        mem += strlen(viagensExportacaoFilename) + 1;
+    }
+    if (strcmp(databaseExportacaoXML, DATABASE_XML) != 0) {
+        mem += strlen(databaseExportacaoXML) + 1;
     }
 
     return mem;

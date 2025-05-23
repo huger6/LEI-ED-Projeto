@@ -960,7 +960,7 @@ void velocidadeMediaPorCodPostal(Bdados *bd) {
                 No *l = p->dados->inicio;
                 while(l) {
                     Dono *d = (Dono *)l->info;
-                    if (compararCodPostal(d->codigoPostal, chave)) {
+                    if (compararCodPostal(d->codigoPostal, chave) == 0) {
                         (void) addInicioLista(donosCods, l->info);
                     }
                     l = l->prox;

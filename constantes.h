@@ -18,6 +18,14 @@
 #define SENSORES_TXT "Dados/sensores.txt"
 #define DISTANCIAS_TXT "Dados/distancias.txt"
 #define PASSAGEM_TXT "Dados/passagem.txt"
+#define DONOS "donos"
+#define DONOS_CSV "donos.csv"
+#define DONOS_HTML "donos.html"
+#define CARROS "carros"
+#define SENSORES "sensores"
+#define DISTANCIAS "distancias"
+#define VIAGENS "viagens"
+#define DATABASE_XML "database.xml"
 #define CONFIG_TXT "config.txt"
 #define AUTOSAVE_BIN "autosave.bin"
 
@@ -28,6 +36,10 @@
 #define PARAM_DISTANCIAS 3
 #define PARAM_PASSAGEM 4
 
+//Extensões
+#define DOT_CSV ".csv"
+#define DOT_HTML ".html"
+#define DOT_BIN ".bin"
 
 
 

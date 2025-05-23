@@ -19,12 +19,21 @@ extern char *sensoresFilename;
 extern char *distanciasFilename;
 extern char *passagensFilename;
 
+extern char *donosExportacaoFilename;
+extern char *carrosExportacaoFilename;
+extern char *sensoresExportacaoFilename;
+extern char *distanciasExportacaoFilename;
+extern char *viagensExportacaoFilename;
+extern char *databaseExportacaoXML;
+
 void colocarTerminalUTF8();
 int faseInstalacao(const char *flag, const char abrir);
 void reset(struct Bdados *bd);
 void setPausaListagem();
 void setFilenames();
+void setExportacaoFilenames();
 void freeFilenames();
+void freeExportacaoFilenames();
 size_t memUsageVarGlobais();
 void autosave(struct Bdados *bd);
 

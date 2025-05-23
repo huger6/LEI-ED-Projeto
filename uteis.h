@@ -62,6 +62,7 @@ char *floatToStringPontoDecimal(float valor, int casasDecimais);
 int validarNomeFicheiro(const char *filename);
 FILE *abrirFicheiroComValidacao(const char *nome);
 FILE *pedirListagemFicheiro(char *formatoSelecionado);
+char *appendFileExtension(const char *filename, const char *extension);
 
 
 

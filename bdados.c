@@ -5,6 +5,7 @@
 #include "passagens.h"
 #include "sensores.h"
 #include "configs.h"
+#include "uteis.h"
 
 /**
  * @brief Inicializa a base de dados criando as estruturas necessárias
@@ -37,7 +38,8 @@ int inicializarBD(Bdados *bd) {
 void freeTudo(Bdados *bd) {
     if (!bd) return;
     
-    freeFilenames();
+    freeFilenames(); // só serão válidos na primeira execução (mas para evitar saídas inesperadas)
+    freeExportacaoFilenames();
 
     freeDict(bd->carrosMarca, freeChaveCarroMarca, NULL);
     freeDict(bd->carrosMat, freeChaveCarroMatricula, NULL);
@@ -63,7 +65,7 @@ void freeTudo(Bdados *bd) {
  * @brief Exporta a base de dados para XML
  * 
  * @param bd Base de dados
- * @param filename Nome do ficheiro (com extensão .xml ou .txt) onde guardar
+ * @param filename Nome do ficheiro (sem extensão) onde guardar
  */
 void exportarTudoXML(Bdados *bd, const char *filename) {
     if (!bd || !filename) return;
@@ -98,47 +100,61 @@ void exportarTudoXML(Bdados *bd, const char *filename) {
  * @brief Exporta a base de dados para formato CSV
  * 
  * @param bd Base de dados
- * @param donosFilename Nome do ficheiro dos donos (.csv)
- * @param carrosFilename Nome do ficheiro dos carros (.csv)
- * @param sensoresFilename Nome do ficheiro dos sensores (.csv)
- * @param distanciasFilename Nome do ficheiro das distâncias (.csv)
- * @param viagensFilename Nome do ficheiro das viagens (.csv)
+ * @param donosFilename Nome do ficheiro dos donos 
+ * @param carrosFilename Nome do ficheiro dos carros
+ * @param sensoresFilename Nome do ficheiro dos sensores
+ * @param distanciasFilename Nome do ficheiro das distâncias
+ * @param viagensFilename Nome do ficheiro das viagens
+ * 
+ * @note Os nomes dos ficheiros devem vir sem extensão de ficheiro
  */
 void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename) {
     if (!bd || !donosFilename || !carrosFilename || !sensoresFilename || !viagensFilename) return;
     limpar_terminal();
     
     printf("A exportar dados...\n\n");
+    
+    char *d = appendFileExtension(donosFilename, DOT_CSV);
+    char *c = appendFileExtension(carrosFilename, DOT_CSV);
+    char *s = appendFileExtension(sensoresFilename, DOT_CSV);
+    char *di = appendFileExtension(distanciasFilename, DOT_CSV);
+    char *v = appendFileExtension(viagensFilename, DOT_CSV);
 
-    FILE *donos = fopen(donosFilename, "w");
+    FILE *donos = fopen(d, "w");
     if (donos) {
         exportarDictCSV(bd->donosNif, printHeaderDonosCSV, printDonoCSV, donos);
         fclose(donos);
     }
 
-    FILE *carros = fopen(carrosFilename, "w");
+    FILE *carros = fopen(c, "w");
     if (carros) {
         exportarDictCSV(bd->carrosCod, printHeaderCarrosCSV, printCarroCSV, carros);
         fclose(carros);
     }
 
-    FILE *sensores = fopen(sensoresFilename, "w");
+    FILE *sensores = fopen(s, "w");
     if (sensores) {
         exportarListaCSV(bd->sensores, printHeaderSensoresCSV, printSensorCSV, sensores);
         fclose(sensores);
     }
 
-    FILE *distancias = fopen(distanciasFilename, "w");
+    FILE *distancias = fopen(di, "w");
     if (distancias) {
         exportarDistanciasCSV(bd->distancias, distancias);
         fclose(distancias);
     }
 
-    FILE *viagens = fopen(viagensFilename, "w");
+    FILE *viagens = fopen(v, "w");
     if (viagens) {
         exportarListaCSV(bd->viagens, printHeaderViagensCSV, printViagemCSV, viagens);
         fclose(viagens);
     }
+
+    if (d) free(d);
+    if (c) free(c);
+    if (s) free(s);
+    if (di) free(di);
+    if (v) free(v);
 
     printf("A exportação foi concluída!\n");
     pressEnter();
@@ -148,11 +164,13 @@ void exportarTudoCSV(Bdados *bd, const char *donosFilename, const char *carrosFi
  * @brief Exporta todos os dados para formato HTML
  * 
  * @param bd Base de dados
- * @param donosFilename Nome do ficheiro de donos (.html)
- * @param carrosFilename Nome do ficheiro de carros (.html)
- * @param sensoresFilename Nome do ficheiro de sensores (.html)
- * @param distanciasFilename Nome do ficheiro das distâncias (.html)
- * @param viagensFilename Nome do ficheiro das viagens (.html)
+ * @param donosFilename Nome do ficheiro de donos 
+ * @param carrosFilename Nome do ficheiro de carros 
+ * @param sensoresFilename Nome do ficheiro de sensores
+ * @param distanciasFilename Nome do ficheiro das distâncias 
+ * @param viagensFilename Nome do ficheiro das viagens 
+ * 
+ * @note Os nomes dos ficheiros devem vir sem extensão de ficheiro
  */
 void exportarTudoHTML(Bdados *bd, const char *donosFilename, const char *carrosFilename, const char *sensoresFilename, const char *distanciasFilename, const char *viagensFilename) {
     if (!bd || !donosFilename || !carrosFilename || !sensoresFilename || !viagensFilename) return;
@@ -160,36 +178,48 @@ void exportarTudoHTML(Bdados *bd, const char *donosFilename, const char *carrosF
 
     printf("A exportar dados...\n\n");
 
-    FILE *donos = fopen(donosFilename, "w");
+    char *d = appendFileExtension(donosFilename, DOT_HTML);
+    char *c = appendFileExtension(carrosFilename, DOT_HTML);
+    char *s = appendFileExtension(sensoresFilename, DOT_HTML);
+    char *di = appendFileExtension(distanciasFilename, DOT_HTML);
+    char *v = appendFileExtension(viagensFilename, DOT_HTML);
+
+    FILE *donos = fopen(d, "w");
     if (donos) {
         exportarDictHTML(bd->donosNif, "Donos Database",printHeaderDonosHTML, printDonoHTML, donos);
         fclose(donos);
     }
 
-    FILE *carros = fopen(carrosFilename, "w");
+    FILE *carros = fopen(c, "w");
     if (carros) {
         exportarDictHTML(bd->carrosCod, "Carros Database",printHeaderCarrosHTML, printCarroHTML, carros);
         fclose(carros);
     }
 
-    FILE *sensores = fopen(sensoresFilename, "w");
+    FILE *sensores = fopen(s, "w");
     if (sensores) {
         exportarListaHTML(bd->sensores, "Sensores Database", printHeaderSensoresHTML, printSensorHTML, sensores);
         fclose(sensores);
     }
     
-    FILE *distancias = fopen(distanciasFilename, "w");
+    FILE *distancias = fopen(di, "w");
     if (distancias) {
         exportarDistanciasHTML(bd->distancias, "Distâncias Database", distancias);
         fclose(distancias);
     }
     
     // O ficheiro é demasiado grande, e como tal, não abre (seria necessário modificar com JS)
-    FILE *viagens = fopen(viagensFilename, "w");
+    FILE *viagens = fopen(v, "w");
     if (viagens) {
         exportarListaHTML(bd->viagens, "Viagens Database",printHeaderViagensHTML, printViagemHTML, viagens);
         fclose(viagens);
     }
+
+    if (d) free(d);
+    if (c) free(c);
+    if (s) free(s);
+    if (di) free(di);
+    if (v) free(v);
 
     printf("A exportação foi concluída!\n");
     pressEnter();

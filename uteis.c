@@ -937,3 +937,30 @@ FILE *pedirListagemFicheiro(char *formatoSelecionado) {
     return NULL;
 }
 
+/**
+ * @brief Concatena uma extensão ao final de uma string se não for o valor padrão (usar em exportação)
+ * 
+ * @param filename Nome onde concatenar
+ * @param extension Extensão a concatenar
+ * @param defaultValue Nome padrão
+ * @return char* Nova string com extensão ou original se for o nome padrão
+ */
+char *appendFileExtension(const char *filename, const char *extension) {
+    if (!filename || !extension) return NULL;
+
+    // Garante que a extensão começa com um ponto
+    const char *dot = extension[0] == '.' ? "" : ".";
+    
+    size_t newLen = strlen(filename) + strlen(dot) + strlen(extension) + 1;
+
+    // Aloca memória para a nova string
+    char *result = malloc(newLen);
+    if (!result) return NULL;
+
+    strcpy(result, filename);
+    strcat(result, dot);
+    strcat(result, extension);
+
+    return result;
+}
+

@@ -5,6 +5,7 @@
 #include "uteis.h"
 #include "dono.h"
 #include "passagens.h"
+#include "dados.h"
 
 /* Mostra menu e processa entrada do utilizador
  *
@@ -215,7 +216,7 @@ void menuExportacao() {
 /**
  * @brief Escreve o menu das opções
  * 
- * @note Opções: 0-4
+ * @note Opções: 0-7
  */
 void menuOpcoes() {
     printf("╔════════════════════════════════════════╗\n");
@@ -223,8 +224,11 @@ void menuOpcoes() {
     printf("╠════════════════════════════════════════╣\n");
     printf("║  1. Ativar/Desativar autosave          ║\n");
     printf("║  2. Definir nº elementos por listagem  ║\n");
-    printf("║  3. Repor definições                   ║\n");
-    printf("║  4. Guia de utilização                 ║\n");
+    printf("║  3. Definir nome ficheiros exportação  ║\n");
+    printf("║  4. Guardar dados                      ║\n");
+    printf("║  5. Carregar dados                     ║\n");
+    printf("║  6. Repor definições                   ║\n");
+    printf("║  7. Guia de utilização                 ║\n");
     printf("║  0. Voltar ao menu anterior            ║\n");
     printf("╚════════════════════════════════════════╝\n\n");
 }
@@ -257,8 +261,28 @@ void menuNomeFicheirosDados() {
     printf(" %-15s | %s\n", "1. Donos",      donosFilename      ? donosFilename      : DONOS_TXT "(Default)");
     printf(" %-15s | %s\n", "2. Carros",     carrosFilename     ? carrosFilename     : CARROS_TXT "(Default)");
     printf(" %-15s | %s\n", "3. Sensores",   sensoresFilename   ? sensoresFilename   : SENSORES_TXT "(Default)");
-    printf(" %-15s | %s\n", "4. Distancias", distanciasFilename ? distanciasFilename : DISTANCIAS_TXT "(Default)");
+    printf(" %-15s | %s\n", "4. Distancias ", distanciasFilename ? distanciasFilename : DISTANCIAS_TXT "(Default)");
     printf(" %-15s | %s\n", "5. Passagens",  passagensFilename  ? passagensFilename  : PASSAGEM_TXT "(Default)");
+    printf(" %-15s | %s\n", "0. Concluir",  "(Default)");
+    printf("=====================================================\n");
+}
+
+/**
+ * @brief Escreve o menu sobre os nomes dos ficheiros a carregar
+ * 
+ * @note Opções: 0-6
+ */
+void menuNomeFicheirosExportacao() {
+    printf("=====================================================\n");
+    printf("                 NOME DOS FICHEIROS\n");
+    printf("  Nota: Incluir o nome do diretório (sem extensão)   \n");
+    printf("=====================================================\n");
+    printf(" %-15s | %s\n", "1. Donos",      donosExportacaoFilename      ? donosExportacaoFilename      : DONOS "(Default)");
+    printf(" %-15s | %s\n", "2. Carros",     carrosExportacaoFilename     ? carrosExportacaoFilename     : CARROS "(Default)");
+    printf(" %-15s | %s\n", "3. Sensores",   sensoresExportacaoFilename   ? sensoresExportacaoFilename   : SENSORES "(Default)");
+    printf(" %-15s | %s\n", "4. Distancias", distanciasExportacaoFilename ? distanciasExportacaoFilename : DISTANCIAS "(Default)");
+    printf(" %-15s | %s\n", "5. Viagens",  viagensExportacaoFilename  ? viagensExportacaoFilename  : VIAGENS "(Default)");
+    printf(" %-15s | %s\n", "6. BD XML",  databaseExportacaoXML  ? databaseExportacaoXML  : DATABASE_XML "(Default)");
     printf(" %-15s | %s\n", "0. Concluir",  "(Default)");
     printf("=====================================================\n");
 }
@@ -644,14 +668,16 @@ void processarMenuExportacao(Bdados *bd) {
             case '0':
                 break;
             case '1':
-                exportarTudoCSV(bd, "donos.csv", "carros.csv", "sensores.csv", "distancias.csv", "viagens.csv");
+                // Exportar tudo para CSV
+                exportarTudoCSV(bd, donosExportacaoFilename, carrosExportacaoFilename, sensoresExportacaoFilename, distanciasExportacaoFilename, viagensExportacaoFilename);
                 break;
             case '2':
-                exportarTudoXML(bd, "database.xml");
+                // Exportar tudo para XML
+                exportarTudoXML(bd, databaseExportacaoXML);
                 break;
             case '3':
                 // Exportar dados para HTML
-                exportarTudoHTML(bd, "donos.html", "carros.html", "sensores.html", "distancias.html", "viagens.html");
+                exportarTudoHTML(bd, donosExportacaoFilename, carrosExportacaoFilename, sensoresExportacaoFilename, distanciasExportacaoFilename, viagensExportacaoFilename);
                 break;
             default:
                 opcao = '0';
@@ -669,7 +695,7 @@ void processarMenuExportacao(Bdados *bd) {
 void processarMenuOpcoes(Bdados *bd) {
     char opcao;
     do {
-        opcao = mostrarMenu(menuOpcoes, '0', '4');
+        opcao = mostrarMenu(menuOpcoes, '0', '7');
         switch(opcao) {
             case '0': break;
             case '1':
@@ -688,9 +714,82 @@ void processarMenuOpcoes(Bdados *bd) {
                 setPausaListagem();
                 break;
             case '3':
-                reset(bd);
+                setExportacaoFilenames();
                 break;
             case '4':
+                {
+                limpar_terminal();
+                // Guardar dados para ficheiro personalizado
+                char *filename = NULL;
+                do {
+                    printf("Nome do ficheiro (sem extensão): ");
+                    filename = lerLinhaTxt(stdin, NULL);
+                    if (!filename) {
+                        printf("A entrada é inválida!\n\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(filename)) {
+                        free(filename);
+                        pressEnter();
+                        continue;
+                    }
+                    break;
+                } while(1);
+                char *f = appendFileExtension(filename, DOT_BIN);
+                if (guardarDadosBin(bd, f)) {
+                    printf("Os dados foram guardados com sucesso!\n\n");
+                }
+                else {
+                    printf("Ocorreu um erro a guardar os dados. Por favor, tente novamente mais tarde!\n\n");
+                }
+                free(f);
+                free(filename);
+                pressEnter();
+                }
+                break;
+            case '5':
+                // Carregar dados de ficheiro
+                limpar_terminal();
+                char *filename = NULL;
+                do {
+                    printf("Nome do ficheiro (sem extensão): ");
+                    filename = lerLinhaTxt(stdin, NULL);
+                    if (!filename) {
+                        printf("A entrada é inválida!\n\n");
+                        pressEnter();
+                        continue;
+                    }
+                    if (!validarNomeFicheiro(filename)) {
+                        free(filename);
+                        pressEnter();
+                        continue;
+                    }
+                    break;
+                } while(1);
+                char *f = appendFileExtension(filename, DOT_BIN);
+
+                // Libertar todos os dados
+                (void) guardarDadosBin(bd, AUTOSAVE_BIN);
+                freeTudo(bd);
+
+                bd = (Bdados *)malloc(sizeof(Bdados));
+                if (!carregarDadosBin(bd, f)) {
+                    inicializarBD(bd);
+                    printf("Ocorreu um erro a carregar os dados ou o ficheiro não existe. Verifique se o ficheiro existe.\n\n");
+                }
+                else {
+                    printf("Os dados foram carregados com sucessso!\n\n");
+                }
+                free(filename);
+                free(f);
+
+                pressEnter();
+                break;
+            case '6':
+                reset(bd);
+                break;
+            case '7':
                 menuGuiaUtilizacao();
                 break;
             default: 
