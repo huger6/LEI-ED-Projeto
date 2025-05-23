@@ -6,6 +6,7 @@
 #include "dados.h"
 
 int autosaveON = 0;
+int backupsON = 1;
 int pausaListagem = PAUSA_LISTAGEM;
 
 char *donosFilename = DONOS_TXT;
@@ -138,6 +139,7 @@ void setFilenames() {
     char opcao;
     do {
         opcao = mostrarMenu(menuNomeFicheirosDados, '0', '5');
+        printf("\n");
         switch(opcao) {
             case '0':
                 limpar_terminal();

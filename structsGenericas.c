@@ -993,7 +993,7 @@ Dict *readToDictBin(void *(*criarChave)(void *obj), int (*hashChave)(void *obj),
  * @return size_t Memória ocupada ou 0 se erro
  */
 size_t dictMemUsage(Dict *has, size_t (*objMemUsage)(void *obj), size_t (*chaveMemUsage)(void *chave)) {
-    if (!has || !chaveMemUsage) return 0;
+    if (!has) return 0;
 
     size_t mem = 0;
     mem += sizeof(*has); //ptr + nel
@@ -1004,7 +1004,9 @@ size_t dictMemUsage(Dict *has, size_t (*objMemUsage)(void *obj), size_t (*chaveM
         while (p) {
             mem += sizeof(*p); // NoHashing
 
-            mem += chaveMemUsage(p->chave);
+            if (chaveMemUsage) {
+                mem += chaveMemUsage(p->chave);
+            }
             mem += listaMemUsage(p->dados, objMemUsage);
 
             p = p->prox;

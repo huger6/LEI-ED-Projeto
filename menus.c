@@ -294,7 +294,7 @@ void menuNomeFicheirosExportacao() {
 void menuGuiaUtilizacao() {
     limpar_terminal();
     printf("╔═════════════════════════════════════════════════╗\n");
-    printf("║            GUIA DE UTILIZAÇÃO                   ║\n");
+    printf("║               GUIA DE UTILIZAÇÃO                ║\n");
     printf("╠═════════════════════════════════════════════════╣\n");
     printf("║ * Gestão de Donos:                              ║\n");
     printf("║   - Registar e listar proprietários             ║\n");
@@ -311,8 +311,12 @@ void menuGuiaUtilizacao() {
     printf("║   - Exportar dados para CSV/XML/HTML            ║\n");
     printf("║                                                 ║\n");
     printf("║ * Autosave:                                     ║\n");
-    printf("║   - Guarda dados automaticamente                ║\n");
+    printf("║   - Pode desativar nas opções                   ║\n");
     printf("║   - Pode tornar o menu principal mais lento     ║\n");
+    printf("║                                                 ║\n");
+    printf("║ * Dicas                                         ║\n");
+    printf("║   - Guardar uma cópia do programa pode ser útil ║\n");
+    printf("║   em casos de falha do autosave!                ║\n");
     printf("╚═════════════════════════════════════════════════╝\n\n");
     pressEnter();
 }
@@ -717,76 +721,15 @@ void processarMenuOpcoes(Bdados *bd) {
                 setExportacaoFilenames();
                 break;
             case '4':
-                {
-                limpar_terminal();
-                // Guardar dados para ficheiro personalizado
-                char *filename = NULL;
-                do {
-                    printf("Nome do ficheiro (sem extensão): ");
-                    filename = lerLinhaTxt(stdin, NULL);
-                    if (!filename) {
-                        printf("A entrada é inválida!\n\n");
-                        pressEnter();
-                        continue;
-                    }
-                    if (!validarNomeFicheiro(filename)) {
-                        free(filename);
-                        pressEnter();
-                        continue;
-                    }
-                    break;
-                } while(1);
-                char *f = appendFileExtension(filename, DOT_BIN);
-                if (guardarDadosBin(bd, f)) {
-                    printf("Os dados foram guardados com sucesso!\n\n");
-                }
-                else {
-                    printf("Ocorreu um erro a guardar os dados. Por favor, tente novamente mais tarde!\n\n");
-                }
-                free(f);
-                free(filename);
-                pressEnter();
-                }
+                // Guardar dados em ficheiro
+                guardarDadosBinFicheiro(bd);
                 break;
             case '5':
                 // Carregar dados de ficheiro
-                limpar_terminal();
-                char *filename = NULL;
-                do {
-                    printf("Nome do ficheiro (sem extensão): ");
-                    filename = lerLinhaTxt(stdin, NULL);
-                    if (!filename) {
-                        printf("A entrada é inválida!\n\n");
-                        pressEnter();
-                        continue;
-                    }
-                    if (!validarNomeFicheiro(filename)) {
-                        free(filename);
-                        pressEnter();
-                        continue;
-                    }
-                    break;
-                } while(1);
-                char *f = appendFileExtension(filename, DOT_BIN);
-
-                // Libertar todos os dados
-                (void) guardarDadosBin(bd, AUTOSAVE_BIN);
-                freeTudo(bd);
-
-                bd = (Bdados *)malloc(sizeof(Bdados));
-                if (!carregarDadosBin(bd, f)) {
-                    inicializarBD(bd);
-                    printf("Ocorreu um erro a carregar os dados ou o ficheiro não existe. Verifique se o ficheiro existe.\n\n");
-                }
-                else {
-                    printf("Os dados foram carregados com sucessso!\n\n");
-                }
-                free(filename);
-                free(f);
-
-                pressEnter();
+                carregarDadosBinFicheiro(&bd);
                 break;
             case '6':
+                // Repor as definições iniciais do programa
                 reset(bd);
                 break;
             case '7':

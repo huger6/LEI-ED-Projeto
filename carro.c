@@ -737,8 +737,8 @@ void printHeaderCarrosHTML(FILE *file) {
         "\t\t\t\t\t\t<th>Matrícula</th>\n"
         "\t\t\t\t\t\t<th>Marca</th>\n"
         "\t\t\t\t\t\t<th>Modelo</th>\n"
-        "\t\t\t\t\t\t<th>NIF Dono</th>\n"
-        "\t\t\t\t\t</tr>\n");
+        "\t\t\t\t\t\t<th><a href=\"%s.html\">NIF Dono</a></th>\n"
+        "\t\t\t\t\t</tr>\n", donosExportacaoFilename);
 }
 
 /**
@@ -1265,37 +1265,6 @@ int obterCodVeiculoNovo(Dict *carrosCod) {
     return -1;
 }
 
-/** NÃO USADA
- * @brief Obtém o código máximo de um carro
- * 
- * @param carrosCod Dicionário dos carros
- * @return int -1 se erro ou máximo
- */
-int obterCodMaximoCarros(Dict *carrosCod) {
-    if (!carrosCod) return -1;
-
-    int max = 0;
-    
-    for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
-        NoHashing *p = carrosCod->tabela[i];
-        while (p) {
-            if (p->dados) {
-                No *ptr = p->dados->inicio;
-                while (ptr) {
-                    Carro *c = (Carro *)ptr->info;
-                    if (c->codVeiculo > max) {
-                        max = c->codVeiculo;
-                    }
-                    ptr = ptr->prox;
-                }
-            }
-            p = p->prox;
-        }
-    }
-    
-    return max;
-}
-
 /**
  * @brief Pedir as informações sobre o carro e inserir na base de dados
  * 
@@ -1390,6 +1359,14 @@ void registarCarro(Bdados *bd) {
                     pressEnter();
                     continue;
                 }
+                // Validar se não existe
+                void *temp = (void *)&nif;
+                Dono *nifUsado = (Dono *)searchDict(bd->donosNif, temp, compChaveDonoNif ,compCodDono, hashChaveCarroCod);
+                if (!nifUsado) {
+                    printf("O nif \"%d\" não existe!\n\n", nif);
+                    pressEnter();
+                    continue;
+                } 
             }
             break;
         } while(1);

@@ -11,6 +11,7 @@
 struct Bdados;
 
 extern int autosaveON;
+extern int backupsON;
 extern int pausaListagem;
 
 extern char *donosFilename;

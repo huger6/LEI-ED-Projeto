@@ -670,6 +670,7 @@ Dono *obterCondutorMaisVelocidadeMedia(Bdados *bd) {
  */
 void listarDonosNIF(Bdados *bd) {
     if (!bd) return;
+
     limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
@@ -702,6 +703,7 @@ void listarDonosNIF(Bdados *bd) {
  */
 void listarDonosAlfabeticamente(Bdados *bd) {
     if (!bd) return;
+
     limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
@@ -731,6 +733,7 @@ void listarDonosAlfabeticamente(Bdados *bd) {
  */
 void listarDonosVelocidadesMedias(Bdados *bd) {
     if (!bd) return;
+
     limpar_terminal();
     FILE *file = NULL;
     char formato[TAMANHO_FORMATO_LISTAGEM];
@@ -921,6 +924,7 @@ void listarDonosVelocidadesMedias(Bdados *bd) {
  */
 void velocidadeMediaPorCodPostal(Bdados *bd) {
     if (!bd) return;
+    
     limpar_terminal();
 
     CodPostal chave = {0,0};

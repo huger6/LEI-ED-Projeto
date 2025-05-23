@@ -712,6 +712,7 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
 
     // Configs
     fwrite(&autosaveON, sizeof(int), 1, file);
+    fwrite(&backupsON, sizeof(int), 1, file);
     fwrite(&pausaListagem, sizeof(int), 1, file);
 
     // Donos
@@ -727,6 +728,44 @@ int guardarDadosBin(Bdados *bd, const char *nome) {
     
     fclose(file);
     return 1;
+}
+
+/**
+ * @brief Pede o nome do ficheiro onde carregar os dados
+ * 
+ * @param bd Base de dados
+ */
+void guardarDadosBinFicheiro(Bdados *bd) {
+    if (!bd) return;
+
+    limpar_terminal();
+    // Guardar dados para ficheiro personalizado
+    char *filename = NULL;
+    do {
+        printf("Nome do ficheiro (sem extensão): ");
+        filename = lerLinhaTxt(stdin, NULL);
+        if (!filename) {
+            printf("A entrada é inválida!\n\n");
+            pressEnter();
+            continue;
+        }
+        if (!validarNomeFicheiro(filename)) {
+            free(filename);
+            pressEnter();
+            continue;
+        }
+        break;
+    } while(1);
+    char *f = appendFileExtension(filename, DOT_BIN);
+    if (guardarDadosBin(bd, f)) {
+        printf("Os dados foram guardados com sucesso!\n\n");
+    }
+    else {
+        printf("Ocorreu um erro a guardar os dados. Por favor, tente novamente mais tarde!\n\n");
+    }
+    free(f);
+    free(filename);
+    pressEnter();
 }
 
 /**
@@ -750,6 +789,7 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
 
     // Configs 
     fread(&autosaveON, sizeof(int), 1, file);
+    fread(&backupsON, sizeof(int), 1, file);
     fread(&pausaListagem, sizeof(int), 1, file);
 
     // Donos
@@ -864,6 +904,58 @@ int carregarDadosBin(Bdados *bd, const char *nome) {
 }
 
 /**
+ * @brief Pede o nome do ficheiro de onde carregar os dados
+ * 
+ * @param bd Base de dados
+ * 
+ * @return 1 se sucesso, 0 se erro
+ */
+int carregarDadosBinFicheiro(Bdados **bd) {
+    if (!bd || !*bd) return 0;
+
+    limpar_terminal();
+        char *filename = NULL;
+        do {
+            printf("Nome do ficheiro (sem extensão): ");
+            filename = lerLinhaTxt(stdin, NULL);
+            if (!filename) {
+                printf("A entrada é inválida!\n\n");
+                pressEnter();
+                continue;
+            }
+            if (!validarNomeFicheiro(filename)) {
+                free(filename);
+                pressEnter();
+                continue;
+            }
+            break;
+        } while(1);
+        char *f = appendFileExtension(filename, DOT_BIN);
+
+        // Libertar todos os dados
+        (void) guardarDadosBin(*bd, AUTOSAVE_BIN);
+        freeTudo(*bd);
+
+        int sucesso = 0;
+
+        *bd = (Bdados *)malloc(sizeof(Bdados));
+        if (!carregarDadosBin(*bd, f)) {
+            inicializarBD(*bd);
+            printf("Ocorreu um erro a carregar os dados ou o ficheiro não existe. Verifique se o ficheiro existe.\n\n");
+            sucesso = 0;
+        }
+        else {
+            printf("Os dados foram carregados com sucessso!\n\n");
+            sucesso = 1;
+        }
+        free(filename);
+        free(f);
+
+        pressEnter();
+        return sucesso;
+}
+
+/**
  * @brief Calcula o checksum da base de dados
  * 
  * @param bd Base de dados
@@ -875,8 +967,8 @@ unsigned long checksum(Bdados *bd) {
     unsigned long sum = 0;
 
     sum += autosaveON;
+    sum += backupsON;
     sum += pausaListagem;
-
     // Donos
     for (int i = 0; i < TAMANHO_TABELA_HASH; i++) {
         NoHashing *p = bd->donosNif->tabela[i];

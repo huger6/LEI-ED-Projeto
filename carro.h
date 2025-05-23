@@ -82,7 +82,6 @@ size_t memUsageChaveCarroCod(void *chave);
 size_t memUsageChaveCarroMarca(void *chave);
 size_t memUsageChaveCarroMatricula(void *chave);
 int obterCodVeiculoNovo(Dict *carrosCod);
-int obterCodMaximoCarros(Dict *carrosCod);
 void registarCarro(struct Bdados *bd);
 void mudarDonoCarro(struct Bdados *bd);
 void listarCarrosTodos(struct Bdados *bd);

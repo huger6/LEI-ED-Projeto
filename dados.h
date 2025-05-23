@@ -20,7 +20,9 @@ void linhaInvalida(const char *linha, int nLinha, FILE *logs);
 int contarLinhas(const char *filename);
 
 int guardarDadosBin(Bdados *bd, const char *nome);
+void guardarDadosBinFicheiro(Bdados *bd);
 int carregarDadosBin(Bdados *bd, const char *nome);
+int carregarDadosBinFicheiro(Bdados **bd);
 unsigned long checksum(Bdados *bd);
 
 

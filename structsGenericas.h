@@ -32,7 +32,7 @@ typedef struct noHash {
 typedef struct {
     NoHashing *tabela[TAMANHO_TABELA_HASH];
     int nelDict;
-} Dict;
+} Dict; // Cada Dict ocupa cerca de 125KB em memória (sem elementos ou chaves)
 
 typedef struct noRankings {
     void *mainInfo;

@@ -1,5 +1,6 @@
 #include "distancias.h"
 #include "bdados.h"
+#include "configs.h"
 
 /**
  * @brief Insere a distância entre os dois sensores na matriz
@@ -196,10 +197,10 @@ void exportarDistanciasHTML(Distancias *d, char *pagename, FILE *file) {
         "\t\t\t\t<thead class=\"table-dark\">\n", pagename ? pagename : "Exportação HTML");
         fprintf(file,
             "\t\t\t\t\t<tr>\n"
-            "\t\t\t\t\t\t<th>Sensor 1</th>\n"
-            "\t\t\t\t\t\t<th>Sensor 2</th>\n"
+            "\t\t\t\t\t\t<th><a href=\"%s.html\">Sensor 1</a></th>\n"
+            "\t\t\t\t\t\t<th><a href=\"%s.html\">Sensor 2</a></th>\n"
             "\t\t\t\t\t\t<th>Distância</th>\n"
-            "\t\t\t\t\t</tr>\n");
+            "\t\t\t\t\t</tr>\n", sensoresExportacaoFilename, sensoresExportacaoFilename);
         fprintf(file, "\t\t\t\t<tbody>\n");
 
         for (int i = 0; i < d->nColunas; i++) {
