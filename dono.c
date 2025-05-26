@@ -511,10 +511,7 @@ size_t memUsageChaveDonoCod(void *chave) {
 size_t memUsageChaveDonoAlfabeticamente(void *chave) {
     if (!chave) return 0;
 
-    char *key = (char *)chave;
-    size_t mem = strlen(key) + 1;
-
-    return mem;
+    return sizeof(char);
 }
 
 /**
