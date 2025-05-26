@@ -55,7 +55,6 @@ void exportarListaXML(Lista *li, char *nomeLista, void (*printObj)(void *obj, in
 void exportarListaCSV(Lista *li, void (*printHeader)(FILE *file), void (*printObj)(void *obj, FILE *file), FILE *file);
 void exportarListaHTML(Lista *li, char *pagename, void (*printTableHead)(FILE *file), void  (*printObj)(void *obj, FILE *file), FILE *file);
 void freeLista(Lista *li, void (*freeObj)(void *obj));
-int pesquisarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2), void *obj);
 void mergeSortLista(Lista* li, int (*compObjs)(void *obj1, void *obj2));
 void ordenarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2));
 void *searchLista(Lista *li, int (*compCod)(void *codObj, void *chave), void *chave);

@@ -18,7 +18,7 @@ int validarNif(const int nif) {
  * @param nome Nome
  * @return NULL se válido; retorna uma mensagem de erro se for inválido;
  */
-char * validarNome(char *nome) {
+char *validarNome(char *nome) {
     int comprimento = strlen(nome);
 
     //Verificar nome vazio
@@ -106,7 +106,7 @@ int validarMatricula(const char *matricula)
  * @param marca Marca
  * @return char* NULL caso válido, mensagem de erro caso contrário
  */
-char * validarMarca(char *marca) {
+char *validarMarca(char *marca) {
     validarNome(marca);
     return NULL;
 }
@@ -117,7 +117,7 @@ char * validarMarca(char *marca) {
  * @param modelo Modelo
  * @return char* NULL caso válido, mensagem de erro caso contrário
  */
-char * validarModelo(char *modelo) {
+char *validarModelo(char *modelo) {
     validarNome(modelo);
     return NULL;
 }

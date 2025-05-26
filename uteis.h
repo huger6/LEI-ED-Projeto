@@ -30,7 +30,6 @@ extern Data DATA_ATUAL;
 
 
 void limpar_buffer();
-int verificar_e_limpar_buffer();
 void limpar_terminal();
 int getKeyStroked();
 void pressEnter();

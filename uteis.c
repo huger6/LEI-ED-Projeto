@@ -15,26 +15,6 @@ void limpar_buffer() {
     while ((lixo = getchar()) != '\n' && lixo != EOF);
 }
 
-/* Verifica e limpa buffer do teclado
- *
- * @return int  1 se buffer só tem \n, 0 se tiver outros caracteres
- *         
- * @note Verifica primeiro caractere no buffer
- * @note Limpa sempre todo o buffer
- * @note Usar apenas se houver certeza de que há dados no buffer
- */
-int verificar_e_limpar_buffer() {
-    //Verificar o caracter que está no buffer
-    char lixo = getchar();
-    //Se não for o \n, ou seja, a entrada foi inválida
-    if (lixo != '\n') {
-        limpar_buffer(); //limpamos o buffer (pois ainda há o enter, pelo menos)
-        return 0;
-    }
-    //Se estamos aqui, então o caracter é o \n, e já foi lido, logo não precisamos fazer nada
-    return 1;
-}
-
 /* Limpa o terminal
  *
  * @return void

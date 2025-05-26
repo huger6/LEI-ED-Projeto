@@ -256,47 +256,6 @@ void freeLista(Lista *li, void (*freeObj)(void *obj)) {
 }
 
 /**
- * @brief Procura um determinado elemento na lista
- * 
- * @param li    Lista
- * @param compObjs  Função para comparar os elementos
- * @param obj   Elemento a procurar
- * @return int 
- */
-int pesquisarLista(Lista *li, int (*compObjs)(void *obj1, void *obj2), void *obj) {
-    if (!li || !li->inicio || !compObjs) return 0;
-
-    No *p = li->inicio;
-    while(p) {
-        if ((*compObjs)(p->info, obj) == 0) 
-            return 1;
-        p = p->prox;
-    }
-
-    return 0; //Não encontrou
-}
-
-/**
- * @brief Inverte a lista
- * 
- * @param li    Lista
- * @return void 
- */
-void inverterLista(Lista *li) {
-    No *p = li->inicio;
-    No *ant = NULL;
-    No *seg = NULL;
-    
-    while(p) {
-        seg = p->prox;
-        p->prox = ant;
-        ant = p;
-        p = seg;
-    }
-    li->inicio = ant;
-}
-
-/**
  * @brief 
  * 
  * @param a Nó da primeira lista
