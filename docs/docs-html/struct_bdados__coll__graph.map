@@ -1,0 +1,16 @@
+<map id="Bdados" name="Bdados">
+<area shape="rect" id="Node000001" title=" " alt="" coords="35,448,100,475"/>
+<area shape="rect" id="Node000002" href="$struct_dict.html" title=" " alt="" coords="61,293,106,320"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="74,335,72,344,67,402,69,448,63,448,61,402,66,344,69,334"/>
+<area shape="rect" id="Node000003" href="$structno_hash.html" title=" " alt="" coords="54,187,120,213"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="89,229,86,293,81,293,84,228"/>
+<area shape="poly" id="edge6_Node000003_Node000003" title=" " alt="" coords="138,191,147,200,139,209,121,211,121,206,136,204,142,200,134,195"/>
+<area shape="rect" id="Node000004" href="$struct_lista.html" title=" " alt="" coords="5,96,55,123"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="31,138,25,237,25,269,45,372,66,447,61,448,40,374,20,270,20,237,25,138"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="49,134,81,185,77,188,44,137"/>
+<area shape="rect" id="Node000005" href="$structno.html" title=" " alt="" coords="11,5,49,32"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="33,48,33,95,27,95,27,48"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="66,9,73,12,76,19,67,28,50,29,49,24,65,24,71,18,69,16,64,13"/>
+<area shape="rect" id="Node000006" href="$struct_distancias.html" title=" " alt="" coords="186,293,269,320"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="230,336,224,381,215,405,200,426,177,443,151,453,101,462,100,457,150,448,175,438,196,422,210,403,219,380,225,335"/>
+</map>
