@@ -92,3 +92,5 @@ Aplicação de consola desenvolvida no âmbito da cadeira "Estrutura de Dados" d
 ## Agradecimentos
 
 - Gostávamos de expressar os nossos agradecimentos ao professor Carlos Simões, e especialmente ao Francisco Morgado, por toda a ajuda durante a realização deste projeto.
+
+*Nota: 19,63*
