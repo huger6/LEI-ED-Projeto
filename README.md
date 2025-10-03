@@ -2,7 +2,7 @@
 
 Sistema integrado para **gestão de portagens rodoviárias** desenvolvido em **C**, permitindo o controlo de veículos, donos, passagens e análise de dados estatísticos/rankings através de estruturas de dados adequadas.  
 
-Aplicação de consola desenvolvida no âmbito da unidade curricular **Estrutura de Dados**, da **Licenciatura em Engenharia Informática – ESTGV**, no **2º semestre do ano letivo 2024/2025**.  
+Aplicação de consola desenvolvida no âmbito da unidade curricular <a href="https://github.com/huger6/LEI-ED" target="_blank">**Estrutura de Dados**</a>, da **Licenciatura em Engenharia Informática – ESTGV**, no **2º semestre do ano letivo 2024/2025**.  
 
 📌 **Nota final obtida:** 19,63 valores  
 
